@@ -1,0 +1,76 @@
+/* topbar.css */
+:root {
+  --topbar-max-width: 1100px;
+  --logo-gradient-start: #111827;
+  --logo-gradient-mid: #1f2937;
+  --logo-gradient-end: #3b82f6;
+  --logo-accent: #7dd3fc;
+  --logo-divider-start: #38bdf8;
+  --logo-divider-end: #60a5fa;
+}
+
+.site-topbar {
+  width: min(95vw, var(--topbar-max-width));
+  margin: 24px auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 4px;
+}
+
+.site-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 14px;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-weight: 800;
+  font-size: 16px;
+  color: #f9fafb;
+  background: linear-gradient(135deg, var(--logo-gradient-start), var(--logo-gradient-mid) 45%, var(--logo-gradient-end) 100%);
+  box-shadow: 0 12px 25px rgba(30, 64, 175, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.site-logo:hover,
+.site-logo:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(59, 130, 246, 0.35);
+  background: linear-gradient(135deg, var(--logo-gradient-mid), #1d4ed8 50%, #60a5fa 100%);
+  outline: none;
+}
+
+.site-logo .logo-accent {
+  font-weight: 900;
+  color: var(--logo-accent);
+}
+
+.site-logo .logo-divider {
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+  background: linear-gradient(135deg, var(--logo-divider-start), var(--logo-divider-end));
+  display: inline-block;
+  margin: 0 2px;
+}
+
+.site-logo .logo-rest {
+  letter-spacing: 0.12em;
+}
+
+@media (max-width: 640px) {
+  .site-topbar {
+    width: 100%;
+    margin: 16px auto 12px;
+    padding: 0 16px;
+  }
+
+  .site-logo {
+    padding: 9px 16px;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+  }
+}
