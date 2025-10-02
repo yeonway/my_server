@@ -1,0 +1,175 @@
+프로젝트 폴더 구조
+==================
+
+my_server/
+├── 설명서.txt
+├── package.json
+├── server.js
+├── backup_pictures/
+│   ├── 20250911_233700_shher.jpg
+│   ├── 20250911_233701_shher.jpg
+│   ├── 20250911_234000_admin.png
+│   └── 20250911_234456_shher.jpg
+├── middleware/
+│   └── auth.js
+├── models/
+│   ├── backupPost.js
+│   ├── chatroom.js
+│   ├── comment.js
+│   ├── index.js
+│   ├── message.js
+│   ├── post.js
+│   ├── sync.js
+│   └── user.js
+├── public/
+│   ├── admin.html
+│   ├── board.html
+│   ├── chat.html
+│   ├── index.html
+│   ├── login.html
+│   ├── posts.html
+│   ├── profile.html
+│   ├── public.html
+│   ├── school.html
+│   ├── signup.html
+│   └── js/
+│       └── main.js
+├── routes/
+│   ├── admin.js
+│   ├── auth.js
+│   ├── chat.js
+│   ├── process.env
+│   ├── profile.js
+│   ├── school.js
+│   └── users.js
+├── upload/
+├── uploads/
+│   └── admin_1757595405122.png
+├── users_picture/
+│   └── shher.jpg
+
+---
+1️⃣ 핵심 기능 (업데이트)
+
+익명 사이트
+
+회원 관리
+
+회원가입 / 로그인 / 로그아웃
+
+JWT 또는 세션 기반 인증
+
+프로필 사진, 닉네임 선택 가능
+
+게시판
+
+글 작성 / 수정 / 삭제
+
+이미지/파일 업로드
+
+글 목록, 상세 보기
+
+실시간 채팅
+
+1:1 채팅
+
+그룹/단체 채팅 (채팅방)
+
+텍스트 + 이미지/파일 전송
+
+Socket.IO 사용
+
+채팅방 관리
+
+방 생성, 방 목록 보기
+
+방 참여/퇴장 기능
+
+채팅 기록 저장
+
+관리자 계정 관리
+
+관리자 계정에서의 게시판/유저 관리
+(계정 차단, ip 차단 등)
+
+2️⃣ 기술 스택 추천
+역할	기술
+서버	Node.js + Express
+데이터베이스	MongoDB (채팅/게시판 유연), 또는 MySQL/PostgreSQL
+실시간 통신	Socket.IO (웹소켓)
+인증	bcrypt + JWT
+파일 업로드	multer
+프론트엔드	React (실시간 업데이트 용이) / HTML + CSS + JS
+3️⃣ 프로젝트 구조
+```
+my_server/
+├─ server.js                    # Express 메인 서버 파일
+├─ middleware/
+│   └─ auth.js                  # 인증 미들웨어
+├─ models/
+│   ├─ backupPost.js           # 게시글 백업 모델
+│   ├─ chatroom.js             # 채팅방 정보 모델
+│   ├─ message.js              # 메시지 저장 모델
+│   ├─ post.js                 # 게시글 모델
+│   └─ user.js                 # 사용자 모델
+├─ node_modules/               # npm 패키지 dependencies
+├─ public/
+│   ├─ js/
+│   │   └─ main.js            # 클라이언트 사이드 JavaScript
+│   ├─ admin.html             # 관리자 페이지
+│   ├─ board.html             # 게시판 페이지
+│   ├─ chat.html              # 단체 채팅 + 1:1 채팅 UI
+│   ├─ index.html             # 메인 홈페이지
+│   ├─ login.html             # 로그인 페이지
+│   ├─ posts.html             # 게시글 상세 페이지
+│   ├─ profile.html           # 사용자 프로필 페이지
+│   ├─ public.html            # 공개 페이지
+│   └─ signup.html            # 회원가입 페이지
+├─ routes/
+│   ├─ admin.js               # 관리자 관련 API
+│   ├─ auth.js                # 회원가입, 로그인 API
+│   ├─ chat.js                # 단체 및 1:1 채팅 관련 API
+│   ├─ posts.js               # 게시판 CRUD API
+│   ├─ profile.js             # 사용자 프로필 관련 API
+│   └─ users.js               # 사용자 관리 API
+├─ uploads/                   # 이미지/파일 업로드 저장소
+├─ 설명서.txt                 # 프로젝트 설명서
+├─ image-lock.json           # 이미지 잠금 설정
+├─ package.json              # npm 패키지 설정 파일
+└─ package-lock.json         # npm 의존성 트리 잠금 파일
+```
+
+4️⃣ 기능 개발 순서 추천
+
+회원가입 + 로그인
+
+데이터베이스에 유저 정보 저장
+
+bcrypt로 비밀번호 암호화, JWT 발급
+
+게시판 CRUD
+
+글 작성 / 이미지 업로드 / 글 목록
+
+채팅 시스템
+
+Socket.IO로 실시간 메시지 송수신
+
+1:1 채팅 먼저 구현 → 단체 채팅 확장
+
+채팅방 관리
+
+방 생성, 참여, 퇴장
+
+메시지 DB에 저장
+
+UI 및 프론트엔드 개선
+
+React로 실시간 UI 구현 → 메시지, 알림, 이미지 표시
+
+💡 Tip:
+
+단체 채팅 기능은 채팅방 테이블(DB) + 메시지 테이블 구조를 잡는 게 중요합니다.
+
+메시지 실시간 송수신은 Socket.IO가 담당하고, 서버 DB에는 기록만 저장하면 됩니다.
+
