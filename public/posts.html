@@ -96,6 +96,7 @@
     let postsPerPage = 10;
     let currentSearchQuery = '';
     let currentSearchType = 'all';
+    let blockedUserIds = new Set();
 
     // --- DOM 요소 ---
     const token = localStorage.getItem("token");
@@ -114,6 +115,27 @@
     const submitBtn = document.getElementById('submitBtn');
     const titleInput = document.getElementById('titleInput');
     const contentInput = document.getElementById('contentInput');
+
+    async function loadBlockedUsers() {
+      try {
+        const response = await fetch('/api/users/blocks', {
+          method: 'GET',
+          headers: { 'Authorization': 'Bearer ' + token },
+          credentials: 'same-origin'
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload?.error || '차단 목록을 불러오지 못했습니다.');
+        }
+
+        const blocks = Array.isArray(payload.blocks) ? payload.blocks : [];
+        blockedUserIds = new Set(blocks.map((block) => block.id));
+      } catch (error) {
+        console.warn('[posts] loadBlockedUsers failed', error);
+        blockedUserIds = blockedUserIds || new Set();
+      }
+    }
 
     // --- 데이터 로딩 및 렌더링 (수정) ---
     async function loadPosts() {
@@ -239,11 +261,34 @@
         <div class="post-content-preview">${post.content}</div>
       `;
 
+      const authorRef = post?.author && typeof post.author === 'object' ? (post.author._id || post.author.id) : post?.author;
+      const authorId = authorRef ? String(authorRef) : null;
       const me = parseJwt(token)?.username;
+
+      if (authorId && post.user !== me) {
+        const metaRow = div.querySelector('.post-meta');
+        if (metaRow) {
+          const blockWrapper = document.createElement('div');
+          blockWrapper.className = 'post-meta-actions';
+          const blockBtn = document.createElement('button');
+          blockBtn.type = 'button';
+          blockBtn.className = 'block-user-btn action-chip action-block';
+          const isBlocked = blockedUserIds.has(authorId);
+          blockBtn.textContent = isBlocked ? '차단 해제' : '차단';
+          blockBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            toggleBlockUser(authorId, post.user, !isBlocked);
+          });
+          blockWrapper.appendChild(blockBtn);
+          metaRow.appendChild(blockWrapper);
+        }
+      }
+
+
       if (post.user === me) {
         const actionsDiv = document.createElement('div');
         actionsDiv.className = 'post-actions';
-        actionsDiv.innerHTML = `<button class="edit-btn">수정</button><button class="delete-btn">삭제</button>`;
+        actionsDiv.innerHTML = `<button class="action-chip action-edit edit-btn">수정</button><button class="action-chip action-delete delete-btn">삭제</button>`;
         div.appendChild(actionsDiv);
       }
       
@@ -252,6 +297,46 @@
         noticePostsDiv.appendChild(div);
       } else {
         postsDiv.appendChild(div);
+      }
+    }
+
+    async function toggleBlockUser(userId, username = '', shouldBlock) {
+      if (!userId) return;
+      const targetId = String(userId);
+      const desiredBlock = typeof shouldBlock === 'boolean' ? shouldBlock : !blockedUserIds.has(targetId);
+      try {
+        let response;
+        if (desiredBlock) {
+          response = await fetch('/api/users/blocks', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + token
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ userId: targetId })
+          });
+        } else {
+          response = await fetch(`/api/users/blocks/${targetId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token },
+            credentials: 'same-origin'
+          });
+        }
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload?.error || (desiredBlock ? '사용자를 차단하지 못했습니다.' : '차단을 해제하지 못했습니다.'));
+        }
+
+        await loadBlockedUsers();
+        await loadPosts();
+
+        const label = username ? `${username}님을 ` : '';
+        showNotification(`${label}${desiredBlock ? '차단했습니다.' : '차단을 해제했습니다.'}`, 'success');
+      } catch (error) {
+        console.error('[posts] toggleBlockUser error', error);
+        showNotification(error.message || '요청을 처리하지 못했습니다.', 'error');
       }
     }
 
@@ -477,7 +562,10 @@
     }
 
     // --- 초기 로드 ---
-    loadPosts();
+    (async function initializeBoard() {
+      await loadBlockedUsers();
+      await loadPosts();
+    })();
     
     // 알림 표시 기능 (누락 방지)
     function showNotification(message, type = "error") {

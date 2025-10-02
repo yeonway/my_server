@@ -32,6 +32,12 @@ const userSchema = new mongoose.Schema(
     photo: { type: String, default: "" },      // 프로필 사진 경로 (없으면 빈 문자열)
     email: { type: String, trim: true, lowercase: true, default: "" }, // 계정 연락용 이메일
 
+    blockedUsers: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'User',
+      default: [],
+    },
+
     signupOwner: { type: String, default: "" }, // 최초 가입 계정
     signupOrder: { type: Number, default: 1 },    // 동일 브라우저에서 몇 번째 계정인지
     signupIp: { type: String, default: "" }      // 가입 시도 IP 기록
