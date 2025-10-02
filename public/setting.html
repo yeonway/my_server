@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>설정</title>
+  <script defer src="js/auth-helper.js"></script>
+  <link rel="stylesheet" href="css/setting.css">
+  <link rel="stylesheet" href="css/topbar.css">
+  <link rel="stylesheet" href="css/profile-menu.css">
+</head>
+<body>
+  <header class="site-topbar">
+    <a href="/index.html" class="site-logo" aria-label="Dcout 메인으로 이동">
+      <span class="logo-accent">DC</span>
+      <span class="logo-divider" aria-hidden="true"></span>
+      <span class="logo-rest">OUT</span>
+    </a>
+  </header>
+
+  <main class="setting-stage">
+    <div class="container">
+    <h1>설정</h1>
+
+    <!-- 비밀번호 변경 -->
+    <div class="setting-card">
+      <h2>비밀번호 변경</h2>
+      <div class="form-group">
+        <label for="currentPassword">현재 비밀번호</label>
+        <input type="password" id="currentPassword" required>
+      </div>
+      <div class="form-group">
+        <label for="newPassword">새 비밀번호</label>
+        <input type="password" id="newPassword" required>
+      </div>
+      <div class="form-group">
+        <label for="confirmPassword">새 비밀번호 확인</label>
+        <input type="password" id="confirmPassword" required>
+      </div>
+      <button class="btn btn-primary" onclick="changePassword()">비밀번호 변경</button>
+    </div>
+
+    <!-- 테마 설정 -->
+    <div class="setting-card">
+      <h2>테마 설정</h2>
+      <div class="theme-options">
+        <label><input type="radio" name="theme" value="light"> 라이트 모드</label>
+        <label><input type="radio" name="theme" value="dark"> 다크 모드</label>
+        <label><input type="radio" name="theme" value="system" checked> 시스템 설정</label>
+      </div>
+    </div>
+
+    <!-- 회원 탈퇴 -->
+    <div class="setting-card">
+      <h2>회원 탈퇴</h2>
+      <p>계정을 영구적으로 삭제합니다. 이 작업은 되돌릴 수 없습니다.</p>
+      <button class="btn btn-danger" onclick="openDeleteModal()">회원 탈퇴</button>
+    </div>
+  </div>
+
+  <!-- 회원 탈퇴 확인 모달 -->
+  <div id="deleteModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>정말로 탈퇴하시겠습니까?</h3>
+      <p>계정을 삭제하려면 비밀번호를 입력하세요.</p>
+      <div class="form-group">
+        <input type="password" id="deleteConfirmPassword" placeholder="비밀번호 확인">
+      </div>
+      <div class="modal-buttons">
+        <button class="btn" onclick="closeDeleteModal()">취소</button>
+        <button class="btn btn-danger" onclick="deleteAccount()">탈퇴 확인</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      window.location.href = "/login.html";
+    }
+
+    // 테마 설정 로직
+    const themeRadios = document.querySelectorAll('input[name="theme"]');
+    const applyTheme = (theme) => {
+      if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark-mode');
+      } else {
+        document.documentElement.classList.remove('dark-mode');
+      }
+    };
+    const setTheme = (theme) => {
+      localStorage.setItem('theme', theme);
+      applyTheme(theme);
+    };
+    themeRadios.forEach(radio => {
+      radio.addEventListener('change', (e) => setTheme(e.target.value));
+    });
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      const currentTheme = localStorage.getItem('theme') || 'system';
+      if (currentTheme === 'system') applyTheme('system');
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('theme') || 'system';
+      const radio = document.querySelector(`input[name="theme"][value="${savedTheme}"]`);
+      if (radio) radio.checked = true;
+      applyTheme(savedTheme);
+    });
+
+    // 비밀번호 변경 로직
+    async function changePassword() {
+      const currentPassword = document.getElementById('currentPassword').value.trim();
+      const newPassword = document.getElementById('newPassword').value.trim();
+      const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        alert("모든 필드를 입력해주세요.");
+        return;
+      }
+      if (newPassword.length < 6) {
+        alert("새 비밀번호는 6자 이상이어야 합니다.");
+        return;
+      }
+      if (currentPassword === newPassword) {
+        alert("새 비밀번호는 현재 비밀번호와 달라야 합니다.");
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        alert("새 비밀번호가 일치하지 않습니다.");
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/settings/password', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ currentPassword, newPassword })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        alert("비밀번호가 성공적으로 변경되었습니다.");
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
+      } catch (err) {
+        alert(err.message || "비밀번호 변경에 실패했습니다.");
+      }
+    }
+
+    // 회원 탈퇴 로직
+    const deleteModal = document.getElementById('deleteModal');
+    function openDeleteModal() { deleteModal.classList.add('show'); }
+    function closeDeleteModal() { deleteModal.classList.remove('show'); }
+    async function deleteAccount() {
+      const password = document.getElementById('deleteConfirmPassword').value.trim();
+      if (!password) {
+        alert("비밀번호를 입력해주세요.");
+        return;
+      }
+      try {
+        const res = await fetch('/api/settings', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        alert("회원 탈퇴가 완료되었습니다.");
+        localStorage.removeItem("token");
+        window.location.href = "/login.html";
+      } catch (err) {
+        alert(err.message || "회원 탈퇴에 실패했습니다.");
+      }
+    }
+
+  </script>
+  </main>
+  <script defer src="js/auth-helper.js"></script>
+  <script defer src="js/profile-menu.js"></script>
+</body>
+</html>

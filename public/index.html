@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>메인 페이지</title>
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/topbar.css">
+  <link rel="stylesheet" href="css/profile-menu.css">
+  <script defer src="js/auth-helper.js"></script>
+</head>
+<body>
+  <header class="site-topbar">
+    <a href="/index.html" class="site-logo" aria-label="Dcout 메인으로 이동">
+      <span class="logo-accent">DC</span>
+      <span class="logo-divider" aria-hidden="true"></span>
+      <span class="logo-rest">OUT</span>
+    </a>
+  </header>
+
+<h1>환영합니다!</h1>
+  <div class="subtitle">
+    다양한 기능을 한 곳에서!<br>
+    아래에서 원하는 서비스를 선택해 이용해보세요.
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card" onclick="goTo('chat.html')">
+      <span class="emoji">💬</span>
+      <h2>채팅</h2>
+      <p>다른 사용자와 실시간 채팅을 즐기세요.</p>
+    </div>
+    <div class="feature-card" onclick="goTo('posts.html')">
+      <span class="emoji">📝</span>
+      <h2>게시판</h2>
+      <p>게시물을 보고, 작성하고, 댓글을 남기세요.</p>
+    </div>
+    <div class="feature-card" onclick="goTo('profile.html')">
+      <span class="emoji">👤</span>
+      <h2>프로필</h2>
+      <p>내 정보를 확인하고 수정할 수 있습니다.</p>
+    </div>
+    <div class="feature-card" onclick="goTo('inquiry.html')">
+      <span class="emoji">❓</span>
+      <h2>문의하기</h2>
+      <p>서비스에 대한 의견이나 문제를 알려주세요.</p>
+    </div>
+    <!-- 이미 설정 카드가 있으므로 유지 -->
+    <div class="feature-card" onclick="goTo('setting.html')">
+      <span class="emoji">⚙️</span>
+      <h2>설정</h2>
+      <p>계정 설정 및 환경설정을 관리하세요.</p>
+    </div>
+    <div class="feature-card auth-card" onclick="goTo('signup.html')">
+      <span class="emoji">🆕</span>
+      <h2>회원가입</h2>
+      <p>새 계정을 만들어 서비스를 이용하세요.</p>
+    </div>
+    <div class="feature-card auth-card" onclick="goTo('login.html')">
+      <span class="emoji">🔑</span>
+      <h2>로그인</h2>
+      <p>계정에 로그인하여 시작하세요.</p>
+    </div>
+  </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      let token = localStorage.getItem("token");
+      if (!token && window.requireAuthToken) {
+        try {
+          token = await window.requireAuthToken();
+        } catch (error) {
+          console.warn('[index] 토큰 확인 실패', error);
+        }
+      }
+
+      const loggedInCards = document.querySelectorAll('.feature-card:not(.auth-card)');
+      const loginCard = document.querySelector('.feature-card[onclick*="login.html"]');
+      const signupCard = document.querySelector('.feature-card[onclick*="signup.html"]');
+
+      if (token) {
+        if (loginCard) loginCard.style.display = 'none';
+        if (signupCard) signupCard.style.display = 'none';
+      } else {
+        loggedInCards.forEach(card => card.style.display = 'none');
+      }
+    });
+
+    function goTo(page) {
+      const token = localStorage.getItem('token');
+      if (page === 'signup.html' && token) {
+        alert('이미 로그인되어 있습니다. 로그아웃 후 회원가입해 주세요.');
+        return;
+      }
+      window.location.href = page;
+    }
+  </script>
+  <script defer src="js/auth-helper.js"></script>
+  <script defer src="js/profile-menu.js"></script>
+</body>
+</html>
