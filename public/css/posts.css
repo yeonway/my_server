@@ -755,3 +755,22 @@ h1 {
 #confirmNo:hover {
   background-color: #d1d5db;
 }
+.post-meta-actions {
+  margin-left: auto;
+}
+
+.block-user-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  border: 1px solid #b6d0f7;
+  background: #f3f6fa;
+  color: #1f2937;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.block-user-btn:hover {
+  background: #dbeafe;
+  color: #1d4ed8;
+}

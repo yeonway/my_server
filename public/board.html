@@ -76,6 +76,8 @@
       window.location.href = "posts.html";
     }
 
+    let blockedUserIds = new Set();
+
     const postTitle = document.getElementById("postTitle");
     const postMeta = document.getElementById("postMeta");
     const postContent = document.getElementById("postContent");
@@ -88,6 +90,29 @@
     const reportReasonInput = document.getElementById('reportReasonInput');
     const submitReportBtn = document.getElementById('submitReportBtn');
     const cancelReportBtn = document.getElementById('cancelReportBtn');
+
+    async function loadBlockedUsers() {
+      try {
+        const response = await fetch('/api/users/blocks', {
+          method: 'GET',
+          headers: { 'Authorization': 'Bearer ' + token },
+          credentials: 'same-origin'
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload?.error || '차단 목록을 불러오지 못했습니다.');
+        }
+
+        const blocks = Array.isArray(payload.blocks) ? payload.blocks : [];
+        blockedUserIds = new Set(blocks.map((block) => block.id));
+      } catch (error) {
+        console.warn('[board] loadBlockedUsers failed', error);
+        if (!(blockedUserIds instanceof Set)) {
+          blockedUserIds = new Set();
+        }
+      }
+    }
 
     let reportTarget = { type: null, id: null };
 
@@ -202,6 +227,46 @@
       }
     }
 
+    async function toggleBlockUser(userId, username = '', shouldBlock) {
+      if (!userId) return;
+      const targetId = String(userId);
+      const desiredBlock = typeof shouldBlock === 'boolean' ? shouldBlock : !blockedUserIds.has(targetId);
+      try {
+        let response;
+        if (desiredBlock) {
+          response = await fetch('/api/users/blocks', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + token
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ userId: targetId })
+          });
+        } else {
+          response = await fetch(`/api/users/blocks/${targetId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token },
+            credentials: 'same-origin'
+          });
+        }
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload?.error || (desiredBlock ? '사용자를 차단하지 못했습니다.' : '차단을 해제하지 못했습니다.'));
+        }
+
+        await loadBlockedUsers();
+        await loadPost();
+
+        const label = username ? `${username}님을 ` : '';
+        showNotification(`${label}${desiredBlock ? '차단했습니다.' : '차단을 해제했습니다.'}`, 'success');
+      } catch (error) {
+        console.error('[board] toggleBlockUser error', error);
+        showNotification(error.message || '요청을 처리하지 못했습니다.', 'error');
+      }
+    }
+
     async function loadPost() {
       if (!postId) {
         alert("게시글 ID가 올바르지 않습니다.");
@@ -232,6 +297,26 @@
             <button class="copy-link-btn" onclick="copyPageLink()">링크 복사</button>
           </span>
         `;
+
+        const authorRef = post.author && typeof post.author === 'object' ? (post.author._id || post.author.id) : post.author;
+        const authorId = authorRef ? String(authorRef) : null;
+
+        if (authorId && post.user !== me) {
+          const blockBtn = document.createElement('button');
+          blockBtn.type = 'button';
+          blockBtn.className = 'block-user-btn';
+          const isBlocked = blockedUserIds.has(authorId);
+          blockBtn.textContent = isBlocked ? '차단 해제' : '차단';
+          blockBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            toggleBlockUser(authorId, post.user, !isBlocked);
+          });
+          const metaActions = document.createElement('div');
+          metaActions.className = 'post-meta-actions';
+          metaActions.appendChild(blockBtn);
+          postMeta.appendChild(metaActions);
+        }
+
         const actions = document.getElementById("postActions");
         if (post.user === me) {
           actions.insertAdjacentHTML('afterbegin', `
@@ -314,6 +399,25 @@
               </div>
               ${actionsHtml}
             `;
+
+            const commentAuthorRef = c.author && typeof c.author === 'object' ? (c.author._id || c.author.id) : c.author;
+            const commentAuthorId = commentAuthorRef ? String(commentAuthorRef) : null;
+            if (commentAuthorId && c.user !== me) {
+              const actionsEl = div.querySelector('.comment-actions');
+              if (actionsEl) {
+                const blockBtn = document.createElement('button');
+                blockBtn.type = 'button';
+                blockBtn.className = 'comment-block-btn';
+                const isBlocked = blockedUserIds.has(commentAuthorId);
+                blockBtn.textContent = isBlocked ? '차단 해제' : '차단';
+                blockBtn.addEventListener('click', (event) => {
+                  event.stopPropagation();
+                  toggleBlockUser(commentAuthorId, c.user, !isBlocked);
+                });
+                actionsEl.appendChild(blockBtn);
+              }
+            }
+
             commentList.appendChild(div);
           }
         } else {
@@ -548,8 +652,18 @@
     }
 
     // -- 초기 데이터 로딩 --
-    loadPost();
-    loadOtherPosts();
+    async function initBoardPage() {
+      try {
+        await loadBlockedUsers();
+      } catch (error) {
+        console.warn('[board] 초기 차단 목록 불러오기 실패', error);
+      }
+
+      await loadPost();
+      loadOtherPosts();
+    }
+
+    initBoardPage();
   </script>
   <script defer src="js/auth-helper.js"></script>
   <script defer src="js/profile-menu.js"></script>

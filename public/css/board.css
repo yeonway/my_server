@@ -130,6 +130,31 @@ body {
   color: #007bff;
 }
 
+.post-meta-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.block-user-btn,
+.comment-block-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  border: 1px solid #b6d0f7;
+  background: #f3f6fa;
+  color: #1f2937;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.block-user-btn:hover,
+.comment-block-btn:hover {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
 .post-content {
   padding: 25px 5px;
   font-size: 1rem;
@@ -488,7 +513,8 @@ body {
 .comment-actions {
   margin-left: auto;
   display: flex;
-  gap: 5px;
+  gap: 6px;
+  align-items: center;
 }
 .comment-actions button {
   padding: 3px 8px;
@@ -498,6 +524,18 @@ body {
   border-radius: 4px;
   cursor: pointer;
   transition: color 0.2s;
+}
+
+.comment-actions .comment-block-btn {
+  border-color: #b6d0f7;
+  background: #f3f6fa;
+  color: #1f2937;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.comment-actions .comment-block-btn:hover {
+  background: #dbeafe;
+  color: #1d4ed8;
 }
 
 .comment-actions button:hover {
