@@ -1,0 +1,150 @@
+/* search.css */
+    body {
+      font-family: 'Spoqa Han Sans Neo', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .search-bar {
+      display: flex;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+    .search-bar input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px 0 0 4px;
+      font-size: 16px;
+    }
+    .search-bar button {
+      padding: 12px 24px;
+      background: #4CAF50;
+      border: none;
+      border-radius: 0 4px 4px 0;
+      color: white;
+      cursor: pointer;
+    }
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .tab {
+      padding: 8px 16px;
+      background: #f1f1f1;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    .tab.active {
+      background: #4CAF50;
+      color: white;
+    }
+    .results {
+      margin-top: 20px;
+    }
+    .result-item {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+    .result-item:hover {
+      background: #f9f9f9;
+    }
+    .result-item h3 {
+      margin: 0 0 8px 0;
+    }
+    .result-item p {
+      margin: 0;
+      color: #666;
+    }
+    .result-meta {
+      display: flex;
+      font-size: 14px;
+      color: #888;
+      margin-top: 8px;
+    }
+    .result-meta > div {
+      margin-right: 15px;
+    }
+    .highlight {
+      background-color: #fff3cd;
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      gap: 8px;
+    }
+    .page {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .page.active {
+      background: #4CAF50;
+      color: white;
+      border-color: #4CAF50;
+    }
+    .page.disabled {
+      color: #ccc;
+      cursor: not-allowed;
+    }
+    .loading {
+      text-align: center;
+      padding: 20px;
+      font-style: italic;
+      color: #888;
+    }
+    .no-results {
+      text-align: center;
+      padding: 30px;
+      color: #666;
+    }
+    .welcome-message {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+    }
+    .welcome-message h2 {
+      margin-bottom: 15px;
+      color: #333;
+    }
+    .welcome-message p {
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+    .search-tip {
+      background-color: #f8f9fa;
+      border-left: 4px solid #4CAF50;
+      padding: 15px;
+      margin: 20px auto;
+      max-width: 600px;
+      border-radius: 4px;
+    }
+    .search-tip h3 {
+      margin-top: 0;
+      color: #4CAF50;
+    }
