@@ -537,4 +537,128 @@ router.post('/accounts/:username/email', authMiddleware, async (req, res) => {
   }
 });
 
+
+router.get('/blocks', authMiddleware, async (req, res) => {
+  try {
+    const me = await User.findById(req.user.id)
+      .populate('blockedUsers', 'username name photo profilePhoto')
+      .lean();
+
+    if (!me) {
+      return res.status(404).json({ error: '사용자를 찾을 수 없습니다.' });
+    }
+
+    const blocks = Array.isArray(me.blockedUsers)
+      ? me.blockedUsers.map((user) => ({
+          id: user._id.toString(),
+          username: user.username,
+          name: user.name || '',
+          photo: user.photo || user.profilePhoto || '',
+        }))
+      : [];
+
+    res.json({ blocks });
+  } catch (error) {
+    logger.error(`Fetch blocks error: ${error.message}`);
+    res.status(500).json({ error: '차단 목록을 불러오지 못했습니다.' });
+  }
+});
+
+router.post('/blocks', authMiddleware, async (req, res) => {
+  try {
+    const { userId } = req.body || {};
+
+    if (!userId) {
+      return res.status(400).json({ error: '차단할 사용자를 선택해 주세요.' });
+    }
+
+    if (userId === req.user.id) {
+      return res.status(400).json({ error: '자기 자신은 차단할 수 없습니다.' });
+    }
+
+    const [me, target] = await Promise.all([
+      User.findById(req.user.id).select('_id username blockedUsers'),
+      User.findById(userId).select('_id username name photo profilePhoto'),
+    ]);
+
+    if (!me) {
+      return res.status(404).json({ error: '사용자를 찾을 수 없습니다.' });
+    }
+
+    if (!target) {
+      return res.status(404).json({ error: '차단할 대상을 찾을 수 없습니다.' });
+    }
+
+    const alreadyBlocked = me.blockedUsers?.some(
+      (value) => value.toString() === target._id.toString()
+    );
+
+    if (alreadyBlocked) {
+      return res.status(200).json({
+        blocked: {
+          id: target._id.toString(),
+          username: target.username,
+          name: target.name || '',
+        },
+        message: '이미 차단한 사용자입니다.',
+      });
+    }
+
+    me.blockedUsers = Array.isArray(me.blockedUsers) ? me.blockedUsers : [];
+    me.blockedUsers.push(target._id);
+    await me.save();
+
+    logger.info(`User block: ${me.username} -> ${target.username}`);
+    if (req.userLogger) req.userLogger('info', `사용자 차단: ${target.username}`);
+
+    res.status(201).json({
+      blocked: {
+        id: target._id.toString(),
+        username: target.username,
+        name: target.name || '',
+      },
+    });
+  } catch (error) {
+    logger.error(`Create block error: ${error.message}`);
+    res.status(500).json({ error: '사용자를 차단하지 못했습니다.' });
+  }
+});
+
+router.delete('/blocks/:userId', authMiddleware, async (req, res) => {
+  try {
+    const targetId = req.params.userId;
+    if (!targetId) {
+      return res.status(400).json({ error: '차단 해제할 사용자를 지정해 주세요.' });
+    }
+
+    const me = await User.findById(req.user.id).select('_id username blockedUsers');
+    if (!me) {
+      return res.status(404).json({ error: '사용자를 찾을 수 없습니다.' });
+    }
+
+    const before = Array.isArray(me.blockedUsers) ? me.blockedUsers.length : 0;
+    me.blockedUsers = (me.blockedUsers || []).filter(
+      (value) => value.toString() !== targetId
+    );
+
+    if (me.blockedUsers.length === before) {
+      return res.status(200).json({
+        unblocked: targetId,
+        message: '이미 차단 해제된 사용자입니다.',
+      });
+    }
+
+    await me.save();
+
+    logger.info(`User unblock: ${me.username} -> ${targetId}`);
+    if (req.userLogger) req.userLogger('info', `사용자 차단 해제: ${targetId}`);
+
+    res.json({ unblocked: targetId });
+  } catch (error) {
+    logger.error(`Delete block error: ${error.message}`);
+    res.status(500).json({ error: '차단 해제 중 오류가 발생했습니다.' });
+  }
+});
+
+
 module.exports = router;
