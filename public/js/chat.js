@@ -30,7 +30,7 @@ function getAuthorId(message) {
   const { author } = message;
   if (!author) return null;
   if (typeof author === 'string') return author;
-  if (typeof author === 'object') {
+  if (typewㅈㅈㅈㅈㅈㅈㅈㅈㅈof author === 'object') {
     if (typeof author._id === 'string') return author._id;
     if (author._id) return author._id.toString();
     if (typeof author.id === 'string') return author.id;
