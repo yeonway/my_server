@@ -30,10 +30,12 @@ const settingRouter = require("./routes/setting"); // 설정 라우터 추가
 const { authSimple } = require("./middleware/auth");
 const logger = require('./config/logger');
 const { userLog } = require('./config/userLogger');
+const { resolveBlockSets, isInteractionBlocked } = require('./utils/blocking');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
+app.set('io', io);
 
 // 데이터베이스 연결 실행
 connectDB();
@@ -82,7 +84,7 @@ io.on("connection", async (socket) => {
     socket.user = user;
     logger.info(`Socket connected: ${user.username}`);
 
-    socket.emit('userInfo', { id: user.id, username: user.username });
+    socket.emit('userInfo', { id: user.id, username: user.username, role: user.role || 'user' });
   } catch (e) {
     logger.warn(`Socket connection failed: Invalid token`);
     socket.emit('connect_error', { message: '인증 실패. 다시 로그인해 주세요.' });
@@ -101,17 +103,31 @@ io.on("connection", async (socket) => {
       chatroom = null;
     }
 
+    const blockInfo = await resolveBlockSets(socket.user.id);
+
     if (chatroom) {
       const isParticipant = chatroom.participants.some((participant) => participant.toString() === socket.user.id);
       if (!isParticipant) {
         return;
       }
+
+      const hasBlockedParticipant = chatroom.participants.some((participant) => {
+        const id = participant.toString();
+        if (id === socket.user.id) return false;
+        return isInteractionBlocked(id, blockInfo);
+      });
+
+      if (hasBlockedParticipant) {
+        return;
+      }
+
       roomId = chatroom._id.toString();
     }
 
     socket.join(roomId);
     const messages = await Message.find({ room: roomId }).sort({ time: 1 }).limit(100);
-    socket.emit("previousMessages", messages);
+    const filteredMessages = messages.filter((msg) => !isInteractionBlocked(msg.author, blockInfo));
+    socket.emit("previousMessages", filteredMessages);
   });
 
   socket.on("chatMessage", async ({ room, message, messageType = 'text' }) => {
@@ -125,11 +141,24 @@ io.on("connection", async (socket) => {
       chatroom = null;
     }
 
+    const blockInfo = await resolveBlockSets(socket.user.id);
+
     if (chatroom) {
       const isParticipant = chatroom.participants.some((participant) => participant.toString() === socket.user.id);
       if (!isParticipant) {
         return;
       }
+
+      const hasBlockedParticipant = chatroom.participants.some((participant) => {
+        const id = participant.toString();
+        if (id === socket.user.id) return false;
+        return isInteractionBlocked(id, blockInfo);
+      });
+
+      if (hasBlockedParticipant) {
+        return;
+      }
+
       roomId = chatroom._id.toString();
     }
 
@@ -147,7 +176,8 @@ io.on("connection", async (socket) => {
     }
 
     try {
-      userLog('admin', 'info', `[CHAT][socket] room=${roomId} from=${socket.user.username} type=${messageType} message=${message}`);
+      const loggedId = doc._id ? doc._id.toString() : '';
+      userLog('admin', 'info', `[CHAT][socket] room=${roomId} messageId=${loggedId} from=${socket.user.username} type=${messageType} message=${message}`);
     } catch (err) {
       // ignore logging issues
     }

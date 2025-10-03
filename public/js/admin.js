@@ -23,12 +23,34 @@ const permissionModalOptionsEl = document.getElementById('permissionModalOptions
 const permissionModalMessageEl = document.getElementById('permissionModalMessage');
 const permissionModalToolbar = document.getElementById('permissionModalToolbar');
 const permissionModalSaveBtn = document.getElementById('permissionModalSaveBtn');
+const openAdminPermissionModalBtn = document.getElementById('openAdminPermissionModalBtn');
+const adminPermissionModalEl = document.getElementById('adminPermissionModal');
+const adminPermissionSearchInput = document.getElementById('adminPermissionUserSearchInput');
+const adminPermissionSearchBtn = document.getElementById('adminPermissionUserSearchBtn');
+const adminPermissionSearchResultsEl = document.getElementById('adminPermissionUserSearchResults');
+const adminPermissionSelectionEl = document.getElementById('adminPermissionSelection');
+const adminPermissionSelectedUserEl = document.getElementById('adminPermissionSelectedUser');
+const adminRoleSelect = document.getElementById('adminRoleSelect');
+const adminPermissionOptionList = document.getElementById('adminPermissionOptionList');
+const adminPermissionSelectAllBtn = document.getElementById('adminPermissionSelectAllBtn');
+const adminPermissionStatusEl = document.getElementById('adminPermissionStatus');
+const adminPermissionSaveBtn = document.getElementById('adminPermissionSaveBtn');
+const adminPermissionRemoveBtn = document.getElementById('adminPermissionRemoveBtn');
 
 let dashboardLoading = false;
 const userCache = new Map();
 let currentAdminInfo = null;
 let userRoleFilterValue = 'all';
 const permissionModalState = { userId: null, username: '', readOnly: false, loading: false };
+const adminPermissionState = {
+  userId: null,
+  username: '',
+  role: 'admin',
+  permissions: new Set(),
+  readOnly: false,
+  loading: false,
+};
+let adminPermissionSearchLoading = false;
 
 async function fetchCurrentAdminProfile() {
   try {
@@ -73,6 +95,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   await fetchCurrentAdminProfile();
+
+  if (openAdminPermissionModalBtn && !isSuperAdmin()) {
+    openAdminPermissionModalBtn.style.display = 'none';
+  }
 
   // 파일 선택 UI 이벤트 리스너
   const noticeFileInput = document.getElementById('noticeFiles');
@@ -141,6 +167,79 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  if (adminPermissionOptionList) {
+    renderAdminPermissionCheckboxes();
+    resetAdminPermissionModalState();
+  }
+
+  if (openAdminPermissionModalBtn) {
+    openAdminPermissionModalBtn.addEventListener('click', () => openAdminPermissionModal());
+  }
+
+  if (adminPermissionModalEl) {
+    adminPermissionModalEl.addEventListener('click', (event) => {
+      if (event.target === adminPermissionModalEl) {
+        closeAdminPermissionModal();
+      }
+    });
+  }
+
+  if (adminPermissionSearchBtn) {
+    adminPermissionSearchBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      handleAdminPermissionSearch();
+    });
+  }
+
+  if (adminPermissionSearchInput) {
+    adminPermissionSearchInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        handleAdminPermissionSearch();
+      }
+    });
+  }
+
+  if (adminPermissionSearchResultsEl) {
+    adminPermissionSearchResultsEl.addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-user-id]');
+      if (!button) return;
+      const { userId } = button.dataset;
+      if (userId) {
+        loadAdminPermissionUser(userId);
+      }
+    });
+  }
+
+  if (adminRoleSelect) {
+    adminRoleSelect.addEventListener('change', handleAdminRoleChange);
+  }
+
+  if (adminPermissionSelectAllBtn) {
+    adminPermissionSelectAllBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      toggleAdminPermissionSelectAll();
+    });
+  }
+
+  if (adminPermissionOptionList) {
+    adminPermissionOptionList.addEventListener('change', handleAdminPermissionCheckboxChange);
+  }
+
+  if (adminPermissionSaveBtn) {
+    adminPermissionSaveBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      submitAdminPermissionForm();
+    });
+  }
+
+  if (adminPermissionRemoveBtn) {
+    adminPermissionRemoveBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      removeAdminPermissions();
+    });
+  }
+
 });
 
 function openTab(evt, tabName) {
@@ -171,9 +270,20 @@ function escapeHtml(str = '') {
     .replace(/'/g, '&#39;');
 }
 function formatChatLogMessage(log) {
-  const rawMessage = log && log.message ? String(log.message) : '';
-  const type = log && log.type ? String(log.type).toLowerCase() : '';
-  if (type === 'image' || type === 'file') {
+  if (!log) {
+    return '';
+  }
+  if (log.deleted) {
+    return '<span class="chat-log-deleted">삭제된 메시지입니다.</span>';
+  }
+  const preferredMessage =
+    typeof log.currentMessage === 'string' && log.currentMessage.length > 0
+      ? log.currentMessage
+      : (log && typeof log.message === 'string' ? log.message : '');
+  const rawMessage = String(preferredMessage || '');
+  const typeSource = log && log.currentType ? log.currentType : log && log.type ? log.type : '';
+  const type = String(typeSource || '').toLowerCase();
+  if ((type === 'image' || type === 'file') && rawMessage) {
     const cleaned = rawMessage.replace(/^\[(?:IMAGE|FILE)\]/i, '').trim();
     if (cleaned) {
       const safeUrl = escapeHtml(cleaned);
@@ -181,6 +291,46 @@ function formatChatLogMessage(log) {
     }
   }
   return escapeHtml(rawMessage);
+}
+
+function buildChatLogMeta(log) {
+  if (!log) return '';
+  const metaItems = [];
+  if (log.messageId) {
+    metaItems.push(`<span class="chat-log-meta-item">ID: ${escapeHtml(log.messageId)}</span>`);
+  }
+  if (log.deleted) {
+    metaItems.push('<span class="chat-log-meta-item status-danger">DB에서 삭제됨</span>');
+  } else if (
+    typeof log.message === 'string' &&
+    typeof log.currentMessage === 'string' &&
+    log.message !== log.currentMessage
+  ) {
+    metaItems.push('<span class="chat-log-meta-item status-info">로그와 현재 메시지가 다릅니다</span>');
+  }
+  if (
+    log.currentRoom &&
+    log.room &&
+    log.currentRoom !== log.room
+  ) {
+    metaItems.push(`<span class="chat-log-meta-item status-info">현재 방: ${escapeHtml(log.currentRoom)}</span>`);
+  }
+  if (!metaItems.length) {
+    return '';
+  }
+  return `<div class="chat-log-meta">${metaItems.join('')}</div>`;
+}
+
+function buildChatLogActions(log) {
+  if (!log || !log.messageId) {
+    return '<span class="chat-log-meta-item">-</span>';
+  }
+  const messageIdAttr = escapeHtml(log.messageId);
+  const roomAttr = escapeHtml((log.currentRoom || log.room || '').toString());
+  const deleteDisabled = log.deleted ? ' disabled' : '';
+  const deleteBtn = `<button type="button" class="chat-log-action-btn danger" data-chat-action="delete" data-message-id="${messageIdAttr}" data-room-id="${roomAttr}"${deleteDisabled}>삭제</button>`;
+  const copyBtn = `<button type="button" class="chat-log-action-btn primary" data-chat-action="copy" data-message-id="${messageIdAttr}">ID 복사</button>`;
+  return `${deleteBtn}${copyBtn}`;
 }
 
 function getSignupOrderLabel(order) {
@@ -420,6 +570,14 @@ function buildUserRow(tableBody, mainUser = {}, children = [], groupKey = '') {
 
   const actionsCell = row.insertCell();
   actionsCell.className = 'user-actions';
+  if (userIdValue && isSuperAdmin()) {
+    const manageBtn = document.createElement('button');
+    manageBtn.className = 'action-btn btn-manage-admin';
+    manageBtn.type = 'button';
+    manageBtn.textContent = '관리자 권한';
+    manageBtn.addEventListener('click', () => openAdminPermissionModal(userIdValue));
+    actionsCell.appendChild(manageBtn);
+  }
   const deleteBtn = document.createElement('button');
   deleteBtn.className = 'action-btn btn-delete';
   deleteBtn.textContent = '삭제';
@@ -570,6 +728,7 @@ const ADMIN_PERMISSION_OPTIONS = [
 
 const ROLE_OPTIONS = [
   { value: 'user', label: '일반 회원' },
+  { value: 'manager', label: '매니저' },
   { value: 'admin', label: '관리자' }
 ];
 
@@ -577,6 +736,447 @@ let currentUserPage = 1;
 let userSortField = 'createdAt';
 let userSortOrder = 'desc';
 const USERS_PER_PAGE = 20;
+
+function resetAdminPermissionModalState() {
+  adminPermissionState.userId = null;
+  adminPermissionState.username = '';
+  adminPermissionState.role = 'admin';
+  adminPermissionState.permissions = new Set();
+  adminPermissionState.readOnly = false;
+  adminPermissionState.loading = false;
+  if (adminPermissionSearchInput) {
+    adminPermissionSearchInput.value = '';
+  }
+  if (adminPermissionSearchResultsEl) {
+    adminPermissionSearchResultsEl.innerHTML = '';
+  }
+  if (adminPermissionSelectionEl) {
+    adminPermissionSelectionEl.hidden = true;
+  }
+  if (adminPermissionSelectedUserEl) {
+    adminPermissionSelectedUserEl.textContent = '선택된 사용자가 없습니다.';
+  }
+  if (adminPermissionStatusEl) {
+    adminPermissionStatusEl.textContent = '';
+    adminPermissionStatusEl.className = 'modal-status';
+  }
+  if (adminRoleSelect) {
+    adminRoleSelect.value = 'admin';
+    adminRoleSelect.disabled = true;
+  }
+  const checkboxes = getAdminPermissionCheckboxes();
+  checkboxes.forEach((checkbox) => {
+    checkbox.checked = false;
+    checkbox.disabled = true;
+  });
+  updateAdminPermissionSelectAllLabel();
+  if (adminPermissionSaveBtn) {
+    adminPermissionSaveBtn.disabled = true;
+  }
+  if (adminPermissionRemoveBtn) {
+    adminPermissionRemoveBtn.disabled = true;
+  }
+}
+
+function renderAdminPermissionCheckboxes() {
+  if (!adminPermissionOptionList) return;
+  adminPermissionOptionList.innerHTML = '';
+  const fragment = document.createDocumentFragment();
+  ADMIN_PERMISSION_OPTIONS.forEach((option) => {
+    const wrapper = document.createElement('label');
+    wrapper.className = 'permission-checkbox';
+
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.value = option.key;
+    input.disabled = true;
+    input.id = `admin-permission-${option.key}`;
+
+    const text = document.createElement('span');
+    text.textContent = option.label;
+
+    wrapper.appendChild(input);
+    wrapper.appendChild(text);
+    fragment.appendChild(wrapper);
+  });
+  adminPermissionOptionList.appendChild(fragment);
+}
+
+function setAdminPermissionStatus(message = '', variant = '') {
+  if (!adminPermissionStatusEl) return;
+  adminPermissionStatusEl.textContent = message || '';
+  adminPermissionStatusEl.className = 'modal-status';
+  if (variant) {
+    adminPermissionStatusEl.classList.add(`status-${variant}`);
+  }
+}
+
+function openAdminPermissionModal(userId = null) {
+  if (!adminPermissionModalEl) return;
+  adminPermissionModalEl.classList.add('show');
+  resetAdminPermissionModalState();
+  if (adminPermissionSearchInput) {
+    adminPermissionSearchInput.focus();
+  }
+  if (userId) {
+    loadAdminPermissionUser(userId);
+  } else {
+    setAdminPermissionStatus('관리자로 지정할 사용자를 검색하세요.', 'info');
+  }
+}
+
+function closeAdminPermissionModal() {
+  if (!adminPermissionModalEl) return;
+  adminPermissionModalEl.classList.remove('show');
+  resetAdminPermissionModalState();
+}
+
+function getAdminPermissionCheckboxes() {
+  if (!adminPermissionOptionList) return [];
+  return Array.from(adminPermissionOptionList.querySelectorAll('input[type="checkbox"]'));
+}
+
+function updateAdminPermissionCheckboxes() {
+  const checkboxes = getAdminPermissionCheckboxes();
+  checkboxes.forEach((checkbox) => {
+    checkbox.checked = adminPermissionState.permissions.has(checkbox.value);
+    checkbox.disabled = adminPermissionState.readOnly || !adminPermissionState.userId || adminPermissionState.loading;
+  });
+  updateAdminPermissionSelectAllLabel();
+}
+
+function updateAdminPermissionSelectAllLabel() {
+  if (!adminPermissionSelectAllBtn) return;
+  const checkboxes = getAdminPermissionCheckboxes();
+  const allChecked = checkboxes.length > 0 && checkboxes.every((checkbox) => checkbox.checked);
+  adminPermissionSelectAllBtn.textContent = allChecked ? '전체 해제' : '전체 선택';
+  adminPermissionSelectAllBtn.disabled = adminPermissionState.readOnly || !adminPermissionState.userId || adminPermissionState.loading;
+}
+
+function updateAdminPermissionControls() {
+  if (adminPermissionSelectionEl) {
+    adminPermissionSelectionEl.hidden = !adminPermissionState.userId;
+    adminPermissionSelectionEl.classList.toggle('read-only', adminPermissionState.readOnly);
+  }
+  if (adminPermissionSelectedUserEl) {
+    if (adminPermissionState.userId) {
+      let roleLabel = '관리자 후보';
+      if (adminPermissionState.role === 'manager') {
+        roleLabel = '매니저';
+      } else if (adminPermissionState.role === 'superadmin') {
+        roleLabel = '슈퍼 관리자';
+      } else if (adminPermissionState.role === 'admin') {
+        roleLabel = '관리자';
+      } else if (adminPermissionState.role === 'user') {
+        roleLabel = '일반 회원';
+      }
+      adminPermissionSelectedUserEl.textContent = `${adminPermissionState.username} · ID: ${adminPermissionState.userId} · ${roleLabel}`;
+      adminPermissionSelectedUserEl.dataset.roleLabel = roleLabel;
+    } else {
+      adminPermissionSelectedUserEl.textContent = '선택된 사용자가 없습니다.';
+      delete adminPermissionSelectedUserEl.dataset.roleLabel;
+    }
+  }
+  if (adminRoleSelect) {
+    adminRoleSelect.disabled = adminPermissionState.readOnly || !adminPermissionState.userId || adminPermissionState.loading;
+    if (adminPermissionState.role === 'superadmin') {
+      adminRoleSelect.value = 'admin';
+    } else {
+      adminRoleSelect.value = adminPermissionState.role === 'manager' ? 'manager' : 'admin';
+    }
+  }
+  if (adminPermissionSaveBtn) {
+    adminPermissionSaveBtn.disabled = adminPermissionState.readOnly || !adminPermissionState.userId || adminPermissionState.loading;
+  }
+  if (adminPermissionRemoveBtn) {
+    const hasPermissions = adminPermissionState.permissions.size > 0;
+    adminPermissionRemoveBtn.disabled = adminPermissionState.readOnly || !adminPermissionState.userId || adminPermissionState.loading || !hasPermissions;
+  }
+  updateAdminPermissionCheckboxes();
+}
+
+function handleAdminPermissionCheckboxChange(event) {
+  const target = event.target;
+  if (!target || target.type !== 'checkbox') return;
+  if (!adminPermissionState.userId || adminPermissionState.readOnly) {
+    target.checked = adminPermissionState.permissions.has(target.value);
+    return;
+  }
+  if (target.checked) {
+    adminPermissionState.permissions.add(target.value);
+  } else {
+    adminPermissionState.permissions.delete(target.value);
+  }
+  updateAdminPermissionControls();
+}
+
+function handleAdminRoleChange(event) {
+  if (!adminPermissionState.userId || adminPermissionState.readOnly) {
+    if (adminRoleSelect) {
+      adminRoleSelect.value = adminPermissionState.role === 'manager' ? 'manager' : 'admin';
+    }
+    return;
+  }
+  const value = event.target.value;
+  if (value === 'manager') {
+    adminPermissionState.role = 'manager';
+  } else {
+    adminPermissionState.role = 'admin';
+  }
+}
+
+function toggleAdminPermissionSelectAll() {
+  if (!adminPermissionState.userId || adminPermissionState.readOnly) return;
+  const checkboxes = getAdminPermissionCheckboxes();
+  const shouldSelectAll = checkboxes.some((checkbox) => !checkbox.checked);
+  checkboxes.forEach((checkbox) => {
+    checkbox.checked = shouldSelectAll;
+    if (shouldSelectAll) {
+      adminPermissionState.permissions.add(checkbox.value);
+    } else {
+      adminPermissionState.permissions.delete(checkbox.value);
+    }
+  });
+  updateAdminPermissionControls();
+}
+
+function normalizeAdminPermissions(perms = []) {
+  if (!Array.isArray(perms)) return [];
+  const validKeys = new Set(ADMIN_PERMISSION_OPTIONS.map((option) => option.key));
+  return perms.map(String).filter((key) => validKeys.has(key));
+}
+
+async function handleAdminPermissionSearch() {
+  if (adminPermissionSearchLoading) return;
+  if (!adminPermissionSearchInput) return;
+  const term = adminPermissionSearchInput.value.trim();
+  if (!term) {
+    setAdminPermissionStatus('검색어를 입력해 주세요.', 'error');
+    return;
+  }
+  adminPermissionSearchLoading = true;
+  setAdminPermissionStatus('사용자를 검색하는 중입니다...', 'info');
+  if (adminPermissionSearchResultsEl) {
+    adminPermissionSearchResultsEl.innerHTML = '';
+  }
+  try {
+    const params = new URLSearchParams();
+    params.set('q', term);
+    params.set('limit', '10');
+    params.set('page', '1');
+    params.set('sort', 'createdAt');
+    params.set('order', 'desc');
+    const res = await fetch(`/api/admin/users?${params.toString()}`, {
+      headers: { Authorization: 'Bearer ' + token }
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error((data && data.error) || '사용자를 검색하지 못했습니다.');
+    }
+    const users = Array.isArray(data.users) ? data.users : (Array.isArray(data) ? data : []);
+    renderAdminPermissionSearchResults(users);
+    if (!users.length) {
+      setAdminPermissionStatus('검색 결과가 없습니다.', 'info');
+    } else {
+      setAdminPermissionStatus(`${users.length}명의 검색 결과가 있습니다. 사용자 선택 후 권한을 설정하세요.`, 'info');
+    }
+  } catch (error) {
+    console.error('[admin] admin permission search failed', error);
+    renderAdminPermissionSearchResults([]);
+    setAdminPermissionStatus(error.message || '사용자를 검색하지 못했습니다.', 'error');
+  } finally {
+    adminPermissionSearchLoading = false;
+  }
+}
+
+function renderAdminPermissionSearchResults(users = []) {
+  if (!adminPermissionSearchResultsEl) return;
+  adminPermissionSearchResultsEl.innerHTML = '';
+  if (!Array.isArray(users) || users.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'modal-empty';
+    empty.textContent = '검색 결과가 없습니다.';
+    adminPermissionSearchResultsEl.appendChild(empty);
+    return;
+  }
+  const fragment = document.createDocumentFragment();
+  users.slice(0, 15).forEach((user) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'modal-result-item';
+    const id = user && (user._id || user.id) ? String(user._id || user.id) : '';
+    button.dataset.userId = id;
+    const username = user && user.username ? user.username : '(알 수 없음)';
+    const roleLabel = getRoleLabel(user && user.role);
+    button.innerHTML = `
+      <span class="result-name">${escapeHtml(username)}</span>
+      <span class="result-meta">${escapeHtml(id)}</span>
+      <span class="result-role">${escapeHtml(roleLabel)}</span>
+    `;
+    fragment.appendChild(button);
+  });
+  adminPermissionSearchResultsEl.appendChild(fragment);
+}
+
+async function loadAdminPermissionUser(userId) {
+  if (!userId) return;
+  setAdminPermissionStatus('사용자 정보를 불러오는 중입니다...', 'info');
+  adminPermissionState.loading = true;
+  updateAdminPermissionControls();
+  let user = null;
+  if (userCache.has(userId)) {
+    user = userCache.get(userId);
+  } else {
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error((data && data.error) || '사용자 정보를 불러오지 못했습니다.');
+      }
+      user = data && data.user ? data.user : data;
+      if (user && user._id) {
+        userCache.set(String(user._id), user);
+      }
+    } catch (error) {
+      console.error('[admin] failed to load admin user', error);
+      setAdminPermissionStatus(error.message || '사용자 정보를 불러오지 못했습니다.', 'error');
+      adminPermissionState.loading = false;
+      updateAdminPermissionControls();
+      return;
+    }
+  }
+  adminPermissionState.loading = false;
+  applyAdminPermissionUser(user);
+}
+
+function applyAdminPermissionUser(user) {
+  if (!user) {
+    setAdminPermissionStatus('사용자 정보를 찾을 수 없습니다.', 'error');
+    return;
+  }
+  const id = user._id || user.id;
+  if (!id) {
+    setAdminPermissionStatus('사용자 ID를 확인할 수 없습니다.', 'error');
+    return;
+  }
+  adminPermissionState.userId = String(id);
+  adminPermissionState.username = user.username || '(알 수 없음)';
+  adminPermissionState.permissions = new Set(normalizeAdminPermissions(user.adminPermissions));
+  if (user.role === 'superadmin') {
+    adminPermissionState.role = 'superadmin';
+    adminPermissionState.readOnly = true;
+    setAdminPermissionStatus('슈퍼 관리자의 권한은 수정할 수 없습니다.', 'error');
+  } else if (user.role === 'manager') {
+    adminPermissionState.role = 'manager';
+    adminPermissionState.readOnly = false;
+    setAdminPermissionStatus('부여할 권한을 선택하고 저장하세요.', 'info');
+  } else if (user.role === 'admin') {
+    adminPermissionState.role = 'admin';
+    adminPermissionState.readOnly = false;
+    setAdminPermissionStatus('부여할 권한을 선택하고 저장하세요.', 'info');
+  } else {
+    adminPermissionState.role = adminPermissionState.permissions.size > 0 ? 'admin' : 'user';
+    adminPermissionState.readOnly = false;
+    if (adminPermissionState.permissions.size === 0) {
+      setAdminPermissionStatus('권한을 선택한 뒤 저장하면 관리자로 지정됩니다.', 'info');
+    } else {
+      setAdminPermissionStatus('부여할 권한을 선택하고 저장하세요.', 'info');
+    }
+  }
+  updateAdminPermissionControls();
+}
+
+async function submitAdminPermissionForm() {
+  if (!adminPermissionState.userId || adminPermissionState.readOnly) return;
+  markAdminPermissionLoading(true);
+  const payload = {
+    userId: adminPermissionState.userId,
+    adminPermissions: Array.from(adminPermissionState.permissions),
+    role: adminPermissionState.role === 'manager' ? 'manager' : 'admin',
+  };
+  try {
+    const res = await fetch('/api/admin/users/add-admin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token,
+      },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error((data && data.error) || '관리자 권한을 저장하지 못했습니다.');
+    }
+    setAdminPermissionStatus('관리자 권한을 저장했습니다.', 'success');
+    showAdminAlert('관리자 권한을 저장했습니다.', 4000);
+    const cached = userCache.get(adminPermissionState.userId) || { _id: adminPermissionState.userId };
+    cached.adminPermissions = Array.from(adminPermissionState.permissions);
+    const nextRole = data && data.role ? data.role : payload.role;
+    if (nextRole) {
+      cached.role = nextRole;
+      adminPermissionState.role = nextRole;
+    }
+    cached.username = cached.username || adminPermissionState.username;
+    userCache.set(adminPermissionState.userId, cached);
+    loadUsers(currentUserPage);
+    updateAdminPermissionControls();
+  } catch (error) {
+    console.error('[admin] failed to save admin permissions', error);
+    setAdminPermissionStatus(error.message || '관리자 권한을 저장하지 못했습니다.', 'error');
+  } finally {
+    markAdminPermissionLoading(false);
+  }
+}
+
+async function removeAdminPermissions() {
+  if (!adminPermissionState.userId || adminPermissionState.readOnly) return;
+  if (!confirm('이 사용자의 관리자 권한을 해제하시겠습니까?')) {
+    return;
+  }
+  markAdminPermissionLoading(true);
+  try {
+    const res = await fetch(`/api/admin/users/remove-admin/${adminPermissionState.userId}`, {
+      method: 'DELETE',
+      headers: { Authorization: 'Bearer ' + token },
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error((data && data.error) || '관리자 권한을 해제하지 못했습니다.');
+    }
+    setAdminPermissionStatus('관리자 권한을 해제했습니다.', 'success');
+    showAdminAlert('관리자 권한을 해제했습니다.', 4000);
+    adminPermissionState.permissions = new Set();
+    const cached = userCache.get(adminPermissionState.userId);
+    if (cached) {
+      cached.adminPermissions = [];
+      const nextRole = data && data.role ? data.role : 'user';
+      if (cached.role && cached.role !== 'superadmin') {
+        cached.role = nextRole;
+      }
+      userCache.set(adminPermissionState.userId, cached);
+    }
+    if (adminPermissionState.role !== 'superadmin') {
+      adminPermissionState.role = 'user';
+    }
+    loadUsers(currentUserPage);
+    updateAdminPermissionControls();
+  } catch (error) {
+    console.error('[admin] failed to remove admin permissions', error);
+    setAdminPermissionStatus(error.message || '관리자 권한을 해제하지 못했습니다.', 'error');
+  } finally {
+    markAdminPermissionLoading(false);
+  }
+}
+
+function markAdminPermissionLoading(loading) {
+  adminPermissionState.loading = loading;
+  if (loading) {
+    setAdminPermissionStatus('요청을 처리하는 중입니다...', 'info');
+  }
+  updateAdminPermissionControls();
+}
 
 function updateUserSortControls() {
   const fieldSelect = document.getElementById('userSortField');
@@ -1223,7 +1823,7 @@ async function initChatLogs() {
   if (!chatLogFileSelect || !chatLogList) {
     return;
   }
-  chatLogList.innerHTML = '<tr><td colspan="6">채팅 로그를 불러오는 중...</td></tr>';
+    chatLogList.innerHTML = '<tr><td colspan="7">채팅 로그를 불러오는 중...</td></tr>';
   try {
     const res = await fetch('/api/admin/chat-log-files', { headers: { 'Authorization': 'Bearer ' + token } });
     const data = await res.json().catch(() => []);
@@ -1235,7 +1835,7 @@ async function initChatLogs() {
     chatLogFileSelect.innerHTML = '';
     if (files.length === 0) {
       chatLogFileSelect.innerHTML = '<option value="">채팅 로그 파일이 없습니다.</option>';
-      chatLogList.innerHTML = '<tr><td colspan="6" style="text-align:center;">채팅 로그 파일이 없습니다.</td></tr>';
+      chatLogList.innerHTML = '<tr><td colspan="7" style="text-align:center;">채팅 로그 파일이 없습니다.</td></tr>';
       allChatLogs = [];
       return;
     }
@@ -1248,7 +1848,7 @@ async function initChatLogs() {
   } catch (error) {
     allChatLogs = [];
     chatLogFileSelect.innerHTML = '<option value="">채팅 로그 파일이 없습니다.</option>';
-    chatLogList.innerHTML = `<tr><td colspan="6" style="color:red; text-align:center;">${escapeHtml(error.message || '채팅 로그 파일을 불러오지 못했습니다.')}</td></tr>`;
+    chatLogList.innerHTML = `<tr><td colspan="7" style="color:red; text-align:center;">${escapeHtml(error.message || '채팅 로그 파일을 불러오지 못했습니다.')}</td></tr>`;
   }
 }
 
@@ -1257,11 +1857,11 @@ async function loadChatLogs(fileName) {
     return;
   }
   if (!fileName) {
-    chatLogList.innerHTML = '<tr><td colspan="6" style="text-align:center;">채팅 로그 파일이 없습니다.</td></tr>';
+    chatLogList.innerHTML = '<tr><td colspan="7" style="text-align:center;">채팅 로그 파일이 없습니다.</td></tr>';
     allChatLogs = [];
     return;
   }
-  chatLogList.innerHTML = '<tr><td colspan="6">채팅 로그를 불러오는 중...</td></tr>';
+  chatLogList.innerHTML = '<tr><td colspan="7">채팅 로그를 불러오는 중...</td></tr>';
   try {
     const res = await fetch(`/api/admin/chat-logs?file=${encodeURIComponent(fileName)}`, { headers: { 'Authorization': 'Bearer ' + token } });
     const data = await res.json().catch(() => ({}));
@@ -1272,7 +1872,7 @@ async function loadChatLogs(fileName) {
     renderChatLogs();
   } catch (error) {
     allChatLogs = [];
-    chatLogList.innerHTML = `<tr><td colspan="6" style="color:red; text-align:center;">${escapeHtml(error.message || '채팅 로그를 불러오지 못했습니다.')}</td></tr>`;
+    chatLogList.innerHTML = `<tr><td colspan="7" style="color:red; text-align:center;">${escapeHtml(error.message || '채팅 로그를 불러오지 못했습니다.')}</td></tr>`;
   }
 }
 
@@ -1286,10 +1886,10 @@ function renderChatLogs() {
   const typeValue = chatLogTypeFilter ? chatLogTypeFilter.value.toLowerCase() : 'all';
 
   const filtered = allChatLogs.filter(log => {
-    const message = (log.message || '').toLowerCase();
-    const room = (log.room || '').toLowerCase();
+    const message = ((log.currentMessage || log.message) || '').toLowerCase();
+    const room = ((log.currentRoom || log.room) || '').toLowerCase();
     const sender = (log.from || '').toLowerCase();
-    const type = (log.type || '').toLowerCase();
+    const type = ((log.currentType || log.type) || '').toLowerCase();
     const channel = (log.channel || '').toLowerCase();
 
     const matchesSearch = !searchValue || message.includes(searchValue) || room.includes(searchValue) || sender.includes(searchValue) || channel.includes(searchValue);
@@ -1302,20 +1902,30 @@ function renderChatLogs() {
 
   chatLogList.innerHTML = '';
   if (filtered.length === 0) {
-    chatLogList.innerHTML = '<tr><td colspan="6" style="text-align:center;">필터 조건에 맞는 채팅 로그가 없습니다.</td></tr>';
+    chatLogList.innerHTML = '<tr><td colspan="7" style="text-align:center;">필터 조건에 맞는 채팅 로그가 없습니다.</td></tr>';
     return;
   }
 
   filtered.forEach(log => {
     const time = log.timestamp ? new Date(log.timestamp).toLocaleString() : '-';
     const row = chatLogList.insertRow();
+    row.className = log.deleted ? 'chat-log-row deleted' : 'chat-log-row';
+    if (log.messageId) {
+      row.dataset.messageId = log.messageId;
+    }
+    if (log.room || log.currentRoom) {
+      row.dataset.roomId = log.currentRoom || log.room;
+    }
+    const messageHtml = `<div class="chat-log-text">${formatChatLogMessage(log)}</div>${buildChatLogMeta(log)}`;
+    const typeLabel = log.deleted ? '삭제됨' : escapeHtml((log.type || '-').toString());
     row.innerHTML = `
       <td>${time}</td>
       <td>${escapeHtml(log.channel || '-')}</td>
-      <td>${escapeHtml(log.room || '-')}</td>
+      <td>${escapeHtml((log.currentRoom || log.room || '-').toString())}</td>
       <td>${escapeHtml(log.from || '-')}</td>
-      <td>${escapeHtml((log.type || '-').toString())}</td>
-      <td class="log-message">${formatChatLogMessage(log)}</td>
+      <td>${typeLabel}</td>
+      <td class="log-message">${messageHtml}</td>
+      <td class="chat-log-actions">${buildChatLogActions(log)}</td>
     `;
   });
 }
@@ -1334,6 +1944,88 @@ if (chatLogUserFilter) {
 }
 if (chatLogTypeFilter) {
   chatLogTypeFilter.addEventListener('change', renderChatLogs);
+}
+
+if (chatLogList) {
+  chatLogList.addEventListener('click', handleChatLogActionClick);
+}
+
+function handleChatLogActionClick(event) {
+  const button = event.target.closest('button[data-chat-action]');
+  if (!button) return;
+  const action = button.dataset.chatAction;
+  const messageId = button.dataset.messageId;
+  const roomId = button.dataset.roomId || '';
+  if (action === 'delete') {
+    handleAdminChatMessageDelete(button, messageId, roomId);
+  } else if (action === 'copy') {
+    copyChatLogMessageId(button, messageId);
+  }
+}
+
+async function handleAdminChatMessageDelete(button, messageId, roomId) {
+  if (!messageId) {
+    alert('메시지 ID를 찾을 수 없습니다.');
+    return;
+  }
+  const confirmed = window.confirm('이 메시지를 삭제하시겠습니까?');
+  if (!confirmed) {
+    return;
+  }
+  const originalDisabled = button.disabled;
+  button.disabled = true;
+  try {
+    const res = await fetch(`/api/chat/messages/${messageId}`, {
+      method: 'DELETE',
+      headers: { Authorization: 'Bearer ' + token },
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error((data && data.error) || '메시지를 삭제하지 못했습니다.');
+    }
+    showAdminAlert('메시지를 삭제했습니다.', 4000);
+    allChatLogs = allChatLogs.map((entry) => {
+      if (entry && entry.messageId === messageId) {
+        return { ...entry, deleted: true };
+      }
+      return entry;
+    });
+    renderChatLogs();
+  } catch (error) {
+    console.error('[admin] delete chat message failed', error);
+    alert(error.message || '메시지를 삭제하지 못했습니다.');
+    button.disabled = originalDisabled;
+  }
+}
+
+async function copyChatLogMessageId(button, messageId) {
+  if (!messageId) {
+    alert('복사할 메시지 ID가 없습니다.');
+    return;
+  }
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(messageId);
+    } else {
+      const textarea = document.createElement('textarea');
+      textarea.value = messageId;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+    if (button) {
+      button.classList.add('copied');
+      setTimeout(() => button.classList.remove('copied'), 1200);
+    }
+    showAdminAlert('메시지 ID를 복사했습니다.', 2500);
+  } catch (error) {
+    console.error('[admin] clipboard copy failed', error);
+    alert('복사에 실패했습니다. 메시지 ID를 직접 복사해 주세요.');
+  }
 }
 
 

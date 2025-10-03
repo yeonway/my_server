@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const mongoose = require('mongoose');
 const Post = require("../models/post");
 const BackupPost = require("../models/backupPost");
 const Report = require("../models/report");
@@ -9,6 +10,7 @@ const logger = require('../config/logger');
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
+const { resolveBlockSets, isInteractionBlocked } = require('../utils/blocking');
 
 // --- Multer 설정 (파일 업로드) ---
 const uploadDir = path.join(__dirname, "..", "public", "uploads", "posts");
@@ -29,7 +31,19 @@ router.get("/", authMiddleware, async (req, res) => {
     const q = req.query.searchQuery || '';
     const t = req.query.searchType || 'all';
 
-    const baseQuery = { deleted: { $ne: true } };
+    const blockInfo = await resolveBlockSets(req.user.id);
+    const blockedAuthorIds = new Set([
+      ...blockInfo.blocked,
+      ...blockInfo.blockedBy,
+    ]);
+    const blockedObjectIds = Array.from(blockedAuthorIds)
+      .filter((id) => mongoose.Types.ObjectId.isValid(id))
+      .map((id) => new mongoose.Types.ObjectId(id));
+    const authorFilter = blockedObjectIds.length
+      ? { author: { $nin: blockedObjectIds } }
+      : {};
+
+    const baseQuery = { deleted: { $ne: true }, ...authorFilter };
     if (q) {
       const r = { $regex: q, $options: 'i' };
       if (t === 'title') baseQuery.title = r;
@@ -39,17 +53,18 @@ router.get("/", authMiddleware, async (req, res) => {
     }
 
     // 공지사항 조회
-    const notices = await Post.find({ 
-      isNotice: true, 
-      deleted: { $ne: true } 
+    const notices = await Post.find({
+      isNotice: true,
+      deleted: { $ne: true },
+      ...authorFilter,
     })
     .populate('author', 'photo name intro')
     .sort({ time: -1 })
     .lean();
 
     // 일반 게시글 조회
-    const regularPostQuery = { 
-      ...baseQuery, 
+    const regularPostQuery = {
+      ...baseQuery,
       $or: [
         { isNotice: { $exists: false } },
         { isNotice: false },
@@ -65,12 +80,12 @@ router.get("/", authMiddleware, async (req, res) => {
       .limit(limit)
       .lean();
 
-    res.json({ 
-      notices, 
-      posts, 
-      currentPage: page, 
-      totalPages: Math.ceil(total / limit), 
-      totalPosts: total 
+    res.json({
+      notices,
+      posts,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalPosts: total
     });
   } catch (e) {
     console.error("게시글 조회 오류:", e);
@@ -81,11 +96,38 @@ router.get("/", authMiddleware, async (req, res) => {
 // --- 단일 게시글 조회 (GET /:id) ---.populate('author', 'photo name intro')
 router.get("/:id", authMiddleware, async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id)
-      .populate('author', 'photo name intro')
-      .populate('comments.author', 'photo name intro');
-    if (!post || post.deleted) return res.status(404).json({ error: "글을 찾을 수 없습니다." });
-    res.json(post);
+    const [post, blockInfo] = await Promise.all([
+      Post.findById(req.params.id)
+        .populate('author', 'photo name intro')
+        .populate('comments.author', 'photo name intro'),
+      resolveBlockSets(req.user.id),
+    ]);
+
+    if (!post || post.deleted) {
+      return res.status(404).json({ error: "글을 찾을 수 없습니다." });
+    }
+
+    const blockedSet = new Set([
+      ...blockInfo.blocked,
+      ...blockInfo.blockedBy,
+    ]);
+
+    const authorId = post.author?.id || post.author?._id?.toString() || post.author?.toString();
+    if (authorId && blockedSet.has(authorId.toString())) {
+      return res.status(403).json({ error: '차단된 사용자의 게시글입니다.' });
+    }
+
+    const payload = post.toObject({ virtuals: true });
+    if (Array.isArray(payload.comments)) {
+      payload.comments = payload.comments.filter((comment) => {
+        const commentAuthorId = comment.author?.id
+          || comment.author?._id?.toString()
+          || comment.author?.toString();
+        return commentAuthorId ? !blockedSet.has(commentAuthorId.toString()) : true;
+      });
+    }
+
+    res.json(payload);
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -132,10 +174,17 @@ router.post("/", authMiddleware, contentFilter, async (req, res) => {
 router.put("/:id", authMiddleware, contentFilter, async (req, res) => {
   try {
     const { title, content } = req.body;
-    const post = await Post.findById(req.params.id);
+    const [post, blockInfo] = await Promise.all([
+      Post.findById(req.params.id),
+      resolveBlockSets(req.user.id),
+    ]);
     if (!post) return res.status(404).json({ error: "게시글을 찾을 수 없습니다." });
     if (post.user !== req.user.username && !req.user.isAdmin)
       return res.status(403).json({ error: "수정 권한이 없습니다." });
+    const authorId = post.author?.toString();
+    if (authorId && isInteractionBlocked(authorId, blockInfo)) {
+      return res.status(403).json({ error: '차단된 사용자와 상호작용할 수 없습니다.' });
+    }
     post.title = title;
     post.content = content;
     post.lastEditedAt = new Date();
@@ -151,9 +200,17 @@ router.put("/:id", authMiddleware, contentFilter, async (req, res) => {
 // --- 댓글 작성 (POST /:id/comment) ---
 router.post("/:id/comment", authMiddleware, contentFilter, async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id);
+    const [post, blockInfo] = await Promise.all([
+      Post.findById(req.params.id),
+      resolveBlockSets(req.user.id),
+    ]);
     if (!post) return res.status(404).json({ error: "게시글을 찾을 수 없습니다." });
-    
+
+    const authorId = post.author?.toString();
+    if (authorId && isInteractionBlocked(authorId, blockInfo)) {
+      return res.status(403).json({ error: '차단된 사용자와 상호작용할 수 없습니다.' });
+    }
+
     const newComment = {
       user: req.user.username,
       author: req.user.id,
