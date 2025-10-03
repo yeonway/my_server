@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="css/profile-menu.css">
   <link rel="stylesheet" href="css/topbar.css">
   <link rel="stylesheet" href="css/board.css">
+  <script defer src="js/blocking-client.js"></script>
 </head>
 <body>
   <header class="site-topbar">
@@ -55,6 +56,9 @@
       <h3>게시글 신고</h3>
       <p>신고 사유를 구체적으로 작성해주세요.</p>
       <textarea id="reportReasonInput" placeholder="예: 부적절한 내용, 스팸, 광고 등" maxlength="500"></textarea>
+      <div class="report-modal-actions">
+        <button id="reportBlockToggleBtn" type="button" class="action-chip action-block report-block-toggle" hidden>차단 해제</button>
+      </div>
       <div class="confirm-buttons">
         <button id="submitReportBtn">제출</button>
         <button id="cancelReportBtn">취소</button>
@@ -90,45 +94,66 @@
     const reportReasonInput = document.getElementById('reportReasonInput');
     const submitReportBtn = document.getElementById('submitReportBtn');
     const cancelReportBtn = document.getElementById('cancelReportBtn');
+    const reportBlockToggleBtn = document.getElementById('reportBlockToggleBtn');
 
     async function loadBlockedUsers() {
-      try {
-        const response = await fetch('/api/users/blocks', {
-          method: 'GET',
-          headers: { 'Authorization': 'Bearer ' + token },
-          credentials: 'same-origin'
-        });
-
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          throw new Error(payload?.error || '차단 목록을 불러오지 못했습니다.');
-        }
-
-        const blocks = Array.isArray(payload.blocks) ? payload.blocks : [];
-        blockedUserIds = new Set(blocks.map((block) => block.id));
-      } catch (error) {
-        console.warn('[board] loadBlockedUsers failed', error);
+      if (!window.BlockingClient) {
         if (!(blockedUserIds instanceof Set)) {
           blockedUserIds = new Set();
         }
+        updateReportBlockButton();
+        return;
+      }
+
+      try {
+        await window.BlockingClient.refresh({ token, silent: true });
+      } catch (error) {
+        console.warn('[board] loadBlockedUsers failed', error);
+      } finally {
+        const latest = window.BlockingClient.getBlockedSet();
+        blockedUserIds = latest instanceof Set ? latest : new Set();
+        updateReportBlockButton();
       }
     }
 
-    let reportTarget = { type: null, id: null };
+    let reportTarget = { type: null, id: null, authorId: null, username: '' };
 
-    function showReportModal(type, id) {
-      reportTarget.type = type;
-      reportTarget.id = id;
+    function updateReportBlockButton() {
+      if (!reportBlockToggleBtn) return;
+      const hasTarget = Boolean(reportTarget.authorId);
+      reportBlockToggleBtn.hidden = !hasTarget;
+      if (!hasTarget) {
+        reportBlockToggleBtn.dataset.blocked = '0';
+        return;
+      }
+
+      const isBlocked = blockedUserIds.has(reportTarget.authorId);
+      reportBlockToggleBtn.textContent = isBlocked ? '차단 해제' : '차단';
+      reportBlockToggleBtn.dataset.blocked = isBlocked ? '1' : '0';
+    }
+
+    function showReportModal(type, id, authorId = null, username = '') {
+      reportTarget = { type, id, authorId, username };
       reportReasonInput.value = '';
+      updateReportBlockButton();
       reportModal.classList.add('show');
     }
 
     function closeReportModal() {
       reportModal.classList.remove('show');
-      reportTarget = { type: null, id: null };
+      reportTarget = { type: null, id: null, authorId: null, username: '' };
     }
 
     cancelReportBtn.onclick = closeReportModal;
+    if (reportBlockToggleBtn) {
+      reportBlockToggleBtn.addEventListener('click', async (event) => {
+        event.preventDefault();
+        if (!reportTarget.authorId) return;
+        const currentlyBlocked = blockedUserIds.has(reportTarget.authorId);
+        await toggleBlockUser(reportTarget.authorId, reportTarget.username, !currentlyBlocked);
+        updateReportBlockButton();
+      });
+    }
     submitReportBtn.onclick = async () => {
       const reason = reportReasonInput.value.trim();
       if (!reason) {
@@ -231,33 +256,22 @@
       if (!userId) return;
       const targetId = String(userId);
       const desiredBlock = typeof shouldBlock === 'boolean' ? shouldBlock : !blockedUserIds.has(targetId);
+
       try {
-        let response;
-        if (desiredBlock) {
-          response = await fetch('/api/users/blocks', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + token
-            },
-            credentials: 'same-origin',
-            body: JSON.stringify({ userId: targetId })
-          });
+        if (window.BlockingClient) {
+          if (desiredBlock) {
+            await window.BlockingClient.block(targetId, { token });
+          } else {
+            await window.BlockingClient.unblock(targetId, { token });
+          }
+          const latest = window.BlockingClient.getBlockedSet();
+          blockedUserIds = latest instanceof Set ? latest : new Set();
         } else {
-          response = await fetch(`/api/users/blocks/${targetId}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': 'Bearer ' + token },
-            credentials: 'same-origin'
-          });
+          throw new Error('차단 도구를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
         }
 
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          throw new Error(payload?.error || (desiredBlock ? '사용자를 차단하지 못했습니다.' : '차단을 해제하지 못했습니다.'));
-        }
-
-        await loadBlockedUsers();
         await loadPost();
+        updateReportBlockButton();
 
         const label = username ? `${username}님을 ` : '';
         showNotification(`${label}${desiredBlock ? '차단했습니다.' : '차단을 해제했습니다.'}`, 'success');
@@ -304,7 +318,7 @@
         if (authorId && post.user !== me) {
           const blockBtn = document.createElement('button');
           blockBtn.type = 'button';
-          blockBtn.className = 'block-user-btn';
+          blockBtn.className = 'block-user-btn action-chip action-block';
           const isBlocked = blockedUserIds.has(authorId);
           blockBtn.textContent = isBlocked ? '차단 해제' : '차단';
           blockBtn.addEventListener('click', (event) => {
@@ -320,13 +334,19 @@
         const actions = document.getElementById("postActions");
         if (post.user === me) {
           actions.insertAdjacentHTML('afterbegin', `
-            <button onclick="editPost('${post._id}')">수정</button>
-            <button onclick="deletePost('${post._id}')">삭제</button>
+            <button class="action-chip action-edit" onclick="editPost('${post._id}')">수정</button>
+            <button class="action-chip action-delete" onclick="deletePost('${post._id}')">삭제</button>
           `);
         } else {
-          actions.insertAdjacentHTML('beforeend', `
-            <button class="btn-report" onclick="showReportModal('post', '${post._id}')">신고</button>
-          `);
+          const reportBtn = document.createElement('button');
+          reportBtn.className = 'btn-report action-chip action-report';
+          reportBtn.type = 'button';
+          reportBtn.textContent = '신고';
+          reportBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            showReportModal('post', post._id, authorId, post.user);
+          });
+          actions.appendChild(reportBtn);
         }
         postContent.innerHTML = `<span id="postContentText">${post.content}</span>`;
 
@@ -385,9 +405,9 @@
             div.className = "comment";
             let actionsHtml = '<div class="comment-actions">';
             if (c.user === me) {
-              actionsHtml += `<button onclick="deleteComment('${post._id}', '${c._id}')">삭제</button>`;
+              actionsHtml += `<button class="action-chip action-delete" onclick="deleteComment('${post._id}', '${c._id}')">삭제</button>`;
             } else {
-              actionsHtml += `<button class="btn-report" onclick="showReportModal('comment', '${c._id}')">신고</button>`;
+              actionsHtml += `<button class="btn-report action-chip action-report">신고</button>`;
             }
             actionsHtml += '</div>';
             div.innerHTML = `
@@ -407,7 +427,7 @@
               if (actionsEl) {
                 const blockBtn = document.createElement('button');
                 blockBtn.type = 'button';
-                blockBtn.className = 'comment-block-btn';
+                blockBtn.className = 'comment-block-btn action-chip action-block';
                 const isBlocked = blockedUserIds.has(commentAuthorId);
                 blockBtn.textContent = isBlocked ? '차단 해제' : '차단';
                 blockBtn.addEventListener('click', (event) => {
@@ -415,6 +435,16 @@
                   toggleBlockUser(commentAuthorId, c.user, !isBlocked);
                 });
                 actionsEl.appendChild(blockBtn);
+              }
+            }
+
+            if (c.user !== me) {
+              const reportBtn = div.querySelector('.btn-report');
+              if (reportBtn) {
+                reportBtn.addEventListener('click', (event) => {
+                  event.preventDefault();
+                  showReportModal('comment', c._id, commentAuthorId, c.user);
+                });
               }
             }
 
@@ -653,6 +683,14 @@
 
     // -- 초기 데이터 로딩 --
     async function initBoardPage() {
+      if (window.BlockingClient) {
+        const initialSet = window.BlockingClient.getBlockedSet();
+        if (initialSet instanceof Set) {
+          blockedUserIds = new Set(initialSet);
+          updateReportBlockButton();
+        }
+      }
+
       try {
         await loadBlockedUsers();
       } catch (error) {
@@ -663,7 +701,7 @@
       loadOtherPosts();
     }
 
-    initBoardPage();
+    document.addEventListener('DOMContentLoaded', initBoardPage);
   </script>
   <script defer src="js/auth-helper.js"></script>
   <script defer src="js/profile-menu.js"></script>

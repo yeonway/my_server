@@ -7,6 +7,7 @@
   <title>게시판</title>
   <link rel="stylesheet" href="css/posts.css">
   <link rel="stylesheet" href="css/topbar.css">
+  <script defer src="js/blocking-client.js"></script>
 </head>
 <body>
   <header class="site-topbar">
@@ -117,23 +118,20 @@
     const contentInput = document.getElementById('contentInput');
 
     async function loadBlockedUsers() {
-      try {
-        const response = await fetch('/api/users/blocks', {
-          method: 'GET',
-          headers: { 'Authorization': 'Bearer ' + token },
-          credentials: 'same-origin'
-        });
-
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          throw new Error(payload?.error || '차단 목록을 불러오지 못했습니다.');
+      if (!window.BlockingClient) {
+        if (!(blockedUserIds instanceof Set)) {
+          blockedUserIds = new Set();
         }
+        return;
+      }
 
-        const blocks = Array.isArray(payload.blocks) ? payload.blocks : [];
-        blockedUserIds = new Set(blocks.map((block) => block.id));
+      try {
+        await window.BlockingClient.refresh({ token, silent: true });
       } catch (error) {
         console.warn('[posts] loadBlockedUsers failed', error);
-        blockedUserIds = blockedUserIds || new Set();
+      } finally {
+        const latest = window.BlockingClient.getBlockedSet();
+        blockedUserIds = latest instanceof Set ? latest : new Set();
       }
     }
 
@@ -272,7 +270,7 @@
           blockWrapper.className = 'post-meta-actions';
           const blockBtn = document.createElement('button');
           blockBtn.type = 'button';
-          blockBtn.className = 'block-user-btn';
+          blockBtn.className = 'block-user-btn action-chip action-block';
           const isBlocked = blockedUserIds.has(authorId);
           blockBtn.textContent = isBlocked ? '차단 해제' : '차단';
           blockBtn.addEventListener('click', (event) => {
@@ -288,7 +286,7 @@
       if (post.user === me) {
         const actionsDiv = document.createElement('div');
         actionsDiv.className = 'post-actions';
-        actionsDiv.innerHTML = `<button class="edit-btn">수정</button><button class="delete-btn">삭제</button>`;
+        actionsDiv.innerHTML = `<button class="action-chip action-edit edit-btn">수정</button><button class="action-chip action-delete delete-btn">삭제</button>`;
         div.appendChild(actionsDiv);
       }
       
@@ -304,32 +302,20 @@
       if (!userId) return;
       const targetId = String(userId);
       const desiredBlock = typeof shouldBlock === 'boolean' ? shouldBlock : !blockedUserIds.has(targetId);
+
       try {
-        let response;
-        if (desiredBlock) {
-          response = await fetch('/api/users/blocks', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + token
-            },
-            credentials: 'same-origin',
-            body: JSON.stringify({ userId: targetId })
-          });
+        if (window.BlockingClient) {
+          if (desiredBlock) {
+            await window.BlockingClient.block(targetId, { token });
+          } else {
+            await window.BlockingClient.unblock(targetId, { token });
+          }
+          const latest = window.BlockingClient.getBlockedSet();
+          blockedUserIds = latest instanceof Set ? latest : new Set();
         } else {
-          response = await fetch(`/api/users/blocks/${targetId}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': 'Bearer ' + token },
-            credentials: 'same-origin'
-          });
+          throw new Error('차단 도구를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
         }
 
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          throw new Error(payload?.error || (desiredBlock ? '사용자를 차단하지 못했습니다.' : '차단을 해제하지 못했습니다.'));
-        }
-
-        await loadBlockedUsers();
         await loadPosts();
 
         const label = username ? `${username}님을 ` : '';
@@ -562,10 +548,18 @@
     }
 
     // --- 초기 로드 ---
-    (async function initializeBoard() {
+    async function initializeBoard() {
+      if (window.BlockingClient) {
+        const initialSet = window.BlockingClient.getBlockedSet();
+        if (initialSet instanceof Set) {
+          blockedUserIds = new Set(initialSet);
+        }
+      }
       await loadBlockedUsers();
       await loadPosts();
-    })();
+    }
+
+    document.addEventListener('DOMContentLoaded', initializeBoard);
     
     // 알림 표시 기능 (누락 방지)
     function showNotification(message, type = "error") {

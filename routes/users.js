@@ -599,6 +599,7 @@ router.post('/blocks', authMiddleware, async (req, res) => {
           id: target._id.toString(),
           username: target.username,
           name: target.name || '',
+          photo: target.photo || target.profilePhoto || '',
         },
         message: '이미 차단한 사용자입니다.',
       });
@@ -616,6 +617,7 @@ router.post('/blocks', authMiddleware, async (req, res) => {
         id: target._id.toString(),
         username: target.username,
         name: target.name || '',
+        photo: target.photo || target.profilePhoto || '',
       },
     });
   } catch (error) {

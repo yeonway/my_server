@@ -152,18 +152,80 @@ h1 {
   gap: 6px;
 }
 .post-actions button {
-  padding: 4px 12px;
-  font-size: 12px;
-  cursor: pointer;
-  border-radius: 4px;
-  border: 1px solid #b6d0f7;
-  background: #f3f6fa;
-  color: #2d3a5c;
-  transition: 0.2s;
+  padding: 0;
+  border: none;
+  background: transparent;
 }
-.post-actions button:hover {
-  background: #dbeafe;
-  color: #007bff;
+
+.action-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: linear-gradient(135deg, #e2e8f0 0%, #f8fafc 100%);
+  color: #1f2937;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease;
+}
+
+.action-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(148, 163, 184, 0.18);
+}
+
+.action-chip:focus-visible {
+  outline: 3px solid rgba(59, 130, 246, 0.35);
+  outline-offset: 2px;
+}
+
+.action-edit {
+  background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%);
+  border-color: rgba(59, 130, 246, 0.35);
+  color: #1d4ed8;
+  box-shadow: 0 6px 14px rgba(59, 130, 246, 0.18);
+}
+
+.action-edit:hover {
+  box-shadow: 0 12px 22px rgba(59, 130, 246, 0.28);
+}
+
+.action-delete {
+  background: linear-gradient(135deg, #fda4af 0%, #f87171 100%);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.25);
+}
+
+.action-delete:hover {
+  box-shadow: 0 14px 24px rgba(239, 68, 68, 0.32);
+}
+
+.action-report {
+  background: linear-gradient(135deg, #fcd34d 0%, #f97316 100%);
+  border-color: rgba(249, 115, 22, 0.45);
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(249, 115, 22, 0.24);
+}
+
+.action-report:hover {
+  box-shadow: 0 14px 24px rgba(249, 115, 22, 0.32);
+}
+
+.action-block {
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5f5 100%);
+  border-color: rgba(148, 163, 184, 0.45);
+  color: #1f2937;
+  box-shadow: 0 6px 14px rgba(148, 163, 184, 0.22);
+}
+
+.action-block:hover {
+  box-shadow: 0 12px 20px rgba(148, 163, 184, 0.28);
 }
 @media (max-width: 800px) {
   #postForm, #posts { max-width: 98vw; }
@@ -226,10 +288,9 @@ h1 {
     flex-wrap: wrap;
   }
 
-  .post-actions button {
-    padding: 6px 10px;
-    font-size: 12px;
-    margin-bottom: 5px;
+  .post-actions .action-chip {
+    padding: 6px 14px;
+    margin-bottom: 6px;
   }
 }
 
@@ -260,8 +321,8 @@ h1 {
     height: 22px;
   }
 
-  .post-actions button {
-    padding: 5px 8px;
+  .post-actions .action-chip {
+    padding: 6px 12px;
     font-size: 11px;
   }
 }
@@ -760,17 +821,7 @@ h1 {
 }
 
 .block-user-btn {
-  padding: 4px 10px;
-  font-size: 12px;
-  border-radius: 4px;
-  border: 1px solid #b6d0f7;
-  background: #f3f6fa;
-  color: #1f2937;
-  cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
-.block-user-btn:hover {
-  background: #dbeafe;
-  color: #1d4ed8;
+  padding: 0;
+  background: transparent;
+  border: none;
 }
