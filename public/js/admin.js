@@ -269,6 +269,45 @@ function escapeHtml(str = '') {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
+
+function formatChatLogText(value) {
+  const text = typeof value === 'string' ? value : '';
+  if (!text) {
+    return '<span class="chat-log-empty">내용 없음</span>';
+  }
+  return escapeHtml(text).replace(/\n/g, '<br>');
+}
+
+function buildEditHistoryDetails(history) {
+  if (!Array.isArray(history) || history.length === 0) {
+    return '';
+  }
+
+  const entries = history
+    .slice()
+    .reverse()
+    .map((entry) => {
+      const editedAt = entry?.editedAt ? new Date(entry.editedAt) : null;
+      const when = editedAt && !Number.isNaN(editedAt.getTime()) ? editedAt.toLocaleString() : '-';
+      const editor = entry?.editorName ? escapeHtml(entry.editorName) : '-';
+      return `
+        <div class="chat-log-history-row">
+          <div class="chat-log-history-meta">${escapeHtml(when)} · ${editor}</div>
+          <div class="chat-log-history-text"><span class="chat-log-history-label">전</span>${formatChatLogText(entry?.previousMessage)}</div>
+          <div class="chat-log-history-text"><span class="chat-log-history-label">후</span>${formatChatLogText(entry?.newMessage)}</div>
+        </div>
+      `;
+    })
+    .join('');
+
+  return `
+    <details class="chat-log-history-details">
+      <summary>수정 이력 (${history.length})</summary>
+      ${entries}
+    </details>
+  `;
+}
+
 function formatChatLogMessage(log) {
   if (!log) {
     return '';
@@ -276,6 +315,33 @@ function formatChatLogMessage(log) {
   if (log.deleted) {
     return '<span class="chat-log-deleted">삭제된 메시지입니다.</span>';
   }
+
+  const history = Array.isArray(log.editHistory) ? log.editHistory : [];
+  if (history.length) {
+    const latest = history[history.length - 1] || {};
+    const original = latest?.previousMessage;
+    const updated =
+      typeof log.currentMessage === 'string' && log.currentMessage.length > 0
+        ? log.currentMessage
+        : latest?.newMessage;
+
+    const details = history.length > 1 ? buildEditHistoryDetails(history) : '';
+
+    return `
+      <div class="chat-log-edited-message">
+        <div class="chat-log-edited-row">
+          <span class="chat-log-tag chat-log-tag-before">수정 전</span>
+          <div class="chat-log-body">${formatChatLogText(original)}</div>
+        </div>
+        <div class="chat-log-edited-row">
+          <span class="chat-log-tag chat-log-tag-after">수정 후</span>
+          <div class="chat-log-body">${formatChatLogText(updated)}</div>
+        </div>
+        ${details}
+      </div>
+    `;
+  }
+
   const preferredMessage =
     typeof log.currentMessage === 'string' && log.currentMessage.length > 0
       ? log.currentMessage
@@ -307,6 +373,13 @@ function buildChatLogMeta(log) {
     log.message !== log.currentMessage
   ) {
     metaItems.push('<span class="chat-log-meta-item status-info">로그와 현재 메시지가 다릅니다</span>');
+  }
+  if (Array.isArray(log.editHistory) && log.editHistory.length) {
+    const latest = log.editedAt || log.editHistory[log.editHistory.length - 1]?.editedAt;
+    const editedDate = latest ? new Date(latest) : null;
+    const label = editedDate && !Number.isNaN(editedDate.getTime()) ? editedDate.toLocaleString() : '';
+    const suffix = label ? ` (${escapeHtml(label)})` : '';
+    metaItems.push(`<span class="chat-log-meta-item status-info">수정됨${suffix}</span>`);
   }
   if (
     log.currentRoom &&
@@ -1886,7 +1959,16 @@ function renderChatLogs() {
   const typeValue = chatLogTypeFilter ? chatLogTypeFilter.value.toLowerCase() : 'all';
 
   const filtered = allChatLogs.filter(log => {
-    const message = ((log.currentMessage || log.message) || '').toLowerCase();
+    const messageParts = [];
+    if (typeof log.currentMessage === 'string') messageParts.push(log.currentMessage);
+    if (typeof log.message === 'string') messageParts.push(log.message);
+    if (Array.isArray(log.editHistory) && log.editHistory.length) {
+      log.editHistory.forEach((entry) => {
+        if (entry?.previousMessage) messageParts.push(entry.previousMessage);
+        if (entry?.newMessage) messageParts.push(entry.newMessage);
+      });
+    }
+    const message = messageParts.join(' ').toLowerCase();
     const room = ((log.currentRoom || log.room) || '').toLowerCase();
     const sender = (log.from || '').toLowerCase();
     const type = ((log.currentType || log.type) || '').toLowerCase();

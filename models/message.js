@@ -12,7 +12,22 @@ const messageSchema = new mongoose.Schema(
       type: String,
       name: String,
     }],
-    time: { type: Date, default: Date.now }
+    time: { type: Date, default: Date.now },
+    editedAt: { type: Date, default: null },
+    lastEditedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    lastEditedByName: { type: String, default: null },
+    editHistory: {
+      type: [
+        {
+          previousMessage: { type: String, required: true },
+          newMessage: { type: String, required: true },
+          editedAt: { type: Date, default: Date.now },
+          editor: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+          editorName: { type: String },
+        }
+      ],
+      default: [],
+    }
   },
   { timestamps: true }
 );

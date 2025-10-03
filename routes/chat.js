@@ -21,6 +21,7 @@ const User = require('../models/user');
 const Report = require('../models/report');
 
 const logger = require('../config/logger');
+const { userLog } = require('../config/userLogger');
 
 
 
@@ -820,6 +821,218 @@ router.get('/messages/:room', authMiddleware, async (req, res) => {
   } catch (e) {
 
     res.status(500).json({ error: e.message });
+
+  }
+
+});
+
+
+
+router.put('/messages/:id', authMiddleware, async (req, res) => {
+
+  try {
+
+    const { message: nextMessage } = req.body || {};
+
+    const trimmedMessage = typeof nextMessage === 'string' ? nextMessage.trim() : '';
+
+    if (!trimmedMessage) {
+
+      return res.status(400).json({ error: '수정할 메시지를 입력해 주세요.' });
+
+    }
+
+
+
+    const message = await Message.findById(req.params.id);
+
+    if (!message) {
+
+      return res.status(404).json({ error: '메시지를 찾을 수 없습니다.' });
+
+    }
+
+
+
+    if (message.messageType !== 'text' || (typeof message.message === 'string' && message.message.startsWith('[IMAGE]'))) {
+
+      return res.status(400).json({ error: '이 메시지는 수정할 수 없습니다.' });
+
+    }
+
+
+
+    if (message.message === trimmedMessage) {
+
+      return res.status(400).json({ error: '변경된 내용이 없습니다.' });
+
+    }
+
+
+
+    const roomId = message.room ? message.room.toString() : null;
+
+    const isOwner = message.author?.toString() === req.user.id;
+
+    const isAdmin = ['admin', 'superadmin'].includes(req.user.role);
+
+    const adminOverrideHeader = req.get('x-admin-moderation');
+
+    const allowAdminOverride = isAdmin && typeof adminOverrideHeader === 'string' && adminOverrideHeader.toLowerCase() === 'log';
+
+    if (!isOwner && !allowAdminOverride) {
+
+      return res.status(403).json({ error: '메시지를 수정할 권한이 없습니다.' });
+
+    }
+
+
+
+    let chatroom = null;
+
+    if (roomId && mongoose.Types.ObjectId.isValid(roomId)) {
+
+      try {
+
+        chatroom = await Chatroom.findById(roomId).select('_id participants');
+
+      } catch (error) {
+
+        chatroom = null;
+
+      }
+
+    }
+
+
+
+    if (chatroom && !allowAdminOverride) {
+
+      const isParticipant = chatroom.participants.some((participant) => participant.toString() === req.user.id);
+
+      if (!isParticipant) {
+
+        return res.status(403).json({ error: '채팅방에 참여하고 있지 않습니다.' });
+
+      }
+
+    }
+
+
+
+    const editTimestamp = new Date();
+
+    const editorId = mongoose.Types.ObjectId.isValid(req.user.id) ? req.user.id : null;
+
+    const historyEntry = {
+
+      previousMessage: message.message,
+
+      newMessage: trimmedMessage,
+
+      editedAt: editTimestamp,
+
+      editor: editorId || undefined,
+
+      editorName: req.user.username,
+
+    };
+
+
+
+    message.message = trimmedMessage;
+
+    message.editedAt = editTimestamp;
+
+    message.lastEditedBy = editorId;
+
+    message.lastEditedByName = req.user.username;
+
+    if (!Array.isArray(message.editHistory)) {
+
+      message.editHistory = [];
+
+    }
+
+    message.editHistory.push(historyEntry);
+
+
+
+    await message.save();
+
+
+
+    const historyArray = Array.isArray(message.editHistory)
+
+      ? message.editHistory.map((entry) => ({
+
+        previousMessage: entry.previousMessage,
+
+        newMessage: entry.newMessage,
+
+        editedAt: entry.editedAt,
+
+        editor: entry.editor,
+
+        editorName: entry.editorName,
+
+      }))
+
+      : [];
+
+
+
+    const responsePayload = {
+
+      messageId: message._id.toString(),
+
+      room: roomId,
+
+      message: message.message,
+
+      editedAt: message.editedAt,
+
+      editHistory: historyArray,
+
+    };
+
+
+
+    const io = req.app.get('io');
+
+    if (io && roomId) {
+
+      io.to(roomId).emit('messageUpdated', responsePayload);
+
+    }
+
+
+
+    const moderationContext = allowAdminOverride ? ' (admin-log override)' : '';
+
+    logger.info(`Chat message edited: ${req.user.username} -> message ${responsePayload.messageId}${moderationContext}`);
+
+    if (req.userLogger) req.userLogger('info', `채팅 메시지 수정: ${responsePayload.messageId}`);
+
+    try {
+
+      userLog('admin', 'info', `[CHAT][update] room=${roomId || '-'} messageId=${responsePayload.messageId} from=${req.user.username} message=${trimmedMessage}`);
+
+    } catch (error) {
+
+      // ignore logging problems for edit history
+
+    }
+
+
+
+    res.json(responsePayload);
+
+  } catch (error) {
+
+    logger.error(`Edit chat message error: ${error.message}`);
+
+    res.status(500).json({ error: '메시지를 수정하지 못했습니다.' });
 
   }
 

@@ -125,7 +125,10 @@ io.on("connection", async (socket) => {
     }
 
     socket.join(roomId);
-    const messages = await Message.find({ room: roomId }).sort({ time: 1 }).limit(100);
+    const messages = await Message.find({ room: roomId })
+      .sort({ time: 1 })
+      .limit(100)
+      .lean();
     const filteredMessages = messages.filter((msg) => !isInteractionBlocked(msg.author, blockInfo));
     socket.emit("previousMessages", filteredMessages);
   });
@@ -189,7 +192,9 @@ io.on("connection", async (socket) => {
       author: doc.author,
       message: doc.message,
       messageType: doc.messageType,
-      time: doc.time
+      time: doc.time,
+      editedAt: doc.editedAt,
+      editHistory: Array.isArray(doc.editHistory) ? doc.editHistory : [],
     });
   });
 });
