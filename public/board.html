@@ -55,6 +55,9 @@
       <h3>게시글 신고</h3>
       <p>신고 사유를 구체적으로 작성해주세요.</p>
       <textarea id="reportReasonInput" placeholder="예: 부적절한 내용, 스팸, 광고 등" maxlength="500"></textarea>
+      <div class="report-modal-actions">
+        <button id="reportBlockToggleBtn" type="button" class="action-chip action-block report-block-toggle" hidden>차단 해제</button>
+      </div>
       <div class="confirm-buttons">
         <button id="submitReportBtn">제출</button>
         <button id="cancelReportBtn">취소</button>
@@ -90,6 +93,7 @@
     const reportReasonInput = document.getElementById('reportReasonInput');
     const submitReportBtn = document.getElementById('submitReportBtn');
     const cancelReportBtn = document.getElementById('cancelReportBtn');
+    const reportBlockToggleBtn = document.getElementById('reportBlockToggleBtn');
 
     async function loadBlockedUsers() {
       try {
@@ -106,29 +110,54 @@
 
         const blocks = Array.isArray(payload.blocks) ? payload.blocks : [];
         blockedUserIds = new Set(blocks.map((block) => block.id));
+        updateReportBlockButton();
       } catch (error) {
         console.warn('[board] loadBlockedUsers failed', error);
         if (!(blockedUserIds instanceof Set)) {
           blockedUserIds = new Set();
         }
+        updateReportBlockButton();
       }
     }
 
-    let reportTarget = { type: null, id: null };
+    let reportTarget = { type: null, id: null, authorId: null, username: '' };
 
-    function showReportModal(type, id) {
-      reportTarget.type = type;
-      reportTarget.id = id;
+    function updateReportBlockButton() {
+      if (!reportBlockToggleBtn) return;
+      const hasTarget = Boolean(reportTarget.authorId);
+      reportBlockToggleBtn.hidden = !hasTarget;
+      if (!hasTarget) {
+        reportBlockToggleBtn.dataset.blocked = '0';
+        return;
+      }
+
+      const isBlocked = blockedUserIds.has(reportTarget.authorId);
+      reportBlockToggleBtn.textContent = isBlocked ? '차단 해제' : '차단';
+      reportBlockToggleBtn.dataset.blocked = isBlocked ? '1' : '0';
+    }
+
+    function showReportModal(type, id, authorId = null, username = '') {
+      reportTarget = { type, id, authorId, username };
       reportReasonInput.value = '';
+      updateReportBlockButton();
       reportModal.classList.add('show');
     }
 
     function closeReportModal() {
       reportModal.classList.remove('show');
-      reportTarget = { type: null, id: null };
+      reportTarget = { type: null, id: null, authorId: null, username: '' };
     }
 
     cancelReportBtn.onclick = closeReportModal;
+    if (reportBlockToggleBtn) {
+      reportBlockToggleBtn.addEventListener('click', async (event) => {
+        event.preventDefault();
+        if (!reportTarget.authorId) return;
+        const currentlyBlocked = blockedUserIds.has(reportTarget.authorId);
+        await toggleBlockUser(reportTarget.authorId, reportTarget.username, !currentlyBlocked);
+        updateReportBlockButton();
+      });
+    }
     submitReportBtn.onclick = async () => {
       const reason = reportReasonInput.value.trim();
       if (!reason) {
@@ -324,9 +353,15 @@
             <button class="action-chip action-delete" onclick="deletePost('${post._id}')">삭제</button>
           `);
         } else {
-          actions.insertAdjacentHTML('beforeend', `
-            <button class="btn-report action-chip action-report" onclick="showReportModal('post', '${post._id}')">신고</button>
-          `);
+          const reportBtn = document.createElement('button');
+          reportBtn.className = 'btn-report action-chip action-report';
+          reportBtn.type = 'button';
+          reportBtn.textContent = '신고';
+          reportBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            showReportModal('post', post._id, authorId, post.user);
+          });
+          actions.appendChild(reportBtn);
         }
         postContent.innerHTML = `<span id="postContentText">${post.content}</span>`;
 
@@ -387,7 +422,7 @@
             if (c.user === me) {
               actionsHtml += `<button class="action-chip action-delete" onclick="deleteComment('${post._id}', '${c._id}')">삭제</button>`;
             } else {
-              actionsHtml += `<button class="btn-report action-chip action-report" onclick="showReportModal('comment', '${c._id}')">신고</button>`;
+              actionsHtml += `<button class="btn-report action-chip action-report">신고</button>`;
             }
             actionsHtml += '</div>';
             div.innerHTML = `
@@ -415,6 +450,16 @@
                   toggleBlockUser(commentAuthorId, c.user, !isBlocked);
                 });
                 actionsEl.appendChild(blockBtn);
+              }
+            }
+
+            if (c.user !== me) {
+              const reportBtn = div.querySelector('.btn-report');
+              if (reportBtn) {
+                reportBtn.addEventListener('click', (event) => {
+                  event.preventDefault();
+                  showReportModal('comment', c._id, commentAuthorId, c.user);
+                });
               }
             }
 

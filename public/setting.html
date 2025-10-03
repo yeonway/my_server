@@ -50,6 +50,16 @@
       </div>
     </div>
 
+    <!-- 차단 사용자 관리 -->
+    <div class="setting-card" id="blockedUsersCard">
+      <h2>차단 사용자</h2>
+      <p class="setting-card-description">신고나 차단으로 숨긴 사용자를 확인하고 차단을 해제할 수 있습니다.</p>
+      <div id="blockedUsersLoading" class="blocked-users-loading">차단한 사용자를 불러오는 중...</div>
+      <ul id="blockedUsersList" class="blocked-users-list"></ul>
+      <div id="blockedUsersEmpty" class="blocked-users-empty" hidden>차단한 사용자가 없습니다.</div>
+      <div id="blockedUsersError" class="blocked-users-error" hidden></div>
+    </div>
+
     <!-- 회원 탈퇴 -->
     <div class="setting-card">
       <h2>회원 탈퇴</h2>
@@ -80,6 +90,153 @@
       window.location.href = "/login.html";
     }
 
+    const blockedUsersList = document.getElementById('blockedUsersList');
+    const blockedUsersEmpty = document.getElementById('blockedUsersEmpty');
+    const blockedUsersLoading = document.getElementById('blockedUsersLoading');
+    const blockedUsersError = document.getElementById('blockedUsersError');
+
+    function resolvePhotoUrl(photo) {
+      if (!photo || typeof photo !== 'string') return null;
+      if (/^https?:/i.test(photo)) return photo;
+      const normalized = photo.startsWith('/') ? photo : `/${photo.replace(/^\/+/,'')}`;
+      return normalized;
+    }
+
+    async function requestUnblock(userId) {
+      if (!userId || !token) {
+        throw new Error('차단 해제 대상이 올바르지 않습니다.');
+      }
+
+      const response = await fetch(`/api/users/blocks/${userId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token },
+        credentials: 'same-origin'
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload?.error || '차단을 해제하지 못했습니다.');
+      }
+
+      await refreshBlockedUsers();
+    }
+
+    function renderBlockedUsers(blocks = []) {
+      if (!blockedUsersList) return;
+
+      blockedUsersList.innerHTML = '';
+
+      if (!Array.isArray(blocks) || blocks.length === 0) {
+        if (blockedUsersEmpty) blockedUsersEmpty.hidden = false;
+        return;
+      }
+
+      if (blockedUsersEmpty) blockedUsersEmpty.hidden = true;
+
+      blocks.forEach((block) => {
+        const item = document.createElement('li');
+        item.className = 'blocked-user-item';
+
+        const info = document.createElement('div');
+        info.className = 'blocked-user-info';
+
+        const avatar = document.createElement('div');
+        avatar.className = 'blocked-user-avatar';
+        const photoUrl = resolvePhotoUrl(block.photo);
+        if (photoUrl) {
+          const img = document.createElement('img');
+          img.src = photoUrl;
+          img.alt = `${block.username || '차단 사용자'} 프로필 사진`;
+          avatar.appendChild(img);
+        } else {
+          const initial = (block.username || block.name || '?').trim().charAt(0) || '?';
+          avatar.textContent = initial.toUpperCase();
+        }
+
+        const textWrap = document.createElement('div');
+        textWrap.className = 'blocked-user-text';
+
+        const nameEl = document.createElement('span');
+        nameEl.className = 'blocked-user-name';
+        nameEl.textContent = block.name || block.username || '알 수 없는 사용자';
+
+        const usernameEl = document.createElement('span');
+        usernameEl.className = 'blocked-user-username';
+        usernameEl.textContent = block.username ? `@${block.username}` : '';
+
+        textWrap.appendChild(nameEl);
+        textWrap.appendChild(usernameEl);
+
+        info.appendChild(avatar);
+        info.appendChild(textWrap);
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'btn btn-secondary unblock-btn';
+        button.textContent = '차단 해제';
+
+        button.addEventListener('click', async () => {
+          if (!block?.id) return;
+          const originalText = button.textContent;
+          button.disabled = true;
+          button.textContent = '해제 중...';
+          try {
+            await requestUnblock(block.id);
+            const label = block.username ? `${block.username}님` : '해당 사용자';
+            alert(`${label}의 차단을 해제했습니다.`);
+          } catch (error) {
+            alert(error.message || '차단 해제에 실패했습니다.');
+          } finally {
+            button.disabled = false;
+            button.textContent = originalText;
+          }
+        });
+
+        item.appendChild(info);
+        item.appendChild(button);
+        blockedUsersList.appendChild(item);
+      });
+    }
+
+    async function refreshBlockedUsers() {
+      if (!blockedUsersList || !token) return;
+
+      if (blockedUsersLoading) blockedUsersLoading.hidden = false;
+      if (blockedUsersError) {
+        blockedUsersError.hidden = true;
+        blockedUsersError.textContent = '';
+      }
+      if (blockedUsersEmpty) blockedUsersEmpty.hidden = true;
+      blockedUsersList.innerHTML = '';
+
+      try {
+        const response = await fetch('/api/users/blocks', {
+          method: 'GET',
+          headers: { 'Authorization': 'Bearer ' + token },
+          credentials: 'same-origin'
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload?.error || '차단 목록을 불러오지 못했습니다.');
+        }
+
+        const blocks = Array.isArray(payload.blocks) ? payload.blocks : [];
+        renderBlockedUsers(blocks);
+      } catch (error) {
+        if (blockedUsersError) {
+          blockedUsersError.hidden = false;
+          blockedUsersError.textContent = error.message || '차단 목록을 불러오지 못했습니다.';
+        }
+      } finally {
+        if (blockedUsersLoading) blockedUsersLoading.hidden = true;
+        const hasErrorVisible = blockedUsersError && !blockedUsersError.hidden;
+        if (!hasErrorVisible && blockedUsersList.children.length === 0 && blockedUsersEmpty) {
+          blockedUsersEmpty.hidden = false;
+        }
+      }
+    }
+
     // 테마 설정 로직
     const themeRadios = document.querySelectorAll('input[name="theme"]');
     const applyTheme = (theme) => {
@@ -105,6 +262,9 @@
       const radio = document.querySelector(`input[name="theme"][value="${savedTheme}"]`);
       if (radio) radio.checked = true;
       applyTheme(savedTheme);
+      if (token) {
+        refreshBlockedUsers();
+      }
     });
 
     // 비밀번호 변경 로직

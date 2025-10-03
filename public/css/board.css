@@ -642,6 +642,16 @@ body {
   font-size: 16px;
   color: #333;
 }
+.report-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.report-block-toggle {
+  font-size: 13px;
+  padding: 6px 18px;
+}
 .confirm-buttons {
   display: flex;
   gap: 12px;

@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     reportReasonInput: document.getElementById('reportReasonInput'),
     submitReportBtn: document.getElementById('submitReportBtn'),
     cancelReportBtn: document.getElementById('cancelReportBtn'),
+    reportBlockToggleBtn: document.getElementById('reportBlockToggleBtn'),
   };
 
 function getAuthorId(message) {
@@ -54,8 +55,27 @@ function isMessageFromBlocked(message) {
     myUserId: null,
     searchTimer: null,
     reportTargetId: null,
+    reportTargetAuthorId: null,
+    reportTargetUsername: '',
     blockedUserIds: new Set(),
   };
+
+  function updateReportBlockButton() {
+    const button = els.reportBlockToggleBtn;
+    if (!button) return;
+
+    const authorId = state.reportTargetAuthorId;
+    if (!authorId) {
+      button.hidden = true;
+      button.dataset.blocked = '0';
+      return;
+    }
+
+    const isBlocked = state.blockedUserIds.has(authorId);
+    button.textContent = isBlocked ? '차단 해제' : '차단';
+    button.dataset.blocked = isBlocked ? '1' : '0';
+    button.hidden = false;
+  }
 
   init().catch((error) => {
     console.error('[chat] init failed', error);
@@ -96,6 +116,7 @@ function isMessageFromBlocked(message) {
   async function loadBlockedUsers() {
     if (!state.token) {
       state.blockedUserIds = new Set();
+      updateReportBlockButton();
       return;
     }
 
@@ -113,9 +134,11 @@ function isMessageFromBlocked(message) {
 
       const blocks = Array.isArray(payload.blocks) ? payload.blocks : [];
       state.blockedUserIds = new Set(blocks.map((block) => block.id));
+      updateReportBlockButton();
     } catch (error) {
       console.warn('[chat] loadBlockedUsers failed', error);
       state.blockedUserIds = state.blockedUserIds || new Set();
+      updateReportBlockButton();
     }
   }
 
@@ -517,7 +540,7 @@ function isMessageFromBlocked(message) {
         reportBtn.className = 'chat-action-btn btn-report-msg';
         reportBtn.type = 'button';
         reportBtn.textContent = '신고';
-        reportBtn.addEventListener('click', () => showReportModal(messageId));
+        reportBtn.addEventListener('click', () => showReportModal(messageId, authorId, message.user));
         actions.appendChild(reportBtn);
         hasActions = true;
       }
@@ -526,7 +549,7 @@ function isMessageFromBlocked(message) {
       reportBtn.className = 'chat-action-btn btn-report-msg';
       reportBtn.type = 'button';
       reportBtn.textContent = '신고';
-      reportBtn.addEventListener('click', () => showReportModal(messageId));
+      reportBtn.addEventListener('click', () => showReportModal(messageId, authorId, message.user));
       actions.appendChild(reportBtn);
       hasActions = true;
     }
@@ -923,15 +946,21 @@ function touchRoom(roomId, time, content) {
     els.imageModal.style.display = 'flex';
   }
 
-  function showReportModal(messageId) {
+  function showReportModal(messageId, authorId = null, username = '') {
     state.reportTargetId = messageId;
+    state.reportTargetAuthorId = authorId ? String(authorId) : null;
+    state.reportTargetUsername = username || '';
     els.reportReasonInput.value = '';
+    updateReportBlockButton();
     els.reportModal.classList.add('show');
   }
 
   function closeReportModal() {
     state.reportTargetId = null;
+    state.reportTargetAuthorId = null;
+    state.reportTargetUsername = '';
     els.reportModal.classList.remove('show');
+    updateReportBlockButton();
   }
 
   async function submitReport() {
@@ -968,6 +997,19 @@ function touchRoom(roomId, time, content) {
       console.error('[chat] report error', error);
       showNotification(error.message || '신고 처리 중 오류가 발생했습니다.', 'error');
     }
+  }
+
+  if (els.reportBlockToggleBtn) {
+    els.reportBlockToggleBtn.addEventListener('click', async (event) => {
+      event.preventDefault();
+      const authorId = state.reportTargetAuthorId;
+      if (!authorId) {
+        return;
+      }
+      const isBlocked = state.blockedUserIds.has(authorId);
+      await toggleBlockUser(authorId, state.reportTargetUsername, !isBlocked);
+      updateReportBlockButton();
+    });
   }
 
   function showNotification(message, type = 'error', duration = 4000) {
