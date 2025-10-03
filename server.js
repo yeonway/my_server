@@ -84,7 +84,7 @@ io.on("connection", async (socket) => {
     socket.user = user;
     logger.info(`Socket connected: ${user.username}`);
 
-    socket.emit('userInfo', { id: user.id, username: user.username });
+    socket.emit('userInfo', { id: user.id, username: user.username, role: user.role || 'user' });
   } catch (e) {
     logger.warn(`Socket connection failed: Invalid token`);
     socket.emit('connect_error', { message: '인증 실패. 다시 로그인해 주세요.' });
@@ -176,7 +176,8 @@ io.on("connection", async (socket) => {
     }
 
     try {
-      userLog('admin', 'info', `[CHAT][socket] room=${roomId} from=${socket.user.username} type=${messageType} message=${message}`);
+      const loggedId = doc._id ? doc._id.toString() : '';
+      userLog('admin', 'info', `[CHAT][socket] room=${roomId} messageId=${loggedId} from=${socket.user.username} type=${messageType} message=${message}`);
     } catch (err) {
       // ignore logging issues
     }

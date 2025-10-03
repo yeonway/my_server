@@ -632,16 +632,11 @@ router.post('/messages', authMiddleware, async (req, res) => {
 
     await newMessage.save();
 
-
-
     try {
-
-      userLog('admin', 'info', `[CHAT][rest] room=${targetRoomId} from=${req.user.username} type=${messageType} message=${message}`);
-
+      const loggedId = newMessage._id ? newMessage._id.toString() : '';
+      userLog('admin', 'info', `[CHAT][rest] room=${targetRoomId} messageId=${loggedId} from=${req.user.username} type=${messageType} message=${message}`);
     } catch (err) {
-
       // ignore logging issues
-
     }
 
 

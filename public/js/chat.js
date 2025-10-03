@@ -53,6 +53,7 @@ function isMessageFromBlocked(message) {
     currentRoom: null,
     myUsername: '',
     myUserId: null,
+    myRole: 'user',
     searchTimer: null,
     reportTargetId: null,
     reportTargetAuthorId: null,
@@ -267,9 +268,10 @@ function isMessageFromBlocked(message) {
   function connectSocket() {
     state.socket = io({ auth: { token: state.token } });
 
-    state.socket.on('userInfo', ({ id, username }) => {
+    state.socket.on('userInfo', ({ id, username, role }) => {
       state.myUserId = id;
       state.myUsername = username;
+      state.myRole = role || 'user';
     });
 
     state.socket.on('previousMessages', (messages) => {
@@ -500,6 +502,8 @@ function isMessageFromBlocked(message) {
     const container = document.createElement('div');
     container.className = 'chat-message-container';
     const isMine = message.user === state.myUsername || (authorId && authorId === state.myUserId);
+    const isModerator = state.myRole === 'admin' || state.myRole === 'superadmin';
+    const canDelete = messageId && (isMine || isModerator);
     if (isMine) {
       container.classList.add('my-message');
     }
@@ -535,7 +539,7 @@ function isMessageFromBlocked(message) {
     actions.className = 'chat-actions';
     let hasActions = false;
 
-    if (messageId && isMine) {
+    if (canDelete) {
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'chat-action-btn btn-delete-msg';
       deleteBtn.type = 'button';

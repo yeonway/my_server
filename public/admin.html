@@ -136,6 +136,9 @@
           </div>
           <button type="button" id="userSortOrderBtn" class="sort-order-btn" data-order="desc">내림차순</button>
         </div>
+        <div class="admin-toolbar">
+          <button type="button" id="openAdminPermissionModalBtn" class="action-btn btn-resolve">새 관리자 지정</button>
+        </div>
         <div id="userMeta" class="user-meta"></div>
         <table>
           <thead>
@@ -281,6 +284,7 @@
               <th>보낸 사람</th>
               <th>유형</th>
               <th>내용</th>
+              <th>관리</th>
             </tr>
           </thead>
           <tbody id="chatLogList"></tbody>
@@ -359,6 +363,53 @@
       <div style="text-align: right; margin-top: 15px;">
         <button class="action-btn btn-dismiss" onclick="closeNoticeModal()">취소</button>
         <button class="action-btn btn-resolve" onclick="createNotice()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 관리자 권한 모달 -->
+  <div id="adminPermissionModal" class="modal-overlay">
+    <div class="modal-content admin-permission-modal">
+      <div class="modal-header">
+        <h3>관리자 권한 설정</h3>
+        <button class="modal-close-btn" onclick="closeAdminPermissionModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section">
+          <label for="adminPermissionUserSearchInput">사용자 검색</label>
+          <div class="modal-search-row">
+            <input type="text" id="adminPermissionUserSearchInput" placeholder="사용자명 또는 ID">
+            <button type="button" id="adminPermissionUserSearchBtn" class="action-btn btn-view">검색</button>
+          </div>
+          <div id="adminPermissionUserSearchResults" class="modal-search-results"></div>
+        </div>
+        <div id="adminPermissionSelection" class="admin-permission-selection" hidden>
+          <div class="selected-user-summary">
+            <span id="adminPermissionSelectedUser">선택된 사용자가 없습니다.</span>
+          </div>
+          <div class="modal-section role-select-row">
+            <label for="adminRoleSelect">관리자 역할</label>
+            <select id="adminRoleSelect">
+              <option value="admin">관리자</option>
+              <option value="manager">매니저</option>
+            </select>
+            <p class="modal-help">부여한 권한에 따라 접근 가능한 기능이 달라집니다.</p>
+          </div>
+          <div class="modal-section">
+            <div class="permission-toolbar">
+              <button type="button" id="adminPermissionSelectAllBtn" class="action-btn btn-view">전체 선택</button>
+            </div>
+            <div id="adminPermissionOptionList" class="permission-checkbox-grid"></div>
+          </div>
+          <div id="adminPermissionStatus" class="modal-status" role="alert"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="adminPermissionRemoveBtn" class="action-btn btn-delete">관리자 해제</button>
+        <div class="modal-footer-actions">
+          <button type="button" class="action-btn btn-dismiss" onclick="closeAdminPermissionModal()">취소</button>
+          <button type="button" id="adminPermissionSaveBtn" class="action-btn btn-resolve">저장</button>
+        </div>
       </div>
     </div>
   </div>

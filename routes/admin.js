@@ -43,6 +43,15 @@ const CHAT_AUDIT_USER = process.env.CHAT_AUDIT_USER || 'admin';
 
 const LOG_DIRECTORY = path.join(__dirname, '..', 'logs');
 
+const ADMIN_PERMISSION_KEYS = [
+  'user_management',
+  'post_management',
+  'report_management',
+  'inquiry_management',
+  'content_management',
+  'log_view',
+];
+
 
 
 const ensureRequestId = (req) => {
@@ -600,7 +609,7 @@ router.post("/users/add-admin", requirePermission("superadmin"), async (req, res
 
   try {
 
-    const { userId, permissions = [], adminPermissions } = req.body;
+    const { userId, permissions = [], adminPermissions, role } = req.body;
 
 
 
@@ -614,9 +623,13 @@ router.post("/users/add-admin", requirePermission("superadmin"), async (req, res
 
         : [];
 
+    const desiredRole = role === 'manager' ? 'manager' : 'admin';
 
 
-    const invalidPermissions = desiredPermissions.filter(p => !ADMIN_PERMISSION_KEYS.includes(p));
+
+    const normalizedPermissions = Array.from(new Set(desiredPermissions.map(String)));
+
+    const invalidPermissions = normalizedPermissions.filter(p => !ADMIN_PERMISSION_KEYS.includes(p));
 
     if (invalidPermissions.length > 0) {
 
@@ -634,9 +647,19 @@ router.post("/users/add-admin", requirePermission("superadmin"), async (req, res
 
     }
 
+    if (user.role === 'superadmin') {
 
+      return res.status(400).json({ error: 'Cannot modify superadmin permissions through this endpoint' });
 
-    user.adminPermissions = desiredPermissions;
+    }
+
+    user.adminPermissions = normalizedPermissions;
+
+    if (!['manager', 'admin'].includes(user.role) || user.role !== desiredRole) {
+
+      user.role = desiredRole;
+
+    }
 
     await user.save();
 
@@ -646,13 +669,15 @@ router.post("/users/add-admin", requirePermission("superadmin"), async (req, res
 
       targetUserId: userId,
 
-      adminPermissions: desiredPermissions
+      adminPermissions: normalizedPermissions,
+
+      role: user.role
 
     });
 
 
 
-    res.json({ message: 'Admin permissions updated successfully', adminPermissions: user.adminPermissions });
+    res.json({ message: 'Admin permissions updated successfully', adminPermissions: user.adminPermissions, role: user.role });
 
   } catch (error) {
 
@@ -686,19 +711,27 @@ router.delete("/users/remove-admin/:id", requirePermission("superadmin"), async 
 
     user.adminPermissions = [];
 
+    if (user.role !== 'superadmin') {
+
+      user.role = 'user';
+
+    }
+
     await user.save();
 
 
 
     logInfo(req, 'admin.permissions.remove', `Admin permissions removed from user ${id}`, {
 
-      targetUserId: id
+      targetUserId: id,
+
+      role: user.role
 
     });
 
 
 
-    res.json({ message: 'Admin permissions removed successfully' });
+    res.json({ message: 'Admin permissions removed successfully', role: user.role });
 
   } catch (error) {
 
@@ -1030,9 +1063,7 @@ router.get('/chat-logs', requirePermission("log_view"), async (req, res) => {
 
     const chatEntries = [];
 
-    const chatRegex = /^\[CHAT\]\[([^\]]+)\]\s+room=(\S+)\s+from=(\S+)\s+type=(\S+)\s+message=(.*)$/;
-
-
+    const chatRegex = /^\[CHAT\]\[([^\]]+)\]\s+room=(\S+)\s+(?:messageId=(\S+)\s+)?from=(\S+)\s+type=(\S+)\s+message=(.*)$/;
 
     for (const line of lines) {
 
@@ -1044,8 +1075,6 @@ router.get('/chat-logs', requirePermission("log_view"), async (req, res) => {
 
       if (!match) continue;
 
-
-
       chatEntries.push({
 
         timestamp: parsed.timestamp,
@@ -1056,11 +1085,69 @@ router.get('/chat-logs', requirePermission("log_view"), async (req, res) => {
 
         room: match[2],
 
-        from: match[3],
+        messageId: match[3] || null,
 
-        type: match[4],
+        from: match[4],
 
-        message: (match[5] || '').trim()
+        type: match[5],
+
+        message: (match[6] || '').trim()
+
+      });
+
+    }
+
+    const messageIds = Array.from(new Set(
+
+      chatEntries
+
+        .map((entry) => (entry.messageId || '').trim())
+
+        .filter((id) => id && mongoose.Types.ObjectId.isValid(id))
+
+    ));
+
+    if (messageIds.length > 0) {
+
+      const dbMessages = await Message.find({ _id: { $in: messageIds } })
+
+        .select('_id message messageType room')
+
+        .lean();
+
+
+
+      const messageMap = new Map(
+
+        dbMessages.map((doc) => [doc._id.toString(), doc])
+
+      );
+
+
+
+      chatEntries.forEach((entry) => {
+
+        if (!entry.messageId) return;
+
+        const matched = messageMap.get(entry.messageId);
+
+        if (!matched) {
+
+          entry.deleted = true;
+
+          return;
+
+        }
+
+        entry.currentMessage = matched.message;
+
+        entry.currentType = matched.messageType || entry.type;
+
+        if (matched.room) {
+
+          entry.currentRoom = matched.room.toString();
+
+        }
 
       });
 
