@@ -357,6 +357,17 @@
       box-shadow: 0 12px 22px rgba(248, 113, 113, 0.28);
     }
 
+    .btn-edit-msg {
+      background: linear-gradient(135deg, rgba(253, 224, 71, 0.92) 0%, rgba(217, 119, 6, 0.92) 100%);
+      border-color: rgba(245, 158, 11, 0.5);
+      color: #3f1f02;
+      box-shadow: 0 6px 16px rgba(245, 158, 11, 0.24);
+    }
+
+    .btn-edit-msg:hover {
+      box-shadow: 0 12px 22px rgba(245, 158, 11, 0.28);
+    }
+
     .btn-block-msg {
       background: linear-gradient(135deg, rgba(219, 234, 254, 0.95) 0%, rgba(191, 219, 254, 0.95) 100%);
       border-color: rgba(59, 130, 246, 0.3);
@@ -377,6 +388,23 @@
 
     .btn-report-msg:hover {
       box-shadow: 0 12px 20px rgba(251, 191, 36, 0.28);
+    }
+
+    .chat-message-edited {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 8px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.12);
+      color: #1d4ed8;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .chat-message-container.message-edited .chat-message-bubble {
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.18), 0 8px 18px rgba(59, 130, 246, 0.12);
     }
 
     .empty-state {

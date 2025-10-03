@@ -1111,7 +1111,7 @@ router.get('/chat-logs', requirePermission("log_view"), async (req, res) => {
 
       const dbMessages = await Message.find({ _id: { $in: messageIds } })
 
-        .select('_id message messageType room')
+        .select('_id message messageType room editedAt lastEditedByName editHistory')
 
         .lean();
 
@@ -1146,6 +1146,24 @@ router.get('/chat-logs', requirePermission("log_view"), async (req, res) => {
         if (matched.room) {
 
           entry.currentRoom = matched.room.toString();
+
+        }
+
+        if (matched.editedAt) {
+
+          entry.editedAt = matched.editedAt;
+
+        }
+
+        if (Array.isArray(matched.editHistory) && matched.editHistory.length) {
+
+          entry.editHistory = matched.editHistory;
+
+        }
+
+        if (matched.lastEditedByName) {
+
+          entry.lastEditedByName = matched.lastEditedByName;
 
         }
 

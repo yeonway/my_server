@@ -30,7 +30,7 @@ function getAuthorId(message) {
   const { author } = message;
   if (!author) return null;
   if (typeof author === 'string') return author;
-  if (typeof author === 'object') {
+  if (typewㅈㅈㅈㅈㅈㅈㅈㅈㅈof author === 'object') {
     if (typeof author._id === 'string') return author._id;
     if (author._id) return author._id.toString();
     if (typeof author.id === 'string') return author.id;
@@ -288,6 +288,10 @@ function isMessageFromBlocked(message) {
       handleIncomingMessage(message);
     });
 
+    state.socket.on('messageUpdated', (payload) => {
+      handleMessageUpdated(payload);
+    });
+
     state.socket.on('messageDeleted', (payload) => {
       handleMessageDeleted(payload);
     });
@@ -499,16 +503,22 @@ function isMessageFromBlocked(message) {
       return;
     }
 
+    const rawContent = typeof message.message === 'string' ? message.message : '';
+    const inferredType = (message.messageType || (rawContent.startsWith('[IMAGE]') ? 'image' : 'text')).toString().toLowerCase();
+    const isImageMessage = inferredType === 'image';
+
     const container = document.createElement('div');
     container.className = 'chat-message-container';
     const isMine = message.user === state.myUsername || (authorId && authorId === state.myUserId);
-    const isModerator = state.myRole === 'admin' || state.myRole === 'superadmin';
-    const canDelete = messageId && (isMine || isModerator);
+    const canDelete = messageId && isMine;
+    const canEdit = canDelete && !isImageMessage;
     if (isMine) {
       container.classList.add('my-message');
     }
     if (messageId) container.dataset.messageId = messageId;
     if (authorId) container.dataset.authorId = authorId;
+    container.dataset.messageType = inferredType;
+    container.dataset.messageText = rawContent;
 
     const bubble = document.createElement('div');
     bubble.className = 'chat-message-bubble';
@@ -518,8 +528,8 @@ function isMessageFromBlocked(message) {
     meta.textContent = `${message.user || '알 수 없음'} · ${formatMessageTime(message.time)}`;
     bubble.appendChild(meta);
 
-    if (typeof message.message === 'string' && message.message.startsWith('[IMAGE]')) {
-      const imagePath = message.message.replace('[IMAGE]', '');
+    if (isImageMessage) {
+      const imagePath = rawContent.replace('[IMAGE]', '');
       const img = document.createElement('img');
       img.src = imagePath;
       img.alt = '채팅 이미지';
@@ -529,21 +539,37 @@ function isMessageFromBlocked(message) {
     } else {
       const text = document.createElement('div');
       text.className = 'chat-message-text';
-      text.textContent = message.message || '';
+      text.textContent = rawContent || '';
       bubble.appendChild(text);
     }
 
     container.appendChild(bubble);
 
+    setMessageEditedState(container, message.editedAt);
+
     const actions = document.createElement('div');
     actions.className = 'chat-actions';
     let hasActions = false;
+
+    if (canEdit) {
+      const editBtn = document.createElement('button');
+      editBtn.className = 'chat-action-btn btn-edit-msg';
+      editBtn.type = 'button';
+      editBtn.textContent = '수정';
+      editBtn.setAttribute('aria-label', '메시지 수정');
+      editBtn.title = '이 메시지를 수정합니다.';
+      editBtn.addEventListener('click', () => promptEditMessage(messageId));
+      actions.appendChild(editBtn);
+      hasActions = true;
+    }
 
     if (canDelete) {
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'chat-action-btn btn-delete-msg';
       deleteBtn.type = 'button';
       deleteBtn.textContent = '삭제';
+      deleteBtn.setAttribute('aria-label', '메시지 삭제');
+      deleteBtn.title = '이 메시지를 삭제합니다.';
       deleteBtn.addEventListener('click', () => confirmDeleteMessage(messageId));
       actions.appendChild(deleteBtn);
       hasActions = true;
@@ -555,6 +581,9 @@ function isMessageFromBlocked(message) {
       blockBtn.className = 'chat-action-btn btn-block-msg';
       blockBtn.type = 'button';
       blockBtn.textContent = isBlocked ? '차단 해제' : '차단';
+      const blockLabel = isBlocked ? '사용자 차단 해제' : '사용자 차단';
+      blockBtn.setAttribute('aria-label', blockLabel);
+      blockBtn.title = blockLabel;
       blockBtn.addEventListener('click', () => toggleBlockUser(authorId, message.user, !isBlocked));
       actions.appendChild(blockBtn);
       hasActions = true;
@@ -564,6 +593,8 @@ function isMessageFromBlocked(message) {
         reportBtn.className = 'chat-action-btn btn-report-msg';
         reportBtn.type = 'button';
         reportBtn.textContent = '신고';
+        reportBtn.setAttribute('aria-label', '메시지 신고');
+        reportBtn.title = '이 메시지를 신고합니다.';
         reportBtn.addEventListener('click', () => showReportModal(messageId, authorId, message.user));
         actions.appendChild(reportBtn);
         hasActions = true;
@@ -573,6 +604,8 @@ function isMessageFromBlocked(message) {
       reportBtn.className = 'chat-action-btn btn-report-msg';
       reportBtn.type = 'button';
       reportBtn.textContent = '신고';
+      reportBtn.setAttribute('aria-label', '메시지 신고');
+      reportBtn.title = '이 메시지를 신고합니다.';
       reportBtn.addEventListener('click', () => showReportModal(messageId, authorId, message.user));
       actions.appendChild(reportBtn);
       hasActions = true;
@@ -584,6 +617,93 @@ function isMessageFromBlocked(message) {
 
     els.chatBox.appendChild(container);
     els.chatBox.scrollTop = els.chatBox.scrollHeight;
+  }
+
+  function setMessageEditedState(container, editedAt) {
+    if (!container) return;
+
+    const meta = container.querySelector('.chat-message-meta');
+    let badge = meta ? meta.querySelector('.chat-message-edited') : null;
+
+    if (editedAt) {
+      container.dataset.editedAt = editedAt;
+      container.classList.add('message-edited');
+      if (meta && !badge) {
+        badge = document.createElement('span');
+        badge.className = 'chat-message-edited';
+        badge.textContent = '수정됨';
+        meta.appendChild(badge);
+      }
+      if (badge) {
+        const tooltip = formatEditedTooltip(editedAt);
+        if (tooltip) {
+          badge.title = `${tooltip}에 수정됨`;
+        } else {
+          badge.removeAttribute('title');
+        }
+      }
+    } else {
+      container.classList.remove('message-edited');
+      delete container.dataset.editedAt;
+      if (badge) {
+        badge.remove();
+      }
+    }
+  }
+
+  async function promptEditMessage(messageId) {
+    if (!messageId) return;
+
+    const element = els.chatBox.querySelector(`[data-message-id="${messageId}"]`);
+    if (!element) return;
+
+    const type = element.dataset.messageType;
+    if (type === 'image') {
+      showNotification('이미지는 수정할 수 없습니다.', 'warning');
+      return;
+    }
+
+    const current = element.dataset.messageText || '';
+    const next = window.prompt('수정할 메시지를 입력해 주세요.', current);
+    if (next === null) return;
+
+    const trimmed = next.trim();
+    if (!trimmed) {
+      window.alert('메시지는 비워둘 수 없습니다.');
+      return;
+    }
+
+    if (trimmed === current.trim()) {
+      showNotification('변경된 내용이 없습니다.', 'info');
+      return;
+    }
+
+    await updateMessage(messageId, trimmed);
+  }
+
+  async function updateMessage(messageId, newMessage) {
+    try {
+      const response = await fetch(`/api/chat/messages/${messageId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${state.token}`,
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ message: newMessage }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload?.error || '메시지를 수정하지 못했어요.');
+      }
+
+      handleMessageUpdated({ ...payload, room: payload.room || state.currentRoomId });
+      showNotification('메시지를 수정했습니다.', 'success');
+    } catch (error) {
+      console.error('[chat] update message error', error);
+      showNotification(error.message || '메시지를 수정하지 못했어요.', 'error');
+    }
   }
 
   async function confirmDeleteMessage(messageId) {
@@ -614,6 +734,37 @@ function isMessageFromBlocked(message) {
     }
   }
 
+  function handleMessageUpdated(payload = {}) {
+    const { messageId, room, message, editedAt, editHistory } = payload || {};
+    if (!messageId) return;
+
+    if (room && state.currentRoomId && room !== state.currentRoomId) {
+      updateRoomPreviewForEdit(room, message, editHistory);
+      return;
+    }
+
+    const element = els.chatBox.querySelector(`[data-message-id="${messageId}"]`);
+    if (!element) {
+      updateRoomPreviewForEdit(room, message, editHistory);
+      return;
+    }
+
+    const textEl = element.querySelector('.chat-message-text');
+    if (textEl) {
+      textEl.textContent = message || '';
+    }
+
+    element.dataset.messageText = message || '';
+    if (Array.isArray(editHistory)) {
+      element.dataset.editHistoryCount = String(editHistory.length);
+    } else {
+      delete element.dataset.editHistoryCount;
+    }
+
+    setMessageEditedState(element, editedAt);
+    updateRoomPreviewForEdit(room || state.currentRoomId, message, editHistory);
+  }
+
   function handleMessageDeleted(payload = {}) {
     const { messageId, room } = payload || {};
     if (!messageId) return;
@@ -637,6 +788,30 @@ function isMessageFromBlocked(message) {
 
     const actions = element.querySelector('.chat-actions');
     if (actions) actions.remove();
+  }
+
+  function updateRoomPreviewForEdit(roomId, content, history) {
+    if (!roomId) return;
+    const index = state.rooms.findIndex((room) => room.id === roomId);
+    if (index === -1) return;
+
+    const room = state.rooms[index];
+    if (!Array.isArray(history) || history.length === 0) {
+      return;
+    }
+
+    const latestHistory = history[history.length - 1];
+    const previousText = latestHistory && typeof latestHistory.previousMessage === 'string' ? latestHistory.previousMessage : '';
+    const normalizedPrevious = previousText.startsWith('[IMAGE]') ? '이미지' : previousText;
+
+    if (room.lastPreview && normalizedPrevious && room.lastPreview !== normalizedPrevious) {
+      return;
+    }
+
+    if (typeof content === 'string' && content.length) {
+      room.lastPreview = content.startsWith('[IMAGE]') ? '이미지' : content;
+      renderRoomList();
+    }
   }
 
   async function toggleBlockUser(userId, username = '', shouldBlock) {
@@ -1045,6 +1220,13 @@ function touchRoom(roomId, time, content) {
     const mm = `${date.getMonth() + 1}`.padStart(2, '0');
     const dd = `${date.getDate()}`.padStart(2, '0');
     return `${yyyy}.${mm}.${dd}`;
+  }
+
+  function formatEditedTooltip(value) {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toLocaleString();
   }
 
   function formatMessageTime(value) {

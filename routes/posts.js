@@ -52,9 +52,6 @@ router.get("/", authMiddleware, async (req, res) => {
       else baseQuery.$or = [{ title: r }, { content: r }, { user: r }];
     }
 
-    const searchFilter = baseQuery.$or;
-    if (searchFilter) delete baseQuery.$or;
-
     // 공지사항 조회
     const notices = await Post.find({
       isNotice: true,
@@ -66,26 +63,14 @@ router.get("/", authMiddleware, async (req, res) => {
     .lean();
 
     // 일반 게시글 조회
-    const noticeFilter = {
+    const regularPostQuery = {
+      ...baseQuery,
       $or: [
         { isNotice: { $exists: false } },
         { isNotice: false },
         { isNotice: null }
       ]
     };
-
-    const regularPostQuery = searchFilter
-      ? {
-          ...baseQuery,
-          $and: [
-            { $or: searchFilter },
-            noticeFilter,
-          ],
-        }
-      : {
-          ...baseQuery,
-          ...noticeFilter,
-        };
 
     const total = await Post.countDocuments(regularPostQuery);
     const posts = await Post.find(regularPostQuery)
