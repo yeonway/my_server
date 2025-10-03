@@ -24,6 +24,10 @@ const logger = require('../config/logger');
 
 
 
+const { resolveBlockSets, isInteractionBlocked } = require('../utils/blocking');
+
+
+
 const uploadDir = path.join(__dirname, '..', 'uploads', 'chat');
 
 const backupDir = path.join(__dirname, '..', 'uploads', 'archive', 'chat_backup');
@@ -170,6 +174,10 @@ router.get('/rooms', authMiddleware, async (req, res) => {
 
 
 
+    const blockInfo = await resolveBlockSets(req.user.id);
+
+    const currentIdStr = currentUserId.toString();
+
     const rooms = await Chatroom.find({ participants: currentUserId })
 
       .sort({ lastMessageAt: -1, updatedAt: -1 })
@@ -180,7 +188,25 @@ router.get('/rooms', authMiddleware, async (req, res) => {
 
 
 
-    const mapped = rooms.map((room) => mapChatroom(room, currentUserId.toString()));
+    const filtered = rooms.filter((room) => {
+
+      if (!Array.isArray(room.participants)) return true;
+
+      return !room.participants.some((participant) => {
+
+        const participantId = participant?._id?.toString() || participant?.toString();
+
+        if (!participantId || participantId === currentIdStr) return false;
+
+        return isInteractionBlocked(participantId, blockInfo);
+
+      });
+
+    });
+
+
+
+    const mapped = filtered.map((room) => mapChatroom(room, currentIdStr));
 
     res.json({ rooms: mapped });
 
@@ -215,6 +241,10 @@ router.post('/rooms', authMiddleware, async (req, res) => {
 
 
     const participantIds = new Set([req.user.id]);
+
+
+
+    const blockInfo = await resolveBlockSets(req.user.id);
 
 
 
@@ -302,6 +332,26 @@ router.post('/rooms', authMiddleware, async (req, res) => {
 
 
 
+    const blockedMember = participants.find((participant) => {
+
+      const id = participant.toString();
+
+      if (id === req.user.id) return false;
+
+      return isInteractionBlocked(id, blockInfo);
+
+    });
+
+
+
+    if (blockedMember) {
+
+      return res.status(403).json({ error: '차단한 사용자와 함께 채팅방을 만들 수 없습니다.' });
+
+    }
+
+
+
     const room = await Chatroom.create({
 
       type: 'group',
@@ -360,6 +410,8 @@ router.post('/rooms/personal', authMiddleware, async (req, res) => {
 
     let targetUser = null;
 
+    const blockInfo = await resolveBlockSets(req.user.id);
+
     if (userId) {
 
       targetUser = await User.findById(userId).lean();
@@ -375,6 +427,14 @@ router.post('/rooms/personal', authMiddleware, async (req, res) => {
     if (!targetUser) {
 
       return res.status(404).json({ error: '대화할 사용자를 찾을 수 없습니다.' });
+
+    }
+
+
+
+    if (isInteractionBlocked(targetUser._id, blockInfo)) {
+
+      return res.status(403).json({ error: '차단한 사용자와는 대화를 할 수 없습니다.' });
 
     }
 
@@ -454,6 +514,8 @@ router.get('/users/search', authMiddleware, async (req, res) => {
 
     const regex = new RegExp(q.trim(), 'i');
 
+    const blockInfo = await resolveBlockSets(req.user.id);
+
     const users = await User.find({
 
       _id: { $ne: req.user.id },
@@ -470,7 +532,11 @@ router.get('/users/search', authMiddleware, async (req, res) => {
 
 
 
-    res.json({ users });
+    const filtered = users.filter((user) => !isInteractionBlocked(user._id, blockInfo));
+
+
+
+    res.json({ users: filtered });
 
   } catch (error) {
 
@@ -500,6 +566,10 @@ router.post('/messages', authMiddleware, async (req, res) => {
 
 
 
+    const blockInfo = await resolveBlockSets(req.user.id);
+
+
+
     let targetRoomId = room;
 
     const chatroom = await Chatroom.findById(room);
@@ -517,6 +587,26 @@ router.post('/messages', authMiddleware, async (req, res) => {
       }
 
       targetRoomId = chatroom._id.toString();
+
+
+
+      const hasBlockedParticipant = chatroom.participants.some((participant) => {
+
+        const id = participant.toString();
+
+        if (id === req.user.id) return false;
+
+        return isInteractionBlocked(id, blockInfo);
+
+      });
+
+
+
+      if (hasBlockedParticipant) {
+
+        return res.status(403).json({ error: '차단한 사용자와는 대화를 할 수 없습니다.' });
+
+      }
 
     }
 
@@ -542,16 +632,11 @@ router.post('/messages', authMiddleware, async (req, res) => {
 
     await newMessage.save();
 
-
-
     try {
-
-      userLog('admin', 'info', `[CHAT][rest] room=${targetRoomId} from=${req.user.username} type=${messageType} message=${message}`);
-
+      const loggedId = newMessage._id ? newMessage._id.toString() : '';
+      userLog('admin', 'info', `[CHAT][rest] room=${targetRoomId} messageId=${loggedId} from=${req.user.username} type=${messageType} message=${message}`);
     } catch (err) {
-
       // ignore logging issues
-
     }
 
 
@@ -706,7 +791,29 @@ router.get('/messages/:room', authMiddleware, async (req, res) => {
 
 
 
-    const msgs = await Message.find({ room }).sort({ time: 1 }).limit(100).lean();
+    const blockInfo = await resolveBlockSets(req.user.id);
+
+    const blockedIds = Array.from(new Set([
+
+      ...blockInfo.blocked,
+
+      ...blockInfo.blockedBy,
+
+    ]))
+
+      .filter((id) => mongoose.Types.ObjectId.isValid(id))
+
+      .map((id) => new mongoose.Types.ObjectId(id));
+
+    const query = { room };
+
+    if (blockedIds.length) {
+
+      query.author = { $nin: blockedIds };
+
+    }
+
+    const msgs = await Message.find(query).sort({ time: 1 }).limit(100).lean();
 
     res.json({ count: msgs.length, messages: msgs });
 
@@ -738,6 +845,20 @@ router.get("/search", authMiddleware, async (req, res) => {
 
     const skip = (page - 1) * parseInt(limit);
 
+    const blockInfo = await resolveBlockSets(req.user.id);
+
+    const blockedIds = Array.from(new Set([
+
+      ...blockInfo.blocked,
+
+      ...blockInfo.blockedBy,
+
+    ]))
+
+      .filter((id) => mongoose.Types.ObjectId.isValid(id))
+
+      .map((id) => new mongoose.Types.ObjectId(id));
+
     const query = { $text: { $search: q } };
 
 
@@ -745,6 +866,14 @@ router.get("/search", authMiddleware, async (req, res) => {
     if (room) {
 
       query.room = room;
+
+    }
+
+
+
+    if (blockedIds.length) {
+
+      query.author = { $nin: blockedIds };
 
     }
 
@@ -805,6 +934,118 @@ router.get("/search", authMiddleware, async (req, res) => {
     console.error('메시지 검색 오류:', error);
 
     res.status(500).json({ error: '검색 중 오류가 발생했습니다' });
+
+  }
+
+});
+
+
+
+router.delete('/messages/:id', authMiddleware, async (req, res) => {
+
+  try {
+
+    const message = await Message.findById(req.params.id);
+
+    if (!message) {
+
+      return res.status(404).json({ error: '메시지를 찾을 수 없습니다.' });
+
+    }
+
+
+
+    const messageId = message._id.toString();
+
+    const roomId = message.room ? message.room.toString() : null;
+
+    const isOwner = message.author?.toString() === req.user.id;
+
+    const isAdmin = ['admin', 'superadmin'].includes(req.user.role);
+    const adminOverrideHeader = req.get('x-admin-moderation');
+    const allowAdminOverride = isAdmin && typeof adminOverrideHeader === 'string' && adminOverrideHeader.toLowerCase() === 'log';
+
+    if (!isOwner && !allowAdminOverride) {
+
+      return res.status(403).json({ error: '메시지를 삭제할 권한이 없습니다.' });
+
+    }
+
+
+
+    let chatroom = null;
+
+    if (roomId && mongoose.Types.ObjectId.isValid(roomId)) {
+
+      chatroom = await Chatroom.findById(roomId);
+
+    }
+
+
+
+    if (chatroom && !allowAdminOverride) {
+
+      const isMember = chatroom.participants.some((participant) => participant.toString() === req.user.id);
+
+      if (!isMember) {
+
+        return res.status(403).json({ error: '채팅방에 참여하고 있지 않습니다.' });
+
+      }
+
+    }
+
+
+
+    await message.deleteOne();
+
+
+
+    if (chatroom) {
+
+      const latest = await Message.findOne({ room: roomId })
+
+        .sort({ time: -1 });
+
+      chatroom.lastMessageAt = latest?.time || new Date();
+
+      await chatroom.save();
+
+    }
+
+
+
+    const io = req.app.get('io');
+
+    if (io && roomId) {
+
+      io.to(roomId).emit('messageDeleted', {
+
+        messageId,
+
+        room: roomId,
+
+      });
+
+    }
+
+
+
+    const moderationContext = allowAdminOverride ? ' (admin-log override)' : '';
+
+    logger.info(`Chat message deleted: ${req.user.username} -> message ${messageId}${moderationContext}`);
+
+    if (req.userLogger) req.userLogger('info', `채팅 메시지 삭제: ${messageId}`);
+
+
+
+    res.json({ message: '메시지를 삭제했습니다.', messageId });
+
+  } catch (error) {
+
+    logger.error(`Delete chat message error: ${error.message}`);
+
+    res.status(500).json({ error: '메시지를 삭제하지 못했습니다.' });
 
   }
 

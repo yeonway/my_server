@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>설정</title>
   <script defer src="js/auth-helper.js"></script>
+  <script defer src="js/blocking-client.js"></script>
   <link rel="stylesheet" href="css/setting.css">
   <link rel="stylesheet" href="css/topbar.css">
   <link rel="stylesheet" href="css/profile-menu.css">
@@ -50,6 +51,16 @@
       </div>
     </div>
 
+    <!-- 차단 사용자 관리 -->
+    <div class="setting-card" id="blockedUsersCard">
+      <h2>차단 사용자</h2>
+      <p class="setting-card-description">신고나 차단으로 숨긴 사용자를 확인하고 차단을 해제할 수 있습니다.</p>
+      <div id="blockedUsersLoading" class="blocked-users-loading">차단한 사용자를 불러오는 중...</div>
+      <ul id="blockedUsersList" class="blocked-users-list"></ul>
+      <div id="blockedUsersEmpty" class="blocked-users-empty" hidden>차단한 사용자가 없습니다.</div>
+      <div id="blockedUsersError" class="blocked-users-error" hidden></div>
+    </div>
+
     <!-- 회원 탈퇴 -->
     <div class="setting-card">
       <h2>회원 탈퇴</h2>
@@ -80,6 +91,161 @@
       window.location.href = "/login.html";
     }
 
+    const blockedUsersList = document.getElementById('blockedUsersList');
+    const blockedUsersEmpty = document.getElementById('blockedUsersEmpty');
+    const blockedUsersLoading = document.getElementById('blockedUsersLoading');
+    const blockedUsersError = document.getElementById('blockedUsersError');
+
+    let detachBlockSubscription = null;
+
+    function resolvePhotoUrl(photo) {
+      if (!photo || typeof photo !== 'string') return null;
+      if (/^https?:/i.test(photo)) return photo;
+      const normalized = photo.startsWith('/') ? photo : `/${photo.replace(/^\/+/,'')}`;
+      return normalized;
+    }
+
+    function subscribeToBlockUpdates() {
+      if (!window.BlockingClient) {
+        if (blockedUsersError) {
+          blockedUsersError.hidden = false;
+          blockedUsersError.textContent = '차단 정보를 불러올 수 없습니다.';
+        }
+        return;
+      }
+
+      if (typeof detachBlockSubscription === 'function') {
+        detachBlockSubscription();
+      }
+
+      detachBlockSubscription = window.BlockingClient.subscribe((blocks) => {
+        if (blockedUsersLoading) blockedUsersLoading.hidden = true;
+        if (blockedUsersError) {
+          blockedUsersError.hidden = true;
+          blockedUsersError.textContent = '';
+        }
+        renderBlockedUsers(Array.isArray(blocks) ? blocks : []);
+      });
+    }
+
+    async function requestUnblock(userId) {
+      if (!userId) {
+        throw new Error('차단 해제 대상이 올바르지 않습니다.');
+      }
+
+      if (!window.BlockingClient) {
+        throw new Error('차단 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
+      }
+
+      await window.BlockingClient.unblock(userId, { token });
+    }
+
+    function renderBlockedUsers(blocks = []) {
+      if (!blockedUsersList) return;
+
+      blockedUsersList.innerHTML = '';
+
+      if (!Array.isArray(blocks) || blocks.length === 0) {
+        if (blockedUsersEmpty) blockedUsersEmpty.hidden = false;
+        return;
+      }
+
+      if (blockedUsersEmpty) blockedUsersEmpty.hidden = true;
+
+      blocks.forEach((block) => {
+        const item = document.createElement('li');
+        item.className = 'blocked-user-item';
+
+        const info = document.createElement('div');
+        info.className = 'blocked-user-info';
+
+        const avatar = document.createElement('div');
+        avatar.className = 'blocked-user-avatar';
+        const photoUrl = resolvePhotoUrl(block.photo);
+        if (photoUrl) {
+          const img = document.createElement('img');
+          img.src = photoUrl;
+          img.alt = `${block.username || '차단 사용자'} 프로필 사진`;
+          avatar.appendChild(img);
+        } else {
+          const initial = (block.username || block.name || '?').trim().charAt(0) || '?';
+          avatar.textContent = initial.toUpperCase();
+        }
+
+        const textWrap = document.createElement('div');
+        textWrap.className = 'blocked-user-text';
+
+        const nameEl = document.createElement('span');
+        nameEl.className = 'blocked-user-name';
+        nameEl.textContent = block.name || block.username || '알 수 없는 사용자';
+
+        const usernameEl = document.createElement('span');
+        usernameEl.className = 'blocked-user-username';
+        usernameEl.textContent = block.username ? `@${block.username}` : '';
+
+        textWrap.appendChild(nameEl);
+        textWrap.appendChild(usernameEl);
+
+        info.appendChild(avatar);
+        info.appendChild(textWrap);
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'btn btn-secondary unblock-btn';
+        button.textContent = '차단 해제';
+
+        button.addEventListener('click', async () => {
+          if (!block?.id) return;
+          const originalText = button.textContent;
+          button.disabled = true;
+          button.textContent = '해제 중...';
+          try {
+            await requestUnblock(block.id);
+            const label = block.username ? `${block.username}님` : '해당 사용자';
+            alert(`${label}의 차단을 해제했습니다.`);
+          } catch (error) {
+            alert(error.message || '차단 해제에 실패했습니다.');
+          } finally {
+            button.disabled = false;
+            button.textContent = originalText;
+          }
+        });
+
+        item.appendChild(info);
+        item.appendChild(button);
+        blockedUsersList.appendChild(item);
+      });
+    }
+
+    async function refreshBlockedUsers() {
+      if (!blockedUsersList || !window.BlockingClient) return;
+
+      if (blockedUsersLoading) blockedUsersLoading.hidden = false;
+      if (blockedUsersError) {
+        blockedUsersError.hidden = true;
+        blockedUsersError.textContent = '';
+      }
+      if (blockedUsersEmpty) blockedUsersEmpty.hidden = true;
+
+      try {
+        await window.BlockingClient.refresh({ token });
+      } catch (error) {
+        if (blockedUsersError) {
+          blockedUsersError.hidden = false;
+          blockedUsersError.textContent = error.message || '차단 목록을 불러오지 못했습니다.';
+        }
+      } finally {
+        if (blockedUsersLoading) blockedUsersLoading.hidden = true;
+        if (blockedUsersError && !blockedUsersError.hidden) {
+          return;
+        }
+        const currentBlocks = window.BlockingClient.getBlocks ? window.BlockingClient.getBlocks() : [];
+        if ((!currentBlocks || currentBlocks.length === 0) && blockedUsersList.children.length === 0 && blockedUsersEmpty) {
+          blockedUsersEmpty.hidden = false;
+        }
+      }
+    }
+
     // 테마 설정 로직
     const themeRadios = document.querySelectorAll('input[name="theme"]');
     const applyTheme = (theme) => {
@@ -105,6 +271,10 @@
       const radio = document.querySelector(`input[name="theme"][value="${savedTheme}"]`);
       if (radio) radio.checked = true;
       applyTheme(savedTheme);
+      subscribeToBlockUpdates();
+      if (token) {
+        refreshBlockedUsers();
+      }
     });
 
     // 비밀번호 변경 로직
@@ -175,7 +345,6 @@
 
   </script>
   </main>
-  <script defer src="js/auth-helper.js"></script>
   <script defer src="js/profile-menu.js"></script>
 </body>
 </html>

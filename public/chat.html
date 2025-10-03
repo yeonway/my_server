@@ -6,11 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>채팅</title>
   <script defer src="js/auth-helper.js"></script>
+  <script defer src="js/blocking-client.js"></script>
   <link rel="stylesheet" href="css/profile-menu.css">
-
   <link rel="stylesheet" href="css/topbar.css">
   <link rel="stylesheet" href="css/chat.css">
-  <link rel="stylesheet" href="js/chat.js">
 </head>
 <body>
   <header class="site-topbar">
@@ -69,6 +68,9 @@
       <h3>메시지 신고</h3>
       <p>신고 사유를 입력해주세요.</p>
       <textarea id="reportReasonInput" placeholder="예: 욕설, 스팸, 광고 등"></textarea>
+      <div class="report-modal-actions">
+        <button id="reportBlockToggleBtn" type="button" class="chat-report-block" hidden>차단 해제</button>
+      </div>
       <div class="report-modal-buttons">
         <button id="submitReportBtn" type="button">신고</button>
         <button id="cancelReportBtn" type="button">취소</button>
@@ -78,7 +80,6 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script defer src="js/chat.js"></script>
-  <script defer src="js/auth-helper.js"></script>
   <script defer src="js/profile-menu.js"></script>
 </body>
 </html>
