@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     roomList: document.getElementById('roomList'),
     roomTitle: document.getElementById('roomTitle'),
     roomMeta: document.getElementById('roomMeta'),
+    roomActions: document.getElementById('roomActions'),
     msgInput: document.getElementById('msgInput'),
     sendBtn: document.getElementById('sendBtn'),
     createRoomBtn: document.getElementById('createRoomBtn'),
@@ -61,6 +62,75 @@ function isMessageFromBlocked(message) {
   };
 
   let detachBlockSubscription = null;
+
+  const roomActionLocks = new Map();
+  const INTERACTION_NOTICE_COOLDOWN = 1500;
+  const interactionNoticeCache = new Map();
+
+  function getRoomActionKey(roomId, action) {
+    return `${roomId || ''}:${action}`;
+  }
+
+  function isRoomActionLocked(roomId, action) {
+    return roomActionLocks.has(getRoomActionKey(roomId, action));
+  }
+
+  function escapeRoomSelector(value) {
+    const stringValue = value == null ? '' : String(value);
+    if (window.CSS && typeof window.CSS.escape === 'function') {
+      return window.CSS.escape(stringValue);
+    }
+    return stringValue.replace(/"/g, '\\"');
+  }
+
+  function updateRoomActionBusyState(roomId, action, isBusy) {
+    if (!roomId || !action) return;
+
+    if (els.roomActions) {
+      const headerButton = els.roomActions.querySelector(`.room-action[data-action="${action}"]`);
+      if (headerButton) {
+        headerButton.disabled = isBusy;
+      }
+    }
+
+    if (action === 'favorite' && els.roomList) {
+      const selector = `.room-item[data-room-id="${escapeRoomSelector(roomId)}"] .room-list-favorite`;
+      const listButton = els.roomList.querySelector(selector);
+      if (listButton) {
+        listButton.disabled = isBusy;
+      }
+    }
+  }
+
+  async function withRoomActionLock(roomId, action, task) {
+    const key = getRoomActionKey(roomId, action);
+    if (roomActionLocks.has(key)) {
+      return;
+    }
+
+    roomActionLocks.set(key, true);
+    updateRoomActionBusyState(roomId, action, true);
+
+    try {
+      return await task();
+    } finally {
+      roomActionLocks.delete(key);
+      updateRoomActionBusyState(roomId, action, false);
+    }
+  }
+
+  function showInteractionToast(key, message, type = 'success') {
+    if (!message) return;
+
+    const now = Date.now();
+    const last = interactionNoticeCache.get(key);
+    if (last && now - last < INTERACTION_NOTICE_COOLDOWN) {
+      return;
+    }
+
+    interactionNoticeCache.set(key, now);
+    showNotification(message, type);
+  }
 
   function syncBlockedUsersFromClient() {
     if (!window.BlockingClient) {
@@ -345,6 +415,7 @@ function isMessageFromBlocked(message) {
   function normalizeRoom(room) {
     if (!room) return null;
     const id = room.id || room._id;
+    const interactions = ensureRoomInteractions(room);
     return {
       id,
       type: room.type || 'group',
@@ -353,7 +424,24 @@ function isMessageFromBlocked(message) {
       otherParticipant: room.otherParticipant || null,
       lastMessageAt: room.lastMessageAt || room.updatedAt || null,
       lastPreview: room.lastPreview || '',
+      interactions,
     };
+  }
+
+  function ensureRoomInteractions(room) {
+    const target = (room && room.interactions) || {};
+    target.favorite = !!target.favorite;
+    target.reaction = target.reaction || 'none';
+    const stats = target.stats || {};
+    target.stats = {
+      recommends: typeof stats.recommends === 'number' ? stats.recommends : 0,
+      notRecommends: typeof stats.notRecommends === 'number' ? stats.notRecommends : 0,
+      shareCount: typeof stats.shareCount === 'number' ? stats.shareCount : 0,
+    };
+    if (room && room.interactions !== target) {
+      room.interactions = target;
+    }
+    return target;
   }
 
   function sortRooms() {
@@ -384,7 +472,26 @@ function isMessageFromBlocked(message) {
 
       const nameRow = document.createElement('div');
       nameRow.className = 'room-name';
-      nameRow.textContent = room.displayName || room.name || '채팅';
+
+      const nameLabel = document.createElement('span');
+      nameLabel.className = 'room-name-label';
+      nameLabel.textContent = room.displayName || room.name || '채팅';
+      nameRow.appendChild(nameLabel);
+
+      const favoriteToggle = document.createElement('button');
+      favoriteToggle.type = 'button';
+      favoriteToggle.className = 'room-list-favorite';
+      const isFavorite = !!room.interactions?.favorite;
+      favoriteToggle.setAttribute('aria-pressed', isFavorite ? 'true' : 'false');
+      favoriteToggle.textContent = isFavorite ? '★' : '☆';
+      favoriteToggle.title = isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가';
+      favoriteToggle.disabled = isRoomActionLocked(room.id, 'favorite');
+      favoriteToggle.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleRoomFavoriteInline(room.id, !isFavorite);
+      });
+      nameRow.appendChild(favoriteToggle);
 
       const detailRow = document.createElement('div');
       detailRow.className = 'room-detail';
@@ -392,6 +499,12 @@ function isMessageFromBlocked(message) {
         <span>${room.type === 'dm' ? '개인 채팅' : '그룹 채팅'}</span>
         <span>${formatTimestamp(room.lastMessageAt)}</span>
       `;
+
+      const statsSpan = document.createElement('span');
+      statsSpan.className = 'room-reactions';
+      const stats = room.interactions?.stats || {};
+      statsSpan.textContent = `👍 ${stats.recommends ?? 0} · 👎 ${stats.notRecommends ?? 0} · 🔗 ${stats.shareCount ?? 0}`;
+      detailRow.appendChild(statsSpan);
 
       item.appendChild(nameRow);
       item.appendChild(detailRow);
@@ -428,6 +541,7 @@ function isMessageFromBlocked(message) {
     if (!room) {
       els.roomTitle.textContent = '채팅방을 선택하세요';
       els.roomMeta.textContent = '';
+      renderRoomActions(null);
       return;
     }
 
@@ -438,6 +552,271 @@ function isMessageFromBlocked(message) {
     } else {
       els.roomMeta.textContent = room.name ? `방 이름: ${room.name}` : '';
     }
+
+    renderRoomActions(room);
+  }
+
+  function renderRoomActions(room) {
+    const container = els.roomActions;
+    if (!container) return;
+
+    if (!room) {
+      container.innerHTML = '';
+      container.hidden = true;
+      return;
+    }
+
+    container.hidden = false;
+    container.innerHTML = '';
+
+    const interactions = ensureRoomInteractions(room);
+    const stats = interactions.stats || {};
+
+    const makeActionButton = (label, action, options = {}) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `room-action ${options.className || ''}`.trim();
+      btn.dataset.action = action;
+      if (typeof options.pressed === 'boolean') {
+        btn.setAttribute('aria-pressed', options.pressed ? 'true' : 'false');
+      }
+      btn.disabled = isRoomActionLocked(room.id, action);
+      btn.textContent = label;
+      btn.addEventListener('click', (event) => {
+        event.preventDefault();
+        handleRoomAction(action);
+      });
+      if (options.title) {
+        btn.title = options.title;
+      }
+      if (options.active) {
+        btn.classList.add('active');
+      }
+      return btn;
+    };
+
+    container.appendChild(
+      makeActionButton(
+        interactions.favorite ? '★ 즐겨찾기' : '☆ 즐겨찾기',
+        'favorite',
+        { pressed: interactions.favorite },
+      ),
+    );
+
+    container.appendChild(
+      makeActionButton(
+        `👍 ${stats.recommends ?? 0}`,
+        'recommend',
+        { active: interactions.reaction === 'up' },
+      ),
+    );
+
+    container.appendChild(
+      makeActionButton(
+        `👎 ${stats.notRecommends ?? 0}`,
+        'not-recommend',
+        { active: interactions.reaction === 'down' },
+      ),
+    );
+
+    container.appendChild(
+      makeActionButton(
+        `🔗 ${stats.shareCount ?? 0}`,
+        'share',
+      ),
+    );
+
+    container.appendChild(
+      makeActionButton('🚨 신고', 'report'),
+    );
+  }
+
+  async function handleRoomAction(action) {
+    const roomId = state.currentRoomId;
+    if (!roomId) return;
+
+    const room = state.rooms.find((target) => target.id === roomId);
+    if (!room) return;
+
+    state.currentRoom = room;
+
+    await withRoomActionLock(room.id, action, async () => {
+      const interactions = ensureRoomInteractions(room);
+
+      try {
+        if (action === 'favorite') {
+          const shouldFavorite = !interactions.favorite;
+          await toggleRoomFavoriteRequest(room.id, shouldFavorite);
+          interactions.favorite = shouldFavorite;
+          renderRoomActions(room);
+          renderRoomList();
+          showInteractionToast(`favorite-${shouldFavorite ? 'on' : 'off'}`, shouldFavorite ? '채팅방을 즐겨찾기에 추가했습니다.' : '채팅방 즐겨찾기를 해제했습니다.');
+        } else if (action === 'recommend' || action === 'not-recommend') {
+          const desired = action === 'recommend' ? 'up' : 'down';
+          const nextValue = interactions.reaction === desired ? 'clear' : desired;
+          const data = await updateRoomRecommendationRequest(room.id, nextValue);
+          interactions.reaction = data.reaction;
+          interactions.stats.recommends = data.stats?.recommends ?? interactions.stats.recommends;
+          interactions.stats.notRecommends = data.stats?.notRecommends ?? interactions.stats.notRecommends;
+          renderRoomActions(room);
+          renderRoomList();
+          const message = data.reaction === 'up'
+            ? '채팅방을 추천했습니다.'
+            : data.reaction === 'down'
+              ? '채팅방을 비추천했습니다.'
+              : '추천/비추천을 취소했습니다.';
+          const key = data.reaction === 'up'
+            ? 'recommend-up'
+            : data.reaction === 'down'
+              ? 'recommend-down'
+              : 'recommend-clear';
+          showInteractionToast(key, message);
+        } else if (action === 'share') {
+          await shareRoom(room);
+        } else if (action === 'report') {
+          await reportRoom(room);
+        }
+      } catch (error) {
+        console.error('[chat] handleRoomAction error', error);
+        showNotification(error.message || '요청을 처리하지 못했습니다.', 'error');
+      }
+    });
+  }
+
+  async function toggleRoomFavoriteInline(roomId, shouldFavorite) {
+    if (!roomId) return;
+
+    await withRoomActionLock(roomId, 'favorite', async () => {
+      try {
+        await toggleRoomFavoriteRequest(roomId, shouldFavorite);
+        const target = state.rooms.find((room) => room.id === roomId);
+        if (target) {
+          const interactions = ensureRoomInteractions(target);
+          interactions.favorite = shouldFavorite;
+          if (roomId === state.currentRoomId) {
+            state.currentRoom = target;
+          }
+        }
+        if (state.currentRoomId === roomId && state.currentRoom) {
+          ensureRoomInteractions(state.currentRoom).favorite = shouldFavorite;
+          renderRoomActions(state.currentRoom);
+        }
+        renderRoomList();
+        showInteractionToast(`favorite-${shouldFavorite ? 'on' : 'off'}`, shouldFavorite ? '채팅방을 즐겨찾기에 추가했습니다.' : '채팅방 즐겨찾기를 해제했습니다.');
+      } catch (error) {
+        console.error('[chat] toggleRoomFavoriteInline error', error);
+        showNotification(error.message || '즐겨찾기 변경에 실패했습니다.', 'error');
+      }
+    });
+  }
+
+  async function toggleRoomFavoriteRequest(roomId, shouldFavorite) {
+    const response = await fetch(`/api/interactions/favorites/chat/${roomId}`, {
+      method: shouldFavorite ? 'PUT' : 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${state.token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || '즐겨찾기를 변경하지 못했습니다.');
+    }
+  }
+
+  async function updateRoomRecommendationRequest(roomId, value) {
+    const response = await fetch(`/api/interactions/recommend/chat/${roomId}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${state.token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ value }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.error || '추천 정보를 변경하지 못했습니다.');
+    }
+    return data;
+  }
+
+  async function incrementRoomShare(roomId) {
+    const response = await fetch(`/api/interactions/share/chat/${roomId}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${state.token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.error || '공유 정보를 기록하지 못했습니다.');
+    }
+    return data;
+  }
+
+  async function shareRoom(room) {
+    const shareUrl = `${window.location.origin}/chat.html?room=${room.id}`;
+    let completed = false;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: room.displayName || room.name || '채팅방', url: shareUrl });
+        completed = true;
+        showInteractionToast('share', '채팅방 링크를 공유했습니다.');
+      } catch (error) {
+        if (error?.name !== 'AbortError') {
+          console.warn('[chat] web share failed', error);
+        }
+      }
+    }
+
+    if (!completed && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        completed = true;
+        showInteractionToast('share-copy', '채팅방 링크를 복사했습니다.');
+      } catch (error) {
+        console.warn('[chat] clipboard share failed', error);
+      }
+    }
+
+    if (!completed) {
+      showNotification('공유를 지원하지 않는 환경입니다. 주소 표시줄에서 직접 복사해주세요.', 'error');
+      return;
+    }
+
+    try {
+      const data = await incrementRoomShare(room.id);
+      const interactions = ensureRoomInteractions(room);
+      interactions.stats.shareCount = data.shareCount ?? interactions.stats.shareCount;
+      if (room.id === state.currentRoomId) {
+        state.currentRoom = room;
+      }
+      renderRoomActions(room);
+      renderRoomList();
+    } catch (error) {
+      console.warn('[chat] share count update failed', error);
+    }
+  }
+
+  async function reportRoom(room) {
+    const reason = prompt('채팅방 신고 사유를 입력해주세요.');
+    if (!reason) return;
+
+    const response = await fetch(`/api/interactions/report/chat/${room.id}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${state.token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ reason }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.error || '신고를 접수하지 못했습니다.');
+    }
+    showNotification('신고가 접수되었습니다.', 'success');
   }
 
   function highlightActiveRoom() {
