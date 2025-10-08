@@ -40,7 +40,17 @@ const userSchema = new mongoose.Schema(
 
     signupOwner: { type: String, default: "" }, // 최초 가입 계정
     signupOrder: { type: Number, default: 1 },    // 동일 브라우저에서 몇 번째 계정인지
-    signupIp: { type: String, default: "" }      // 가입 시도 IP 기록
+    signupIp: { type: String, default: "" },     // 가입 시도 IP 기록
+
+    accountStatus: {
+      type: String,
+      enum: ["active", "deactivated", "pending_deletion"],
+      default: "active",
+    },
+    deactivatedAt: { type: Date, default: null },
+    deletionRequestedAt: { type: Date, default: null },
+    deletionScheduledFor: { type: Date, default: null },
+    deletionReason: { type: String, default: "" },
   },
   { timestamps: true }
 );
