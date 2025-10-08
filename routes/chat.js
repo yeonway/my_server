@@ -922,7 +922,7 @@ router.put('/messages/:id', authMiddleware, async (req, res) => {
 
     const isOwner = message.author?.toString() === req.user.id;
 
-    const isAdmin = ['admin', 'superadmin'].includes(req.user.role);
+    const isAdmin = req.user.isAdmin || ['admin', 'superadmin'].includes(req.user.role);
 
     const adminOverrideHeader = req.get('x-admin-moderation');
 
@@ -1222,7 +1222,7 @@ router.delete('/messages/:id', authMiddleware, async (req, res) => {
 
     const isOwner = message.author?.toString() === req.user.id;
 
-    const isAdmin = ['admin', 'superadmin'].includes(req.user.role);
+    const isAdmin = req.user.isAdmin || ['admin', 'superadmin'].includes(req.user.role);
     const adminOverrideHeader = req.get('x-admin-moderation');
     const allowAdminOverride = isAdmin && typeof adminOverrideHeader === 'string' && adminOverrideHeader.toLowerCase() === 'log';
 
