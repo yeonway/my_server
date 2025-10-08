@@ -27,7 +27,7 @@ const moderationRouter = require('./routes/moderation');
 const notificationsRouter = require('./routes/notifications');
 const calendarRouter = require('./routes/calendar');
 const pollsRouter = require('./routes/polls');
-const accountRouter = require('./routes/account');
+const dashboardRouter = require('./routes/dashboard');
 
 const logger = require('./config/logger');
 const { userLog } = require('./config/userLogger');
@@ -79,7 +79,7 @@ app.use('/api/moderation', moderationRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/calendar', calendarRouter);
 app.use('/api/polls', pollsRouter);
-app.use('/api/account', accountRouter);
+app.use('/api/dashboard', dashboardRouter);
 
 // 404 fallback
 app.use((req, res) => {
