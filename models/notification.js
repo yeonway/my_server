@@ -1,4 +1,4 @@
-﻿const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 const notificationTypes = ['comment', 'mention', 'dm', 'group_invite', 'announcement'];
 

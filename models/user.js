@@ -1,6 +1,52 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
+const visibilityLevels = ["public", "followers", "private"];
+const defaultVisibilityScopes = {
+  posts: "public",
+  comments: "followers",
+  chats: "private",
+  badges: "public",
+  activity: "followers"
+};
+
+const badgeSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    description: { type: String, default: "", trim: true },
+    icon: { type: String, default: "", trim: true },
+    earnedAt: { type: Date, default: Date.now }
+  },
+  { _id: false }
+);
+
+const activityEntrySchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      enum: ["post", "comment", "chat", "achievement", "system", "custom"],
+      default: "custom"
+    },
+    title: { type: String, required: true, trim: true },
+    detail: { type: String, default: "", trim: true },
+    link: { type: String, default: "", trim: true },
+    metadata: { type: mongoose.Schema.Types.Mixed, default: {} },
+    occurredAt: { type: Date, default: Date.now }
+  },
+  { _id: false }
+);
+
+const visibilityScopeSchema = new mongoose.Schema(
+  {
+    posts: { type: String, enum: visibilityLevels, default: "public" },
+    comments: { type: String, enum: visibilityLevels, default: "followers" },
+    chats: { type: String, enum: visibilityLevels, default: "private" },
+    badges: { type: String, enum: visibilityLevels, default: "public" },
+    activity: { type: String, enum: visibilityLevels, default: "followers" }
+  },
+  { _id: false }
+);
+
 // 권한별 기능 매핑 (참고)
 // 관리자 추가/삭제    superadmin       다른 관리자 관리(최고관리자만)
 // 사용자 삭제/정지/메모 user_manage     일반 사용자 계정 관리
@@ -32,6 +78,16 @@ const userSchema = new mongoose.Schema(
     photo: { type: String, default: "" },      // 프로필 사진 경로 (없으면 빈 문자열)
     email: { type: String, trim: true, lowercase: true, default: "" }, // 계정 연락용 이메일
 
+    backgroundImage: { type: String, default: "" },
+    statusMessage: { type: String, default: "" },
+    badges: { type: [badgeSchema], default: [] },
+    activityHistory: { type: [activityEntrySchema], default: [] },
+    profileVisibility: { type: String, enum: ["public", "private"], default: "public" },
+    visibilityScopes: {
+      type: visibilityScopeSchema,
+      default: () => ({ ...defaultVisibilityScopes })
+    },
+
     blockedUsers: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: 'User',
@@ -40,7 +96,17 @@ const userSchema = new mongoose.Schema(
 
     signupOwner: { type: String, default: "" }, // 최초 가입 계정
     signupOrder: { type: Number, default: 1 },    // 동일 브라우저에서 몇 번째 계정인지
-    signupIp: { type: String, default: "" }      // 가입 시도 IP 기록
+    signupIp: { type: String, default: "" },     // 가입 시도 IP 기록
+
+    accountStatus: {
+      type: String,
+      enum: ["active", "deactivated", "pending_deletion"],
+      default: "active",
+    },
+    deactivatedAt: { type: Date, default: null },
+    deletionRequestedAt: { type: Date, default: null },
+    deletionScheduledFor: { type: Date, default: null },
+    deletionReason: { type: String, default: "" },
   },
   { timestamps: true }
 );

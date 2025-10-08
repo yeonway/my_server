@@ -9,6 +9,7 @@ const Post = require("../models/post");
 const { authMiddleware } = require("../middleware/auth");
 const logger = require('../config/logger');
 const { attachSessionCookie, clearSessionCookie } = require('../config/session');
+const { recordLoginAttempt } = require('../services/accountSecurityService');
 
 function ensureJwtSecret(res) {
   if (!JWT_SECRET) {
@@ -162,10 +163,42 @@ router.post("/login", async (req, res) => {
       if (req.userLogger) req.userLogger('warn', `로그인 실패 - 사용자 없음: ${username}`);
       return res.status(400).json({ error: "아이디 또는 비밀번호가 올바르지 않습니다." });
     }
+    const ipAddress = getClientIp(req);
+    const userAgent = req.headers['user-agent'] || '';
+
+    if (user.accountStatus === 'pending_deletion') {
+      await recordLoginAttempt({
+        userId: user._id,
+        username: user.username,
+        ipAddress,
+        userAgent,
+        success: false,
+      });
+      return res.status(403).json({ error: "삭제가 예약된 계정입니다. 고객센터에 문의하세요." });
+    }
+
+    if (user.accountStatus === 'deactivated') {
+      await recordLoginAttempt({
+        userId: user._id,
+        username: user.username,
+        ipAddress,
+        userAgent,
+        success: false,
+      });
+      return res.status(403).json({ error: "비활성화된 계정입니다. 다시 활성화하려면 고객센터에 문의하세요." });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       logger.warn(`Login failed - wrong password: ${username}`);
       if (req.userLogger) req.userLogger('warn', `로그인 실패 - 잘못된 비밀번호: ${username}`);
+      await recordLoginAttempt({
+        userId: user._id,
+        username: user.username,
+        ipAddress,
+        userAgent,
+        success: false,
+      });
       return res.status(400).json({ error: "아이디 또는 비밀번호가 올바르지 않습니다." });
     }
     if (!ensureJwtSecret(res)) {
@@ -178,6 +211,13 @@ router.post("/login", async (req, res) => {
     );
     logger.info(`Login success: ${username}`);
     if (req.userLogger) req.userLogger('info', `로그인 성공: ${username}`);
+    await recordLoginAttempt({
+      userId: user._id,
+      username: user.username,
+      ipAddress,
+      userAgent,
+      success: true,
+    });
     res.json({ token });
   } catch (err) {
     logger.error(`Login error: ${err.message}`);
