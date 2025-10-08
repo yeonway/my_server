@@ -10,6 +10,7 @@
   <script src="js/theme.js"></script>
   <script defer src="js/auth-helper.js"></script>
   <script defer src="js/blocking-client.js"></script>
+  <script defer src="js/preferences-settings.js"></script>
   <link rel="stylesheet" href="css/setting.css">
   <link rel="stylesheet" href="css/topbar.css">
   <link rel="stylesheet" href="css/site-menu.css">
@@ -60,14 +61,106 @@
       <button class="btn btn-primary" onclick="changePassword()">비밀번호 변경</button>
     </div>
 
-    <!-- 테마 설정 -->
-    <div class="setting-card">
-      <h2>테마 설정</h2>
-      <div class="theme-options">
-        <label><input type="radio" name="theme" value="light"> 라이트 모드</label>
-        <label><input type="radio" name="theme" value="dark"> 다크 모드</label>
-        <label><input type="radio" name="theme" value="system" checked> 시스템 설정</label>
+    <!-- 환경 개인화 -->
+    <div class="setting-card" id="personalizationCard">
+      <h2>환경 개인화</h2>
+      <p class="setting-card-description">모든 기기에서 동일하게 적용될 화면 모드, 글꼴 크기, 포인트 색상을 선택하세요. 변경 사항은 즉시 미리보기로 확인할 수 있습니다.</p>
+
+      <section aria-labelledby="themePreference" class="preference-section">
+        <h3 id="themePreference" class="setting-subtitle">테마 모드</h3>
+        <div class="theme-options" data-theme-options>
+          <label class="theme-option">
+            <input type="radio" name="theme" value="light" data-theme-option>
+            <div class="theme-option-body">
+              <span class="theme-option-title">라이트 모드</span>
+              <span class="theme-option-meta">밝고 선명한 화면을 선호할 때</span>
+            </div>
+          </label>
+          <label class="theme-option">
+            <input type="radio" name="theme" value="dark" data-theme-option>
+            <div class="theme-option-body">
+              <span class="theme-option-title">다크 모드</span>
+              <span class="theme-option-meta">야간과 장시간 사용에 적합</span>
+            </div>
+          </label>
+          <label class="theme-option">
+            <input type="radio" name="theme" value="system" data-theme-option>
+            <div class="theme-option-body">
+              <span class="theme-option-title">시스템과 동일</span>
+              <span class="theme-option-meta">OS 설정에 따라 자동 전환</span>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <section aria-labelledby="fontPreference" class="preference-section">
+        <h3 id="fontPreference" class="setting-subtitle">글꼴 크기</h3>
+        <div class="font-scale-buttons" data-font-scale-group>
+          <button type="button" class="font-scale-button" data-font-scale="small">
+            <span class="font-label">A-</span>
+            <span class="font-caption">작게</span>
+          </button>
+          <button type="button" class="font-scale-button" data-font-scale="medium">
+            <span class="font-label">A</span>
+            <span class="font-caption">보통</span>
+          </button>
+          <button type="button" class="font-scale-button" data-font-scale="large">
+            <span class="font-label">A+</span>
+            <span class="font-caption">크게</span>
+          </button>
+          <button type="button" class="font-scale-button" data-font-scale="xlarge">
+            <span class="font-label">A++</span>
+            <span class="font-caption">아주 크게</span>
+          </button>
+        </div>
+      </section>
+
+      <section aria-labelledby="accentPreference" class="preference-section">
+        <h3 id="accentPreference" class="setting-subtitle">컬러 테마</h3>
+        <div class="accent-picker">
+          <label for="accentColorPicker">사용자 지정 색상</label>
+          <input type="color" id="accentColorPicker" class="accent-color-input" data-accent-input>
+          <div class="accent-swatches" data-accent-swatches>
+            <button type="button" class="accent-swatch" data-accent-swatch="#6366f1" style="--swatch-color:#6366f1" aria-label="보라"></button>
+            <button type="button" class="accent-swatch" data-accent-swatch="#22d3ee" style="--swatch-color:#22d3ee" aria-label="민트"></button>
+            <button type="button" class="accent-swatch" data-accent-swatch="#f97316" style="--swatch-color:#f97316" aria-label="오렌지"></button>
+            <button type="button" class="accent-swatch" data-accent-swatch="#ec4899" style="--swatch-color:#ec4899" aria-label="핑크"></button>
+            <button type="button" class="accent-swatch" data-accent-swatch="#10b981" style="--swatch-color:#10b981" aria-label="그린"></button>
+            <button type="button" class="accent-swatch" data-accent-swatch="#facc15" style="--swatch-color:#facc15" aria-label="옐로우"></button>
+            <button type="button" class="accent-swatch" data-accent-swatch="#0ea5e9" style="--swatch-color:#0ea5e9" aria-label="블루"></button>
+            <button type="button" class="accent-swatch" data-accent-swatch="#f43f5e" style="--swatch-color:#f43f5e" aria-label="레드"></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="preference-preview" data-preference-preview aria-live="polite">
+        <div class="preference-preview-header">
+          <span class="preference-preview-title">미리보기</span>
+          <span class="preference-preview-meta"><span data-preview-theme-label></span> · <span data-preview-font-label></span></span>
+        </div>
+        <p data-preview-text>선택한 스타일이 이렇게 보입니다. 새로고침 없이도 모든 페이지에 즉시 반영돼요.</p>
+        <div class="preference-preview-actions" data-preview-actions></div>
+        <span class="preference-preview-color">포인트 컬러 <strong data-preview-color></strong></span>
+      </section>
+    </div>
+
+    <!-- 퀵 액션 & 단축키 -->
+    <div class="setting-card" id="quickActionCard">
+      <h2>퀵 액션 &amp; 단축키</h2>
+      <p class="setting-card-description">자주 사용하는 기능을 퀵 액션 버튼과 단축키로 등록해 빠르게 이동하세요.</p>
+      <ul class="quick-action-selector" data-quick-action-list></ul>
+      <div class="shortcut-grid">
+        <div class="shortcut-field">
+          <label for="shortcutQuickMenu">퀵 액션 메뉴</label>
+          <input type="text" id="shortcutQuickMenu" class="shortcut-input" data-shortcut-input="openQuickActions" placeholder="Ctrl+K">
+        </div>
+        <div class="shortcut-field">
+          <label for="shortcutToggleTheme">테마 전환</label>
+          <input type="text" id="shortcutToggleTheme" class="shortcut-input" data-shortcut-input="toggleTheme" placeholder="Shift+D">
+        </div>
       </div>
+      <p class="shortcut-hint">입력 칸에서 원하는 키 조합을 누르면 즉시 기록됩니다. Backspace로 기본값으로 되돌릴 수 있습니다.</p>
+      <div class="quick-action-tip"><strong>TIP</strong> 퀵 액션은 우측 하단 번개 버튼과 <kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>K</kbd> 단축키로 언제든 열 수 있습니다.</div>
     </div>
 
     <!-- 차단 사용자 관리 -->

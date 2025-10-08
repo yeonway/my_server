@@ -1,5 +1,40 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const { DEFAULT_PREFERENCES } = require("../config/preferences");
+
+const preferenceSchema = new mongoose.Schema(
+  {
+    theme: {
+      type: String,
+      enum: ["light", "dark", "system"],
+      default: DEFAULT_PREFERENCES.theme,
+    },
+    fontScale: {
+      type: String,
+      enum: ["small", "medium", "large", "xlarge"],
+      default: DEFAULT_PREFERENCES.fontScale,
+    },
+    accentColor: {
+      type: String,
+      default: DEFAULT_PREFERENCES.accentColor,
+    },
+    quickActions: {
+      type: [String],
+      default: () => DEFAULT_PREFERENCES.quickActions.slice(0),
+    },
+    shortcuts: {
+      openQuickActions: {
+        type: String,
+        default: DEFAULT_PREFERENCES.shortcuts.openQuickActions,
+      },
+      toggleTheme: {
+        type: String,
+        default: DEFAULT_PREFERENCES.shortcuts.toggleTheme,
+      },
+    },
+  },
+  { _id: false }
+);
 
 // 권한별 기능 매핑 (참고)
 // 관리자 추가/삭제    superadmin       다른 관리자 관리(최고관리자만)
@@ -40,7 +75,16 @@ const userSchema = new mongoose.Schema(
 
     signupOwner: { type: String, default: "" }, // 최초 가입 계정
     signupOrder: { type: Number, default: 1 },    // 동일 브라우저에서 몇 번째 계정인지
-    signupIp: { type: String, default: "" }      // 가입 시도 IP 기록
+    signupIp: { type: String, default: "" },     // 가입 시도 IP 기록
+
+    preferences: {
+      type: preferenceSchema,
+      default: () => ({
+        ...DEFAULT_PREFERENCES,
+        quickActions: DEFAULT_PREFERENCES.quickActions.slice(0),
+        shortcuts: { ...DEFAULT_PREFERENCES.shortcuts },
+      }),
+    }
   },
   { timestamps: true }
 );

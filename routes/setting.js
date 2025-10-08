@@ -4,6 +4,63 @@ const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const { authMiddleware } = require("../middleware/auth");
 const logger = require('../config/logger');
+const {
+  sanitizePreferences,
+  DEFAULT_PREFERENCES,
+} = require('../config/preferences');
+
+// 환경설정 조회
+router.get('/preferences', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('preferences');
+    if (!user) {
+      return res.status(404).json({ error: '사용자를 찾을 수 없습니다.' });
+    }
+
+    const preferences = sanitizePreferences(user.preferences || DEFAULT_PREFERENCES);
+
+    if (!user.preferences) {
+      user.preferences = preferences;
+      await user.save();
+    }
+
+    res.json({ preferences });
+  } catch (error) {
+    logger.error(`Preferences fetch error: ${error.message}`);
+    res.status(500).json({ error: '환경설정을 불러오지 못했습니다.' });
+  }
+});
+
+// 환경설정 저장
+router.put('/preferences', authMiddleware, async (req, res) => {
+  try {
+    const incoming = req.body?.preferences ?? req.body ?? {};
+    const preferences = sanitizePreferences(incoming);
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      {
+        $set: {
+          preferences,
+        },
+      },
+      { new: true, runValidators: true, projection: { preferences: 1 } }
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: '사용자를 찾을 수 없습니다.' });
+    }
+
+    if (req.userLogger) {
+      req.userLogger('info', '환경설정을 업데이트했습니다.');
+    }
+
+    res.json({ message: '환경설정이 저장되었습니다.', preferences: user.preferences });
+  } catch (error) {
+    logger.error(`Preferences update error: ${error.message}`);
+    res.status(500).json({ error: '환경설정을 저장하지 못했습니다.' });
+  }
+});
 
 // 비밀번호 변경
 router.put("/password", authMiddleware, async (req, res) => {
