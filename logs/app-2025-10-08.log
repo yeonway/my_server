@@ -1,0 +1,424 @@
+2025-10-08 00:01:09 info: Forbidden words cache has been updated.
+2025-10-08 00:01:09 info: Socket connected: admin
+2025-10-08 00:03:41 info: Forbidden words cache has been updated.
+2025-10-08 00:03:41 info: Socket connected: admin
+2025-10-08 00:04:14 info: Forbidden words cache has been updated.
+2025-10-08 00:04:15 info: Socket connected: admin
+2025-10-08 00:04:37 info: Forbidden words cache has been updated.
+2025-10-08 00:04:37 info: Socket connected: admin
+2025-10-08 00:05:20 info: Forbidden words cache has been updated.
+2025-10-08 00:05:20 info: Socket connected: admin
+2025-10-08 00:05:36 info: Forbidden words cache has been updated.
+2025-10-08 00:05:36 info: Socket connected: admin
+2025-10-08 00:06:01 info: Forbidden words cache has been updated.
+2025-10-08 00:06:01 info: Socket connected: admin
+2025-10-08 00:06:14 info: Forbidden words cache has been updated.
+2025-10-08 00:06:14 info: Socket connected: admin
+2025-10-08 00:06:23 info: Forbidden words cache has been updated.
+2025-10-08 00:06:23 info: Socket connected: admin
+2025-10-08 00:06:43 info: Forbidden words cache has been updated.
+2025-10-08 00:06:44 info: Socket connected: admin
+2025-10-08 00:07:53 info: Forbidden words cache has been updated.
+2025-10-08 00:07:53 info: Socket connected: admin
+2025-10-08 00:08:06 info: Forbidden words cache has been updated.
+2025-10-08 00:08:06 info: Socket connected: admin
+2025-10-08 00:15:00 info: [scheduler] Calendar reminder job started
+2025-10-08 00:15:10 error: [scheduler] Calendar reminder job failed: Operation `calendars.find()` buffering timed out after 10000ms
+2025-10-08 00:30:00 info: [scheduler] Calendar reminder job started
+2025-10-08 00:30:10 error: [scheduler] Calendar reminder job failed: Operation `calendars.find()` buffering timed out after 10000ms
+2025-10-08 00:34:14 info: [LOGIN][REQ] username=Yj0610
+2025-10-08 00:34:17 info: [LOGIN][REQ] username=Yj0610
+2025-10-08 00:34:37 info: Signup success: yj0610 (정용진) owner=yj0610 order=1 ip=125.178.238.44
+2025-10-08 00:34:48 info: [LOGIN][REQ] username=yj0610
+2025-10-08 00:34:48 info: [LOGIN][OK] yj0610
+2025-10-08 00:34:49 info: [LOGIN][REQ] username=yj0610
+2025-10-08 00:34:49 info: [LOGIN][OK] yj0610
+2025-10-08 00:34:49 info: Socket connected: yj0610
+2025-10-08 00:34:57 info: Socket connected: yj0610
+2025-10-08 00:34:58 info: Socket connected: yj0610
+2025-10-08 00:34:59 info: Socket connected: yj0610
+2025-10-08 00:35:24 info: Socket connected: yj0610
+2025-10-08 00:35:33 info: Socket connected: yj0610
+2025-10-08 00:35:37 info: Socket connected: admin
+2025-10-08 00:35:38 info: Socket connected: admin
+2025-10-08 00:35:41 info: Socket connected: admin
+2025-10-08 00:35:41 info: Socket connected: admin
+2025-10-08 00:35:43 info: Socket connected: admin
+2025-10-08 00:35:43 info: Socket connected: admin
+2025-10-08 00:35:44 info: Socket connected: admin
+2025-10-08 00:35:44 info: Socket connected: admin
+2025-10-08 00:35:45 info: Socket connected: admin
+2025-10-08 00:35:45 info: Socket connected: admin
+2025-10-08 00:35:46 info: Socket connected: admin
+2025-10-08 00:35:47 info: Socket connected: admin
+2025-10-08 00:35:47 info: Socket connected: admin
+2025-10-08 00:35:48 info: Socket connected: admin
+2025-10-08 00:35:49 info: Socket connected: admin
+2025-10-08 00:35:50 info: Socket connected: admin
+2025-10-08 00:35:51 info: Socket connected: admin
+2025-10-08 00:35:52 info: Forbidden words cache has been updated.
+2025-10-08 00:35:52 info: Post Created: yj0610 -> 68e533587099f20e0454f1f5
+2025-10-08 00:35:52 info: Socket connected: admin
+2025-10-08 00:35:52 info: Socket connected: admin
+2025-10-08 00:35:53 info: Socket connected: admin
+2025-10-08 00:35:53 info: Socket connected: admin
+2025-10-08 00:35:54 info: Socket connected: admin
+2025-10-08 00:35:59 info: Socket connected: yj0610
+2025-10-08 00:36:02 info: Socket connected: yj0610
+2025-10-08 00:36:03 info: Socket connected: admin
+2025-10-08 00:36:07 info: Socket connected: yj0610
+2025-10-08 00:36:07 info: Comment created: admin -> post 68e533587099f20e0454f1f5
+2025-10-08 00:36:08 info: Socket connected: yj0610
+2025-10-08 00:36:09 info: Socket connected: yj0610
+2025-10-08 00:36:10 info: Comment created: admin -> post 68e533587099f20e0454f1f5
+2025-10-08 00:36:10 info: Socket connected: yj0610
+2025-10-08 00:36:10 info: Socket connected: yj0610
+2025-10-08 00:36:13 info: Socket connected: yj0610
+2025-10-08 00:36:15 info: Comment created: admin -> post 68e533587099f20e0454f1f5
+2025-10-08 00:36:16 info: Socket connected: yj0610
+2025-10-08 00:36:17 info: Socket connected: yj0610
+2025-10-08 00:36:19 info: Comment created: admin -> post 68e533587099f20e0454f1f5
+2025-10-08 00:36:22 info: Socket connected: yj0610
+2025-10-08 00:36:22 info: Comment deleted: admin -> comment 68e533677099f20e0454f26b in post 68e533587099f20e0454f1f5
+2025-10-08 00:36:22 info: Socket connected: yj0610
+2025-10-08 00:36:26 info: Comment deleted: admin -> comment 68e533737099f20e0454f2cd in post 68e533587099f20e0454f1f5
+2025-10-08 00:36:31 info: Socket connected: admin
+2025-10-08 00:36:44 info: Socket connected: yj0610
+2025-10-08 00:36:46 info: Socket connected: yj0610
+2025-10-08 00:36:49 info: Socket connected: yj0610
+2025-10-08 00:36:50 info: Socket connected: yj0610
+2025-10-08 00:36:55 info: Socket connected: yj0610
+2025-10-08 00:38:23 info: Socket connected: yj0610
+2025-10-08 00:38:30 info: Socket connected: yj0610
+2025-10-08 00:38:30 info: Socket connected: yj0610
+2025-10-08 00:38:30 info: Socket connected: yj0610
+2025-10-08 00:38:31 info: Socket connected: yj0610
+2025-10-08 00:38:44 info: Profile updated: yj0610 -> 소개: 없음 -> 연우게이
+2025-10-08 00:38:49 info: Socket connected: yj0610
+2025-10-08 00:38:49 info: Socket connected: yj0610
+2025-10-08 00:38:56 info: Socket connected: yj0610
+2025-10-08 00:38:57 info: Socket connected: yj0610
+2025-10-08 00:38:57 info: Socket connected: yj0610
+2025-10-08 00:38:58 info: Socket connected: yj0610
+2025-10-08 00:38:58 info: Socket connected: yj0610
+2025-10-08 00:38:59 info: Socket connected: yj0610
+2025-10-08 00:38:59 info: Socket connected: yj0610
+2025-10-08 00:39:02 info: Socket connected: yj0610
+2025-10-08 00:39:03 info: Socket connected: yj0610
+2025-10-08 00:39:21 info: Post Created: yj0610 -> 68e534297099f20e0454f3e1
+2025-10-08 00:39:27 info: Socket connected: yj0610
+2025-10-08 00:39:28 info: Socket connected: yj0610
+2025-10-08 00:39:28 info: Socket connected: yj0610
+2025-10-08 00:39:29 info: Socket connected: yj0610
+2025-10-08 00:39:29 info: Socket connected: yj0610
+2025-10-08 00:39:29 info: Socket connected: yj0610
+2025-10-08 00:39:31 info: Socket connected: yj0610
+2025-10-08 00:39:37 info: Forbidden words cache has been updated.
+2025-10-08 00:39:37 info: Socket connected: admin
+2025-10-08 00:39:38 info: Socket connected: yj0610
+2025-10-08 00:40:56 info: Forbidden words cache has been updated.
+2025-10-08 00:40:56 info: Socket connected: admin
+2025-10-08 00:41:05 info: Socket connected: yj0610
+2025-10-08 00:41:37 info: Forbidden words cache has been updated.
+2025-10-08 00:41:37 info: Socket connected: admin
+2025-10-08 00:42:32 info: Socket connected: yj0610
+2025-10-08 00:42:34 info: Socket connected: yj0610
+2025-10-08 00:42:34 info: Socket connected: yj0610
+2025-10-08 00:42:36 info: Socket connected: yj0610
+2025-10-08 00:42:36 info: Socket connected: yj0610
+2025-10-08 00:42:37 info: Socket connected: yj0610
+2025-10-08 00:42:38 info: Socket connected: yj0610
+2025-10-08 00:43:21 info: Socket connected: yj0610
+2025-10-08 00:43:22 info: Socket connected: yj0610
+2025-10-08 00:43:35 info: Socket connected: yj0610
+2025-10-08 00:43:39 info: Socket connected: admin
+2025-10-08 00:43:39 info: Socket connected: admin
+2025-10-08 00:43:40 info: Socket connected: admin
+2025-10-08 00:44:06 info: Socket connected: yj0610
+2025-10-08 00:45:00 info: [scheduler] Calendar reminder job started
+2025-10-08 00:45:10 error: [scheduler] Calendar reminder job failed: Operation `calendars.find()` buffering timed out after 10000ms
+2025-10-08 00:45:37 info: Socket connected: yj0610
+2025-10-08 00:45:38 info: Socket connected: yj0610
+2025-10-08 00:45:39 info: Socket connected: yj0610
+2025-10-08 00:48:32 info: Forbidden words cache has been updated.
+2025-10-08 00:48:34 info: Socket connected: admin
+2025-10-08 00:50:05 info: Socket connected: yj0610
+2025-10-08 00:50:10 info: Socket connected: yj0610
+2025-10-08 00:50:10 info: Socket connected: yj0610
+2025-10-08 00:50:11 info: Socket connected: yj0610
+2025-10-08 00:51:54 info: Socket connected: yj0610
+2025-10-08 00:51:57 info: Socket connected: yj0610
+2025-10-08 00:52:17 info: Socket connected: admin
+2025-10-08 00:52:17 info: Socket connected: admin
+2025-10-08 00:52:17 info: Post Created: yj0610 -> 68e537316fe5599709218e36
+2025-10-08 00:52:18 info: Socket connected: admin
+2025-10-08 00:52:23 info: Socket connected: yj0610
+2025-10-08 00:52:25 info: Socket connected: yj0610
+2025-10-08 00:52:32 info: Socket connected: yj0610
+2025-10-08 00:52:38 info: Socket connected: yj0610
+2025-10-08 00:52:52 info: Socket connected: yj0610
+2025-10-08 00:52:59 info: Socket connected: admin
+2025-10-08 00:53:01 info: Socket connected: admin
+2025-10-08 00:53:40 info: Forbidden words cache has been updated.
+2025-10-08 00:53:40 info: Socket connected: admin
+2025-10-08 00:53:52 info: Socket connected: yj0610
+2025-10-08 00:53:57 info: Socket connected: yj0610
+2025-10-08 00:53:57 info: Socket connected: yj0610
+2025-10-08 00:53:59 info: Socket connected: admin
+2025-10-08 00:54:09 info: User memo updated: 68e5330d7099f20e0454f0ea
+2025-10-08 00:54:23 info: Post Created: yj0610 -> 68e537afc8648b01d1c55b8b
+2025-10-08 00:54:28 info: Socket connected: yj0610
+2025-10-08 00:54:29 info: Socket connected: yj0610
+2025-10-08 00:54:31 info: Forbidden words cache has been updated.
+2025-10-08 00:54:31 info: Forbidden word added: ㅅㅂ
+2025-10-08 00:54:34 info: Forbidden words cache has been updated.
+2025-10-08 00:54:34 info: Forbidden word added: ㅅ-ㅂ
+2025-10-08 00:54:38 info: Socket connected: yj0610
+2025-10-08 00:55:00 info: Forbidden words cache has been updated.
+2025-10-08 00:55:00 info: Forbidden word added: 니엄
+2025-10-08 00:55:02 info: Forbidden words cache has been updated.
+2025-10-08 00:55:02 info: Forbidden word added: 니애
+2025-10-08 00:55:12 info: Forbidden words cache has been updated.
+2025-10-08 00:55:12 info: Forbidden word added: 느-금
+2025-10-08 00:55:16 info: Forbidden words cache has been updated.
+2025-10-08 00:55:16 info: Forbidden word added: 느-애
+2025-10-08 00:55:23 info: Socket connected: yj0610
+2025-10-08 00:55:25 info: Socket connected: yj0610
+2025-10-08 00:55:57 info: Post Created: yj0610 -> 68e5380dc8648b01d1c55c06
+2025-10-08 00:56:08 info: Post Created: yj0610 -> 68e53818c8648b01d1c55c12
+2025-10-08 00:56:20 info: Forbidden words cache has been updated.
+2025-10-08 00:56:20 info: Forbidden word added: ㅅㅂㄻ
+2025-10-08 00:56:20 info: Post Created: yj0610 -> 68e53824c8648b01d1c55c22
+2025-10-08 00:56:23 info: Forbidden words cache has been updated.
+2025-10-08 00:56:23 info: Forbidden word added: ㅅㅂㄹㅁ
+2025-10-08 00:56:30 info: Forbidden words cache has been updated.
+2025-10-08 00:56:30 info: Forbidden word added: 썅년
+2025-10-08 00:56:33 info: Forbidden words cache has been updated.
+2025-10-08 00:56:33 info: Forbidden word added: 썅-년
+2025-10-08 00:56:35 info: Forbidden words cache has been updated.
+2025-10-08 00:56:35 info: Forbidden word added: 년
+2025-10-08 00:56:41 info: Forbidden words cache has been updated.
+2025-10-08 00:56:41 info: Forbidden word added: 창-녀
+2025-10-08 00:56:48 info: Socket connected: admin
+2025-10-08 00:56:50 info: Socket connected: admin
+2025-10-08 00:56:51 info: Post Created: yj0610 -> 68e53843c8648b01d1c55c83
+2025-10-08 00:56:52 info: Post Created: admin -> 68e53844c8648b01d1c55c8d
+2025-10-08 00:56:54 info: Socket connected: admin
+2025-10-08 00:56:59 info: Comment created: admin -> post 68e53818c8648b01d1c55c12
+2025-10-08 00:57:01 info: Post Created: yj0610 -> 68e5384dc8648b01d1c55cbc
+2025-10-08 00:57:01 info: Socket connected: admin
+2025-10-08 00:57:14 info: Post Created: yj0610 -> 68e5385ac8648b01d1c55cde
+2025-10-08 01:00:00 info: [scheduler] Calendar reminder job started
+2025-10-08 01:00:10 error: [scheduler] Calendar reminder job failed: Operation `calendars.find()` buffering timed out after 10000ms
+2025-10-08 01:02:10 info: Socket connected: admin
+2025-10-08 01:02:11 info: Socket connected: admin
+2025-10-08 01:02:12 info: Socket connected: admin
+2025-10-08 01:02:13 info: Socket connected: admin
+2025-10-08 01:02:14 info: Socket connected: admin
+2025-10-08 01:02:15 info: Socket connected: admin
+2025-10-08 01:02:16 info: Socket connected: admin
+2025-10-08 01:02:34 info: Socket connected: admin
+2025-10-08 01:02:43 info: Forbidden words cache has been updated.
+2025-10-08 01:02:43 info: Forbidden word added: 노무현
+2025-10-08 01:02:46 info: Forbidden words cache has been updated.
+2025-10-08 01:02:46 info: Forbidden word added: 노-무현
+2025-10-08 01:02:51 info: Forbidden words cache has been updated.
+2025-10-08 01:02:51 info: Forbidden word added: 노무-현
+2025-10-08 01:03:06 info: Forbidden words cache has been updated.
+2025-10-08 01:03:06 info: Forbidden word added: 노-알라
+2025-10-08 01:03:09 info: Forbidden words cache has been updated.
+2025-10-08 01:03:09 info: Forbidden word added: 노알-라
+2025-10-08 01:03:15 info: Forbidden words cache has been updated.
+2025-10-08 01:03:15 info: Forbidden word added: 코알라
+2025-10-08 01:03:17 info: Forbidden words cache has been updated.
+2025-10-08 01:03:17 info: Forbidden word added: 코-알라
+2025-10-08 01:03:22 info: Forbidden words cache has been updated.
+2025-10-08 01:03:22 info: Forbidden word added: 코알-라
+2025-10-08 01:03:29 info: Forbidden words cache has been updated.
+2025-10-08 01:03:29 info: Forbidden word added: 부엉이 바위
+2025-10-08 01:03:34 info: Forbidden words cache has been updated.
+2025-10-08 01:03:34 info: Forbidden word added: 부엉이 - 바위
+2025-10-08 01:04:28 info: Forbidden words cache has been updated.
+2025-10-08 01:04:30 info: Socket connected: admin
+2025-10-08 01:04:31 info: Socket connected: admin
+2025-10-08 01:06:29 info: Socket connected: admin
+2025-10-08 01:15:00 info: [scheduler] Calendar reminder job started
+2025-10-08 01:15:10 error: [scheduler] Calendar reminder job failed: Operation `calendars.find()` buffering timed out after 10000ms
+2025-10-08 01:19:21 info: Socket connected: admin
+2025-10-08 01:19:23 info: Socket connected: admin
+2025-10-08 01:19:25 info: Socket connected: admin
+2025-10-08 01:19:26 info: Socket connected: admin
+2025-10-08 01:19:27 info: Socket connected: admin
+2025-10-08 01:22:24 info: Forbidden words cache has been updated.
+2025-10-08 01:22:24 info: Socket connected: admin
+2025-10-08 01:22:24 info: Socket connected: admin
+2025-10-08 01:23:02 info: [korcen] ML classifier disabled (missing KORCEN_SERVICE_URL or KORCEN_ENABLED=false).
+2025-10-08 01:23:02 info: Forbidden words cache has been updated.
+2025-10-08 01:23:02 info: Socket connected: admin
+2025-10-08 01:23:02 info: Socket connected: admin
+2025-10-08 01:26:02 info: Socket connected: admin
+2025-10-08 01:26:13 info: Comment created: admin -> post 68e5384dc8648b01d1c55cbc
+2025-10-08 01:26:15 info: Socket connected: admin
+2025-10-08 01:26:17 info: Comment deleted: admin -> comment 68e53f25357fe13c22d9288e in post 68e5384dc8648b01d1c55cbc
+2025-10-08 01:26:18 info: Socket connected: admin
+2025-10-08 01:28:41 info: [korcen] ML classifier enabled. Endpoint: %s
+2025-10-08 01:28:41 info: Forbidden words cache has been updated.
+2025-10-08 01:28:42 info: Socket connected: admin
+2025-10-08 01:28:42 info: Socket connected: admin
+2025-10-08 01:28:54 info: [korcen] ML classifier enabled. Endpoint: %s
+2025-10-08 01:28:54 info: [korcen] Autostart disabled. Set KORCEN_AUTOSTART=true to enable.
+2025-10-08 01:28:54 info: Forbidden words cache has been updated.
+2025-10-08 01:28:54 info: Socket connected: admin
+2025-10-08 01:28:54 info: Socket connected: admin
+2025-10-08 01:29:27 info: [korcen] ML classifier enabled. Endpoint: %s
+2025-10-08 01:29:28 info: [korcen] Autostart disabled. Set KORCEN_AUTOSTART=true to enable.
+2025-10-08 01:29:28 info: Forbidden words cache has been updated.
+2025-10-08 01:29:28 info: Socket connected: admin
+2025-10-08 01:29:28 info: Socket connected: admin
+2025-10-08 01:29:57 info: [korcen] ML classifier enabled. Endpoint: %s
+2025-10-08 01:29:57 info: [korcen] Autostart disabled. Set KORCEN_AUTOSTART=true to enable.
+2025-10-08 01:29:58 info: Forbidden words cache has been updated.
+2025-10-08 01:29:58 info: Socket connected: admin
+2025-10-08 01:29:58 info: Socket connected: admin
+2025-10-08 01:30:00 info: [scheduler] Calendar reminder job started
+2025-10-08 01:30:10 error: [scheduler] Calendar reminder job failed: Operation `calendars.find()` buffering timed out after 10000ms
+2025-10-08 01:30:20 info: [korcen] ML classifier enabled. Endpoint: %s
+2025-10-08 01:30:20 info: [korcen] Autostart disabled. Set KORCEN_AUTOSTART=true to enable.
+2025-10-08 01:30:20 info: Forbidden words cache has been updated.
+2025-10-08 01:30:20 info: Socket connected: admin
+2025-10-08 01:30:20 info: Socket connected: admin
+2025-10-08 01:30:48 info: [korcen] ML classifier enabled. Endpoint: %s
+2025-10-08 01:30:48 info: [korcen] Autostart disabled. Set KORCEN_AUTOSTART=true to enable.
+2025-10-08 01:30:48 info: Forbidden words cache has been updated.
+2025-10-08 01:30:48 info: Socket connected: admin
+2025-10-08 01:30:48 info: Socket connected: admin
+2025-10-08 01:33:27 info: [korcen] ML classifier enabled. Endpoint: %s
+2025-10-08 01:33:27 info: [korcen] Starting Python classifier via %s %s
+2025-10-08 01:33:27 info: Socket connected: admin
+2025-10-08 01:33:27 info: Forbidden words cache has been updated.
+2025-10-08 01:33:27 warn: [korcen:py] %s
+2025-10-08 01:33:27 info: [korcen] Python classifier exited (code=%s, signal=%s)
+2025-10-08 01:33:27 info: [korcen] Autostart disabled after unexpected exit. Restart manually if needed.
+2025-10-08 01:33:27 info: Socket connected: admin
+2025-10-08 01:35:34 warn: [korcen] classification request failed: %s
+2025-10-08 01:35:35 info: Comment created: admin -> post 68e5384dc8648b01d1c55cbc
+2025-10-08 01:35:38 info: Socket connected: admin
+2025-10-08 01:35:41 info: Comment deleted: admin -> comment 68e54156f4e5f667f7477fc2 in post 68e5384dc8648b01d1c55cbc
+2025-10-08 01:35:44 warn: [korcen] classification request failed: %s
+2025-10-08 01:35:44 info: Comment created: admin -> post 68e5384dc8648b01d1c55cbc
+2025-10-08 01:35:46 info: Socket connected: admin
+2025-10-08 01:35:48 info: Comment deleted: admin -> comment 68e54160f4e5f667f7477ff2 in post 68e5384dc8648b01d1c55cbc
+2025-10-08 01:35:50 info: Socket connected: admin
+2025-10-08 01:35:57 info: Socket connected: admin
+2025-10-08 01:36:44 info: Socket connected: admin
+2025-10-08 01:39:42 info: [korcen] ML classifier enabled. Endpoint: %s
+2025-10-08 01:39:42 info: [korcen] Starting Python classifier via %s %s
+2025-10-08 01:39:42 info: Forbidden words cache has been updated.
+2025-10-08 01:39:43 info: Socket connected: admin
+2025-10-08 01:39:43 info: Socket connected: admin
+2025-10-08 01:39:43 warn: [korcen:py] %s
+2025-10-08 01:39:43 info: [korcen] Python classifier exited (code=%s, signal=%s)
+2025-10-08 01:39:43 info: [korcen] Autostart disabled after unexpected exit. Restart manually if needed.
+2025-10-08 01:39:45 info: Socket connected: admin
+2025-10-08 01:39:47 info: Socket connected: admin
+2025-10-08 01:39:53 warn: [korcen] classification request failed: %s
+2025-10-08 01:39:53 info: Comment created: admin -> post 68e5385ac8648b01d1c55cde
+2025-10-08 01:39:55 info: Socket connected: admin
+2025-10-08 01:39:57 info: Comment deleted: admin -> comment 68e54259b4197a5a3b893f88 in post 68e5385ac8648b01d1c55cde
+2025-10-08 01:45:00 info: [scheduler] Calendar reminder job started
+2025-10-08 01:45:10 error: [scheduler] Calendar reminder job failed: Operation `calendars.find()` buffering timed out after 10000ms
+2025-10-08 01:54:53 info: Socket connected: yj0610
+2025-10-08 01:54:57 info: Socket connected: yj0610
+2025-10-08 01:55:19 info: Forbidden words cache has been updated.
+2025-10-08 01:55:27 warn: [korcen] classification request failed: %s
+2025-10-08 01:55:27 info: Post Created: yj0610 -> 68e545ffb4197a5a3b893ff3
+2025-10-08 01:56:05 warn: [korcen] classification request failed: %s
+2025-10-08 01:56:05 info: Post Created: yj0610 -> 68e54625b4197a5a3b894003
+2025-10-08 01:57:20 info: Socket connected: admin
+2025-10-08 01:57:22 info: Socket connected: admin
+2025-10-08 01:57:37 info: Socket connected: admin
+2025-10-08 01:57:39 info: Socket connected: admin
+2025-10-08 01:57:48 info: Socket connected: admin
+2025-10-08 01:58:01 info: Forbidden words cache has been updated.
+2025-10-08 01:58:01 info: Forbidden word added: 병sin
+2025-10-08 01:58:06 info: Forbidden words cache has been updated.
+2025-10-08 01:58:06 info: Forbidden word added: sibal
+2025-10-08 01:58:15 info: Forbidden words cache has been updated.
+2025-10-08 01:58:15 info: Forbidden word added: bung신
+2025-10-08 01:58:28 info: Forbidden words cache has been updated.
+2025-10-08 01:58:28 info: Forbidden word added: byungsin
+2025-10-08 01:58:32 info: Forbidden words cache has been updated.
+2025-10-08 01:58:32 info: Forbidden word added: 부랄
+2025-10-08 01:58:47 info: Forbidden words cache has been updated.
+2025-10-08 01:58:47 info: Forbidden word added: 자지
+2025-10-08 01:58:50 info: Forbidden words cache has been updated.
+2025-10-08 01:58:50 info: Forbidden word added: 보지
+2025-10-08 01:59:23 info: Socket connected: yj0610
+2025-10-08 01:59:25 info: Socket connected: yj0610
+2025-10-08 01:59:27 info: Socket connected: admin
+2025-10-08 01:59:30 info: Socket connected: admin
+2025-10-08 01:59:32 info: Socket connected: admin
+2025-10-08 01:59:33 info: Socket connected: admin
+2025-10-08 01:59:34 info: Socket connected: admin
+2025-10-08 01:59:35 info: Socket connected: admin
+2025-10-08 01:59:44 warn: [korcen] classification request failed: %s
+2025-10-08 01:59:44 info: Post Created: yj0610 -> 68e54700b4197a5a3b894101
+2025-10-08 02:00:00 info: [scheduler] Calendar reminder job started
+2025-10-08 02:00:01 info: Socket connected: admin
+2025-10-08 02:00:03 info: Socket connected: admin
+2025-10-08 02:00:04 info: Socket connected: admin
+2025-10-08 02:00:10 error: [scheduler] Calendar reminder job failed: Operation `calendars.find()` buffering timed out after 10000ms
+2025-10-08 02:00:19 info: Forbidden words cache has been updated.
+2025-10-08 02:00:19 info: Forbidden word added: fuc
+2025-10-08 02:00:21 info: Forbidden words cache has been updated.
+2025-10-08 02:00:21 info: Forbidden word added: fuck
+2025-10-08 02:00:24 info: Forbidden words cache has been updated.
+2025-10-08 02:00:24 info: Forbidden word added: fucking
+2025-10-08 02:00:31 info: Forbidden words cache has been updated.
+2025-10-08 02:00:31 info: Forbidden word added: puss
+2025-10-08 02:00:34 info: Forbidden words cache has been updated.
+2025-10-08 02:00:34 info: Forbidden word added: pussy
+2025-10-08 02:00:41 warn: [korcen] classification request failed: %s
+2025-10-08 02:00:41 info: Post Created: yj0610 -> 68e54739b4197a5a3b894171
+2025-10-08 02:00:42 info: Forbidden words cache has been updated.
+2025-10-08 02:00:42 info: Forbidden word added: cock
+2025-10-08 02:00:50 info: Forbidden words cache has been updated.
+2025-10-08 02:00:50 info: Forbidden word added: 꺼져
+2025-10-08 02:00:54 info: Forbidden words cache has been updated.
+2025-10-08 02:00:54 info: Forbidden word added: 꺼-져
+2025-10-08 02:00:58 info: Forbidden words cache has been updated.
+2025-10-08 02:00:58 info: Forbidden word added: 나가 뒤져
+2025-10-08 02:00:59 info: Forbidden words cache has been updated.
+2025-10-08 02:00:59 info: Forbidden word added: 뒤져
+2025-10-08 02:01:02 warn: [korcen] classification request failed: %s
+2025-10-08 02:01:02 info: Post Created: yj0610 -> 68e5474eb4197a5a3b8941ad
+2025-10-08 02:01:04 info: Forbidden words cache has been updated.
+2025-10-08 02:01:04 info: Forbidden word added: 죽어
+2025-10-08 02:01:34 warn: [korcen] classification request failed: %s
+2025-10-08 02:01:34 info: Post Created: yj0610 -> 68e5476eb4197a5a3b8941c2
+2025-10-08 02:01:35 info: Socket connected: yj0610
+2025-10-08 02:03:16 info: Socket connected: admin
+2025-10-08 02:03:21 info: Forbidden words cache has been updated.
+2025-10-08 02:03:21 info: Forbidden word added: 게이-
+2025-10-08 02:03:23 info: Forbidden words cache has been updated.
+2025-10-08 02:03:23 info: Forbidden word added: 련
+2025-10-08 02:03:26 info: Forbidden words cache has been updated.
+2025-10-08 02:03:26 info: Forbidden word added: -련
+2025-10-08 02:03:28 info: Forbidden words cache has been updated.
+2025-10-08 02:03:28 info: Forbidden word added: 련-
+2025-10-08 02:03:32 info: Forbidden words cache has been updated.
+2025-10-08 02:03:32 info: Forbidden word added: 레즈
+2025-10-08 02:03:38 info: Forbidden words cache has been updated.
+2025-10-08 02:03:38 info: Forbidden word added: 레즈-
+2025-10-08 02:04:48 info: Socket connected: admin
+2025-10-08 02:04:49 info: Socket connected: admin
+2025-10-08 02:04:55 info: Socket connected: admin
+2025-10-08 02:15:00 info: [scheduler] Calendar reminder job started
+2025-10-08 02:15:10 error: [scheduler] Calendar reminder job failed: Operation `calendars.find()` buffering timed out after 10000ms
+2025-10-08 02:27:07 info: Socket connected: admin
+2025-10-08 02:27:08 info: Socket connected: admin
+2025-10-08 02:27:09 info: Socket connected: admin
+2025-10-08 02:27:09 info: Socket connected: admin
+2025-10-08 02:27:10 info: Socket connected: admin
+2025-10-08 02:27:36 info: Socket connected: admin
+2025-10-08 02:30:00 info: [scheduler] Calendar reminder job started

@@ -1,0 +1,8 @@
+2025-09-26T14:08:20.920Z info: 댓글 작성: 게시글 "테스" (68d555a239575bf6c3935dc9)
+2025-09-26T16:00:32.943Z info: 개인 채팅 생성: test
+2025-09-26T16:02:40.906Z info: 채팅 이미지 업로드 chat_admin_1758902560903.png
+2025-09-26T16:02:44.349Z info: 로그아웃: admin
+2025-09-26T16:16:12.364Z info: 개인 채팅 생성: shher
+2025-09-26T16:32:37.274Z info: [CHAT][socket] room=68d6bc4c3242b59dac6dbff5 from=admin type=text message=ㄹㅇㅁㄻㄴㅇㄹ
+2025-09-26T16:32:52.456Z info: 채팅 이미지 업로드 chat_admin_1758904372453.png
+2025-09-26T16:32:52.466Z info: [CHAT][socket] room=68d6bc4c3242b59dac6dbff5 from=admin type=image message=[IMAGE]/uploads/chat/chat_admin_1758904372453.png

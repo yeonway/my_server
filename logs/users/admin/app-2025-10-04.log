@@ -1,0 +1,9 @@
+2025-10-04T08:04:03.391Z info: 게시글 이미지 업로드: admin_1759565043371.webp
+2025-10-04T08:04:03.431Z info: 게시글 작성: 68e0d4f3ab420e2faaf447d9
+2025-10-04T10:25:26.452Z info: 로그아웃: admin
+2025-10-04T13:46:12.363Z info: 로그아웃: admin
+2025-10-04T13:46:26.603Z info: [CHAT][socket] room=68df892b764488a1ee901bf8 messageId=68e12532ea54918e0593bd34 from=test type=text message=fdsafdaafds
+2025-10-04T13:46:27.098Z info: [CHAT][socket] room=68df892b764488a1ee901bf8 messageId=68e12533ea54918e0593bd3e from=test type=text message=afdsadfs
+2025-10-04T13:46:27.480Z info: [CHAT][socket] room=68df892b764488a1ee901bf8 messageId=68e12533ea54918e0593bd48 from=test type=text message=dafs
+2025-10-04T13:46:28.289Z info: [CHAT][socket] room=68df892b764488a1ee901bf8 messageId=68e12534ea54918e0593bd52 from=test type=text message=s
+2025-10-04T13:46:29.008Z info: [CHAT][socket] room=68df892b764488a1ee901bf8 messageId=68e12535ea54918e0593bd5c from=test type=text message=s

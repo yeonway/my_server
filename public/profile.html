@@ -1,0 +1,411 @@
+﻿<!-- public/profile.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1f2937">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>내 프로필</title>
+  <script src="js/theme.js"></script>
+  <script defer src="js/auth-helper.js"></script>
+  <link rel="stylesheet" href="css/profile.css">
+  <link rel="stylesheet" href="css/topbar.css">
+  <link rel="stylesheet" href="css/site-menu.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/mobile.css">
+  <link rel="stylesheet" href="css/notifications.css">
+  <link rel="stylesheet" href="css/profile-menu.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+<body class="profile-page">
+  <header class="site-topbar">
+    <a href="/index.html" class="site-logo" aria-label="DCOUT 홈으로 이동">
+      <span class="logo-accent">DC</span>
+      <span class="logo-divider" aria-hidden="true"></span>
+      <span class="logo-rest">OUT</span>
+    </a>
+        <nav class="site-menu" aria-label="주요 메뉴">
+      <a href="chat.html">채팅</a>
+      <a href="posts.html">게시판</a>
+      <a href="profile.html">프로필</a>
+      <a href="inquiry.html">문의하기</a>
+      <a href="setting.html">설정</a>
+    </nav>
+    <div class="topbar-actions">
+      <span data-network-indicator>Online</span>
+    </div>
+  </header>
+
+  <main class="profile-stage">
+    <div class="profile-container">
+    <!-- 프로필 사진 -->
+    <div class="profile-item">
+      <span id="profilePicWrapper" style="display:inline-block; position:relative;">
+        <img id="profilePic" src="" alt="프로필 사진" style="display:none;">
+        <span id="defaultPic" style="display:inline-block;">
+          <!-- 귀여운 기본 SVG 아이콘 -->
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="60" fill="#e0e7ef"/>
+            <circle cx="60" cy="54" r="28" fill="#b6d0f7"/>
+            <ellipse cx="60" cy="98" rx="38" ry="22" fill="#b6d0f7"/>
+            <circle cx="60" cy="54" r="18" fill="#fff"/>
+            <ellipse cx="60" cy="98" rx="28" ry="14" fill="#fff"/>
+          </svg>
+        </span>
+      </span>
+      <button class="edit-btn" id="editPicBtn">✏️</button>
+      <button class="edit-btn" id="deletePicBtn" style="right:40px;">🗑️</button>
+      <button class="edit-btn" id="defaultPicBtn" style="right:80px;">🌱</button>
+      <input type="file" id="profilePicInput" accept=".jpg,.jpeg,.png,.gif">
+    </div>
+
+    <!-- 이름 -->
+    <div class="profile-item">
+      <div class="profile-name" id="profileName">사용자 이름</div>
+      <button class="edit-btn" id="editNameBtn">✏️</button>
+    </div>
+
+    <!-- 자기소개 -->
+    <div class="profile-item">
+      <div class="profile-intro" id="profileIntro">
+        안녕하세요! 여기에 자기소개를 작성할 수 있습니다.
+      </div>
+      <button class="edit-btn" id="editIntroBtn">✏️</button>
+    </div>
+
+    <button class="save-btn" id="saveProfileBtn">저장</button>
+
+    <!-- 활동 내역 탭 -->
+    <div class="activity-tabs">
+      <button class="tab-button active" data-tab="my-posts">내 게시글</button>
+      <button class="tab-button" data-tab="my-comments">내 댓글</button>
+    </div>
+
+    <!-- 활동 내역 컨텐츠 -->
+    <div id="my-posts" class="activity-content active">
+      <ul id="myPostsList" class="activity-list">
+        <!-- 내 게시글 목록이 여기에 표시됩니다. -->
+      </ul>
+    </div>
+    <div id="my-comments" class="activity-content">
+      <ul id="myCommentsList" class="activity-list">
+        <!-- 내 댓글 목록이 여기에 표시됩니다. -->
+      </ul>
+    </div>
+
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    if (!token) {
+      window.location.href = "login.html";
+    }
+
+    const profilePic = document.getElementById("profilePic");
+    const profileName = document.getElementById("profileName");
+    const profileIntro = document.getElementById("profileIntro");
+    const editPicBtn = document.getElementById("editPicBtn");
+    const editNameBtn = document.getElementById("editNameBtn");
+    const editIntroBtn = document.getElementById("editIntroBtn");
+    const profilePicInput = document.getElementById("profilePicInput");
+    const saveBtn = document.getElementById("saveProfileBtn");
+    const deletePicBtn = document.getElementById("deletePicBtn");
+    const defaultPicBtn = document.getElementById("defaultPicBtn");
+
+    // 활동 내역 관련 요소
+    const tabsContainer = document.querySelector(".activity-tabs");
+    const contents = document.querySelectorAll(".activity-content");
+    const myPostsList = document.getElementById("myPostsList");
+    const myCommentsList = document.getElementById("myCommentsList");
+
+    let editedName = false;
+    let editedIntro = false;
+    let selectedPicFile = null;
+    let deletePhotoFlag = false; // 기본 이미지를 사용할지 여부
+
+    function showToast(message, type = 'success') {
+      const existing = document.querySelectorAll('.notification-popup');
+      existing.forEach((node) => node.remove());
+
+      const toast = document.createElement('div');
+      toast.className = `notification-popup ${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.add('show');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('fade-out');
+        toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+      }, 2600);
+    }
+
+
+    // 프로필 정보 불러오기
+    async function loadProfile() {
+      try {
+        const res = await fetch("/api/profile", {
+          headers: { "Authorization": "Bearer " + token }
+        });
+        if (!res.ok) throw new Error("프로필 불러오기 실패");
+        const data = await res.json();
+        if (data.photo) {
+          profilePic.src = data.photo;
+          profilePic.style.display = "";
+          document.getElementById("defaultPic").style.display = "none";
+        } else {
+          profilePic.src = "";
+          profilePic.style.display = "none";
+          document.getElementById("defaultPic").style.display = "";
+        }
+        profileName.textContent = data.name || data.username || "이름 없음";
+        profileIntro.textContent = data.intro || "자기소개가 없습니다.";
+      } catch {
+        showToast('프로필 정보를 불러오지 못했습니다.', 'error');
+      }
+    }
+    loadProfile();
+    loadMyPosts(); // 페이지 로드 시 내 게시글 로드
+
+    // 탭 클릭 이벤트
+    tabsContainer.addEventListener("click", (e) => {
+      if (e.target.tagName !== 'BUTTON') return;
+
+      const targetTab = e.target.dataset.tab;
+
+      tabsContainer.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      e.target.classList.add('active');
+
+      contents.forEach(content => {
+        content.classList.remove('active');
+        if (content.id === targetTab) {
+          content.classList.add('active');
+        }
+      });
+
+      if (targetTab === 'my-posts') {
+        loadMyPosts();
+      } else if (targetTab === 'my-comments') {
+        loadMyComments();
+      }
+    });
+
+    // 내 게시글 로드 함수
+    async function loadMyPosts() {
+      try {
+        // API 경로를 /api/profile/posts 로 수정합니다.
+        const res = await fetch("/api/profile/posts", { headers: { "Authorization": "Bearer " + token } });
+        if (!res.ok) throw new Error("게시글 목록 로드 실패");
+        const posts = await res.json();
+        myPostsList.innerHTML = "";
+        if (posts.length === 0) {
+          myPostsList.innerHTML = "<li>작성한 게시글이 없습니다.</li>";
+          return;
+        }
+        posts.forEach(post => {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <a href="/board.html?id=${post._id}">${post.title}</a>
+            <div class="meta">${new Date(post.time).toLocaleDateString()} | ${post.category}</div>
+          `;
+          myPostsList.appendChild(li);
+        });
+      } catch (err) {
+        myPostsList.innerHTML = `<li>게시글을 불러오는 중 오류가 발생했습니다.</li>`;
+      }
+    }
+
+    // 내 댓글 로드 함수
+    async function loadMyComments() {
+      try {
+        // API 경로를 /api/profile/comments 로 수정합니다.
+        const res = await fetch("/api/profile/comments", { headers: { "Authorization": "Bearer " + token } });
+        if (!res.ok) throw new Error("댓글 목록 로드 실패");
+        const comments = await res.json();
+        myCommentsList.innerHTML = "";
+        if (comments.length === 0) {
+          myCommentsList.innerHTML = "<li>작성한 댓글이 없습니다.</li>";
+          return;
+        }
+        comments.forEach(comment => {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <div class="comment-content">"${comment.content}"</div>
+            <a href="/board.html?id=${comment.postId}">└ "${comment.postTitle}" 글에서</a>
+            <div class="meta">${new Date(comment.time).toLocaleString()}</div>
+          `;
+          myCommentsList.appendChild(li);
+        });
+      } catch (err) {
+        myCommentsList.innerHTML = `<li>댓글을 불러오는 중 오류가 발생했습니다.</li>`;
+      }
+    }
+
+    // 사진 수정
+    editPicBtn.addEventListener("click", () => {
+      profilePicInput.click();
+    });
+    profilePicInput.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const validTypes = ["image/jpeg", "image/png", "image/gif"];
+      if (!validTypes.includes(file.type)) {
+        showToast('이미지 파일만 업로드 가능합니다!', 'warning');
+        return;
+      }
+      // 미리보기
+      const reader = new FileReader();
+      reader.onload = () => {
+        profilePic.src = reader.result;
+        profilePic.style.display = "";
+        document.getElementById("defaultPic").style.display = "none";
+      };
+      reader.readAsDataURL(file);
+      selectedPicFile = file;
+      deletePhotoFlag = false; // 새 파일을 선택했으므로, 삭제 플래그는 해제합니다.
+    });
+
+    // 이름 수정
+    editNameBtn.addEventListener("click", () => {
+      if (!editedName) {
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = profileName.textContent;
+        input.className = "edit-input";
+        profileName.replaceWith(input);
+        editedName = input;
+      }
+    });
+
+    // 자기소개 수정
+    editIntroBtn.addEventListener("click", () => {
+      if (!editedIntro) {
+        const textarea = document.createElement("textarea");
+        textarea.className = "edit-input";
+        textarea.style.height = "60px";
+        textarea.value = profileIntro.textContent;
+        profileIntro.replaceWith(textarea);
+        editedIntro = textarea;
+      }
+    });
+
+    // 사진 삭제
+    deletePicBtn.addEventListener("click", async () => {
+      if (!confirm("프로필 사진을 삭제하시겠습니까?")) return;
+      try {
+        const res = await fetch("/api/profile/photo", {
+          method: "DELETE",
+          headers: { "Authorization": "Bearer " + token }
+        });
+        if (!res.ok) throw new Error("삭제 실패");
+        profilePic.src = "default-profile.png";
+        showToast('프로필 사진이 삭제되었습니다.', 'success');
+      } catch {
+        showToast('프로필 사진 삭제에 실패했습니다.', 'error');
+      }
+    });
+
+    // 기본 이미지로 변경
+    defaultPicBtn.addEventListener("click", () => {
+      profilePic.src = "";
+      profilePic.style.display = "none";
+      document.getElementById("defaultPic").style.display = "";
+      selectedPicFile = null;
+      deletePhotoFlag = true; // 기본 이미지로 변경했으므로, 삭제 플래그를 설정합니다.
+    });
+
+    // 저장 버튼
+    saveBtn.addEventListener("click", async () => {
+      let isSuccess = true; // 전체 저장 성공 여부
+      // 이름/소개 수정
+      let name = editedName ? editedName.value : profileName.textContent;
+      let intro = editedIntro ? editedIntro.value : profileIntro.textContent;
+      try {
+        const res = await fetch("/api/profile", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify({ name, intro })
+        });
+        if (!res.ok) throw new Error("프로필 수정 실패");
+      } catch {
+        showToast('프로필 수정에 실패했습니다.', 'error');
+        isSuccess = false;
+      }
+      // 이름/소개 화면에 반영
+      if (editedName) {
+        const div = document.createElement("div");
+        div.className = "profile-name";
+        div.id = "profileName";
+        div.textContent = editedName.value;
+        editedName.replaceWith(div);
+        editedName = false;
+      }
+      if (editedIntro) {
+        const div = document.createElement("div");
+        div.className = "profile-intro";
+        div.id = "profileIntro";
+        div.textContent = editedIntro.value;
+        editedIntro.replaceWith(div);
+        editedIntro = false;
+      }
+
+      // 사진 업로드 로직
+      if (selectedPicFile) {
+        const formData = new FormData();
+        formData.append("photo", selectedPicFile);
+        try {
+          const res = await fetch("/api/profile/photo", {
+            method: "POST",
+            headers: { "Authorization": "Bearer " + token },
+            body: formData
+          });
+          if (!res.ok) throw new Error("사진 업로드 실패");
+          const data = await res.json();
+          profilePic.src = data.path; // 서버로부터 받은 새 경로로 업데이트
+        } catch {
+          showToast('사진 업로드에 실패했습니다.', 'error');
+          isSuccess = false;
+        }
+        selectedPicFile = null;
+      } 
+      // 기본 프로필로 변경(사진 삭제) 로직 추가
+      else if (deletePhotoFlag) {
+        try {
+          const res = await fetch("/api/profile/photo", {
+            method: "DELETE",
+            headers: { "Authorization": "Bearer " + token }
+          });
+          if (!res.ok) throw new Error("사진 삭제 실패");
+        } catch {
+          showToast('프로필 사진 삭제에 실패했습니다.', 'error');
+          isSuccess = false;
+        }
+      }
+
+      deletePhotoFlag = false; // 작업 완료 후 플래그 초기화
+
+      if(isSuccess) {
+        showToast('프로필이 저장되었습니다!', 'success');
+        loadProfile(); // 저장 후 프로필 정보를 다시 불러와서 최종 상태를 확인
+      }
+    });
+  </script>
+  </main>
+  <script defer src="js/auth-helper.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script defer src="js/notifications.js"></script>
+  <script defer src="js/profile-menu.js"></script>
+  <script defer src="js/pwa.js"></script>
+  <script defer src="js/topbar-dock.js"></script>
+</body>
+</html>
+
+
+

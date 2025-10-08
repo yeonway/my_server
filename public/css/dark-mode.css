@@ -1,0 +1,873 @@
+﻿/* Dark mode overrides */
+html.dark-mode {
+  color-scheme: dark;
+}
+
+html.dark-mode body {
+  background-color: #0b1120;
+  color: #e2e8f0;
+}
+
+html.dark-mode h1,
+html.dark-mode h2,
+html.dark-mode h3,
+html.dark-mode h4,
+html.dark-mode h5,
+html.dark-mode h6 {
+  color: #f8fafc;
+}
+
+html.dark-mode a {
+  color: #93c5fd;
+}
+
+html.dark-mode a:hover,
+html.dark-mode a:focus {
+  color: #bfdbfe;
+}
+
+html.dark-mode hr {
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+html.dark-mode input,
+html.dark-mode textarea,
+html.dark-mode select {
+  background-color: #111c2d;
+  color: #e2e8f0;
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+html.dark-mode input:focus,
+html.dark-mode textarea:focus,
+html.dark-mode select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+html.dark-mode input::placeholder,
+html.dark-mode textarea::placeholder {
+  color: #94a3b8;
+}
+
+/* Topbar */
+html.dark-mode .site-logo {
+  background: linear-gradient(135deg, #0f172a 0%, #1f2937 45%, #2563eb 100%);
+  color: #f8fafc;
+  box-shadow: 0 10px 24px rgba(30, 64, 175, 0.35);
+}
+
+html.dark-mode .site-logo .logo-divider {
+  background: linear-gradient(135deg, #2563eb, #38bdf8);
+}
+
+html.dark-mode [data-network-indicator] {
+  background-color: rgba(34, 197, 94, 0.18);
+  color: #bbf7d0;
+  box-shadow: 0 6px 16px rgba(34, 197, 94, 0.3);
+}
+
+html.dark-mode [data-network-indicator]::before {
+  background: #4ade80;
+}
+
+html.dark-mode [data-network-indicator].offline {
+  background-color: rgba(248, 113, 113, 0.25);
+  color: #fecaca;
+  box-shadow: 0 6px 16px rgba(248, 113, 113, 0.32);
+}
+
+html.dark-mode [data-network-indicator].offline::before {
+  background: #f87171;
+}
+
+/* Notification center */
+html.dark-mode .notification-center {
+  color: #e2e8f0;
+}
+
+html.dark-mode .notification-center .notification-trigger {
+  background: rgba(15, 23, 42, 0.9);
+  border-color: rgba(51, 65, 85, 0.6);
+  box-shadow: 0 16px 28px rgba(8, 20, 40, 0.55);
+}
+
+html.dark-mode .notification-center .notification-dropdown {
+  background: rgba(15, 23, 42, 0.96);
+  border-color: rgba(51, 65, 85, 0.65);
+  box-shadow: 0 20px 36px rgba(8, 20, 40, 0.65);
+}
+
+html.dark-mode .notification-center .notification-item {
+  background: rgba(59, 130, 246, 0.14);
+  color: #e2e8f0;
+}
+
+html.dark-mode .notification-center .notification-item.unread {
+  border-color: rgba(37, 99, 235, 0.55);
+  background: rgba(37, 99, 235, 0.24);
+}
+
+html.dark-mode .notification-center .notification-item:hover {
+  background: rgba(59, 130, 246, 0.22);
+}
+
+html.dark-mode .notification-center .notification-item-meta {
+  color: #94a3b8;
+}
+
+html.dark-mode .notification-center .notification-empty,
+html.dark-mode .notification-center .notification-error {
+  color: #94a3b8;
+}
+
+html.dark-mode .notification-center .notification-error {
+  color: #fca5a5;
+}
+
+/* Profile menu */
+html.dark-mode .profile-menu-floating {
+  color: #e2e8f0;
+}
+
+html.dark-mode .profile-menu-floating .profile-trigger {
+  background: rgba(15, 23, 42, 0.9);
+  border-color: rgba(51, 65, 85, 0.6);
+  box-shadow: 0 16px 28px rgba(8, 20, 40, 0.55);
+}
+
+html.dark-mode .profile-menu-floating .profile-avatar {
+  background: rgba(59, 130, 246, 0.28);
+  color: #bfdbfe;
+}
+
+html.dark-mode .profile-menu-floating .profile-dropdown {
+  background: rgba(15, 23, 42, 0.95);
+  border-color: rgba(51, 65, 85, 0.65);
+  box-shadow: 0 20px 36px rgba(8, 20, 40, 0.65);
+}
+
+html.dark-mode .profile-menu-divider {
+  background: rgba(148, 163, 184, 0.25);
+}
+
+html.dark-mode .profile-menu-floating .profile-dropdown a:hover,
+html.dark-mode .profile-menu-floating .profile-dropdown button:hover {
+  background: rgba(59, 130, 246, 0.18);
+}
+
+/* Chat */
+html.dark-mode .chat-sidebar,
+html.dark-mode .chat-content {
+  background-color: #111c2d;
+  box-shadow: 0 18px 38px rgba(8, 20, 40, 0.6);
+}
+
+html.dark-mode .chat-sidebar,
+html.dark-mode .chat-content,
+html.dark-mode .chat-box {
+  border-color: rgba(51, 65, 85, 0.65);
+}
+
+html.dark-mode .chat-box {
+  background: #0f172a;
+}
+
+html.dark-mode .sidebar-header h2,
+html.dark-mode .chat-header h2 {
+  color: #f1f5f9;
+}
+
+html.dark-mode .room-meta,
+html.dark-mode .room-empty-state,
+html.dark-mode .chat-message-meta,
+html.dark-mode .chat-empty-state {
+  color: #94a3b8;
+}
+
+html.dark-mode .refresh-button {
+  background: rgba(59, 130, 246, 0.16);
+  color: #bfdbfe;
+}
+
+html.dark-mode .refresh-button:hover {
+  background: rgba(59, 130, 246, 0.26);
+}
+
+html.dark-mode .dm-search input,
+html.dark-mode .message-input input[type="text"] {
+  background-color: #0f172a;
+  border-color: rgba(71, 85, 105, 0.7);
+  color: #e2e8f0;
+}
+
+html.dark-mode .dm-search-results {
+  background: rgba(15, 23, 42, 0.94);
+  border: 1px solid rgba(51, 65, 85, 0.65);
+  box-shadow: 0 16px 28px rgba(8, 20, 40, 0.55);
+}
+
+html.dark-mode .room-item {
+  background: rgba(17, 24, 39, 0.92);
+  border-color: rgba(51, 65, 85, 0.65);
+  color: #e2e8f0;
+}
+
+html.dark-mode .room-item .room-name {
+  color: #f8fafc;
+}
+
+html.dark-mode .room-item .room-detail {
+  color: #94a3b8;
+}
+
+html.dark-mode .room-item:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.6);
+}
+
+html.dark-mode .room-item.active {
+  background: rgba(37, 99, 235, 0.28);
+  border-color: rgba(59, 130, 246, 0.75);
+}
+
+html.dark-mode .chat-message-bubble {
+  background: rgba(15, 23, 42, 0.92);
+  color: #e2e8f0;
+  box-shadow: 0 14px 28px rgba(8, 20, 40, 0.55);
+}
+
+html.dark-mode .chat-message-container.my-message .chat-message-meta {
+  color: rgba(226, 232, 240, 0.78);
+}
+
+html.dark-mode .chat-action-btn {
+  background: linear-gradient(135deg, rgba(51, 65, 85, 0.9) 0%, rgba(30, 41, 59, 0.92) 100%);
+  border-color: rgba(148, 163, 184, 0.35);
+  color: #e2e8f0;
+}
+
+html.dark-mode .chat-action-btn:hover {
+  box-shadow: 0 12px 22px rgba(8, 20, 40, 0.55);
+}
+
+html.dark-mode .chat-message-edited {
+  background: rgba(59, 130, 246, 0.2);
+  color: #bfdbfe;
+}
+
+html.dark-mode .message-input button:disabled,
+html.dark-mode .image-upload-btn:disabled {
+  background: rgba(30, 41, 59, 0.7);
+  color: #64748b;
+}
+
+/* Posts and board */
+html.dark-mode #postForm,
+html.dark-mode #boardContainer,
+html.dark-mode .post-box,
+html.dark-mode .comments-section,
+html.dark-mode .comment,
+html.dark-mode .comment-form textarea,
+html.dark-mode .comment-form,
+html.dark-mode .confirm-modal,
+html.dark-mode .report-modal,
+html.dark-mode .notification-popup {
+  background-color: #111c2d;
+  color: #e2e8f0;
+  border-color: rgba(51, 65, 85, 0.6);
+  box-shadow: 0 16px 32px rgba(8, 20, 40, 0.55);
+}
+
+html.dark-mode .post-title,
+html.dark-mode .post-header h1,
+html.dark-mode .comments-section h3,
+html.dark-mode #otherPostsContainer h3 {
+  color: #f8fafc;
+}
+
+html.dark-mode .post-meta,
+html.dark-mode .comment-date,
+html.dark-mode .post-content-preview,
+html.dark-mode .post-meta-actions button {
+  color: #94a3b8;
+}
+
+html.dark-mode .post-box:hover,
+html.dark-mode .post-box.notice {
+  background-color: rgba(37, 99, 235, 0.2);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+html.dark-mode .comment-actions button {
+  background: rgba(59, 130, 246, 0.18);
+  color: #bfdbfe;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+}
+
+html.dark-mode .comment-actions button:hover {
+  background: rgba(59, 130, 246, 0.28);
+}
+
+html.dark-mode .search-container,
+html.dark-mode .view-options,
+html.dark-mode #pagination .page-number {
+  background-color: rgba(15, 23, 42, 0.92);
+  border-color: rgba(51, 65, 85, 0.6);
+  color: #e2e8f0;
+}
+
+html.dark-mode #pagination .page-number:hover {
+  background: rgba(59, 130, 246, 0.24);
+  border-color: rgba(59, 130, 246, 0.6);
+}
+
+html.dark-mode #pagination .page-number.active {
+  background: #2563eb;
+  border-color: #1d4ed8;
+  color: #f8fafc;
+}
+
+html.dark-mode .other-post-link {
+  color: #cbd5f5;
+  border-bottom-color: rgba(51, 65, 85, 0.6);
+}
+
+html.dark-mode .other-post-link:hover {
+  background: rgba(59, 130, 246, 0.16);
+  color: #bfdbfe;
+}
+
+html.dark-mode .image-modal {
+  background: rgba(8, 15, 28, 0.9);
+}
+
+html.dark-mode .image-modal .image-modal-content {
+  box-shadow: 0 18px 34px rgba(8, 20, 40, 0.6);
+}
+
+/* Admin */
+html.dark-mode body.admin-page {
+  background-color: #081121;
+  color: #e2e8f0;
+}
+
+html.dark-mode body.admin-page h1,
+html.dark-mode body.admin-page h2,
+html.dark-mode body.admin-page h3 {
+  color: #f8fafc;
+}
+
+html.dark-mode body.admin-page .tabs {
+  border-bottom-color: rgba(51, 65, 85, 0.6);
+}
+
+html.dark-mode body.admin-page .tab-button {
+  color: #94a3b8;
+}
+
+html.dark-mode body.admin-page .tab-button.active {
+  color: #bfdbfe;
+  border-bottom-color: #3b82f6;
+}
+
+html.dark-mode body.admin-page .card,
+html.dark-mode body.admin-page .modal-content,
+html.dark-mode body.admin-page .health-card,
+html.dark-mode body.admin-page .stat-card,
+html.dark-mode body.admin-page .table-wrapper {
+  background-color: #111c2d;
+  color: #e2e8f0;
+  box-shadow: 0 20px 40px rgba(7, 16, 32, 0.58);
+  border: 1px solid rgba(51, 65, 85, 0.6);
+}
+
+html.dark-mode body.admin-page table {
+  background: transparent;
+  color: #cbd5f5;
+}
+
+html.dark-mode body.admin-page th,
+html.dark-mode body.admin-page td {
+  border-bottom: 1px solid rgba(51, 65, 85, 0.65);
+}
+
+html.dark-mode body.admin-page th {
+  background-color: rgba(31, 41, 55, 0.96);
+  color: #e2e8f0;
+}
+
+html.dark-mode body.admin-page tbody tr:hover {
+  background-color: rgba(59, 130, 246, 0.16);
+}
+
+html.dark-mode body.admin-page .action-btn,
+html.dark-mode body.admin-page .dashboard-refresh,
+html.dark-mode body.admin-page .btn-main {
+  background-color: rgba(59, 130, 246, 0.18);
+  color: #bfdbfe;
+  border: 1px solid rgba(59, 130, 246, 0.45);
+}
+
+html.dark-mode body.admin-page .action-btn.btn-delete,
+html.dark-mode body.admin-page .btn-danger {
+  background-color: rgba(248, 113, 113, 0.22);
+  color: #fecaca;
+  border-color: rgba(248, 113, 113, 0.45);
+}
+
+html.dark-mode body.admin-page .dashboard-status {
+  background: rgba(59, 130, 246, 0.18);
+  border-color: rgba(59, 130, 246, 0.35);
+  color: #bfdbfe;
+}
+
+html.dark-mode body.admin-page .modal-overlay {
+  background: rgba(8, 15, 28, 0.75);
+}
+
+/* Auth */
+html.dark-mode #loginContainer,
+html.dark-mode .signup-container,
+html.dark-mode #profileContainer {
+  background-color: #111c2d;
+  color: #e2e8f0;
+  box-shadow: 0 18px 36px rgba(8, 20, 40, 0.6);
+}
+
+html.dark-mode body.auth-page {
+  background: radial-gradient(circle at top, #1f2937, #0b1120 55%);
+}
+
+/* Index */
+html.dark-mode body.index-page {
+  background: radial-gradient(circle at top, #1f2937, #0b1120 60%);
+}
+
+html.dark-mode body.index-page .subtitle {
+  color: #94a3b8;
+}
+
+html.dark-mode body.index-page .feature-card {
+  background: #111c2d;
+  border-color: rgba(59, 130, 246, 0.25);
+  box-shadow: 0 16px 30px rgba(8, 20, 40, 0.55);
+  color: #e2e8f0;
+}
+
+html.dark-mode body.index-page .feature-card:hover {
+  background: rgba(59, 130, 246, 0.22);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+/* Misc */
+html.dark-mode .copy-notification {
+  background: rgba(15, 23, 42, 0.96);
+  color: #e2e8f0;
+  border: 1px solid rgba(51, 65, 85, 0.6);
+  box-shadow: 0 12px 24px rgba(8, 20, 40, 0.6);
+}
+
+html.dark-mode .notification-popup.success {
+  border-color: rgba(34, 197, 94, 0.45);
+  color: #bbf7d0;
+}
+
+html.dark-mode .notification-popup.warning {
+  color: #fef3c7;
+}
+
+html.dark-mode .notification-popup.error {
+  color: #fecaca;
+}
+
+html.dark-mode .post-username,
+html.dark-mode .comment-user {
+  color: #f1f5f9;
+}
+
+html.dark-mode .post-date,
+html.dark-mode .post-meta,
+html.dark-mode .post-meta-actions button {
+  color: #94a3b8;
+}
+
+html.dark-mode .comment-content,
+html.dark-mode #postContent,
+html.dark-mode .post-content-preview {
+  color: #e2e8f0;
+}
+
+html.dark-mode .action-chip {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.92) 0%, rgba(17, 24, 39, 0.92) 100%);
+  border-color: rgba(59, 130, 246, 0.45);
+  color: #e2e8f0;
+}
+
+html.dark-mode .action-chip.action-edit {
+  color: #bfdbfe;
+}
+
+html.dark-mode .action-chip.action-delete,
+html.dark-mode .action-chip.action-report {
+  background: linear-gradient(135deg, rgba(127, 29, 29, 0.72) 0%, rgba(153, 27, 27, 0.72) 100%);
+  border-color: rgba(248, 113, 113, 0.45);
+  color: #fecaca;
+}
+
+html.dark-mode .action-chip.action-block {
+  background: linear-gradient(135deg, rgba(180, 83, 9, 0.72) 0%, rgba(217, 119, 6, 0.72) 100%);
+  border-color: rgba(246, 158, 27, 0.45);
+  color: #fde68a;
+}
+
+html.dark-mode .confirm-modal h3,
+html.dark-mode .confirm-modal p,
+html.dark-mode .report-modal h3,
+html.dark-mode .report-modal p {
+  color: #e2e8f0;
+}
+
+html.dark-mode .confirm-buttons button,
+html.dark-mode .report-modal .confirm-buttons button {
+  color: #e2e8f0;
+}
+/* Profile page */
+html.dark-mode body.profile-page,
+html.dark-mode body.profile-page main.profile-stage {
+  background: radial-gradient(circle at top, #0b1120 0%, #04070f 65%);
+  color: #e2e8f0;
+}
+
+html.dark-mode body.profile-page .profile-container {
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(51, 65, 85, 0.6);
+  box-shadow: 0 20px 40px rgba(7, 16, 32, 0.58);
+  color: inherit;
+}
+
+html.dark-mode body.profile-page .profile-name,
+html.dark-mode body.profile-page .profile-intro,
+html.dark-mode body.profile-page .activity-list a,
+html.dark-mode body.profile-page .activity-list .meta {
+  color: #e2e8f0;
+}
+
+html.dark-mode body.profile-page .profile-intro {
+  color: #cbd5f5;
+}
+
+html.dark-mode body.profile-page .activity-list .meta {
+  color: #94a3b8;
+}
+
+html.dark-mode body.profile-page .activity-list .comment-content {
+  background-color: rgba(59, 130, 246, 0.12);
+  color: #cbd5f5;
+}
+
+html.dark-mode body.profile-page .activity-tabs {
+  border-bottom-color: rgba(59, 130, 246, 0.35);
+}
+
+html.dark-mode body.profile-page .tab-button {
+  color: #94a3b8;
+}
+
+html.dark-mode body.profile-page .tab-button.active {
+  color: #93c5fd;
+  border-bottom-color: #3b82f6;
+}
+
+html.dark-mode body.profile-page .edit-btn {
+  color: #93c5fd;
+}
+
+html.dark-mode body.profile-page .edit-input {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-color: rgba(59, 130, 246, 0.45);
+}
+
+html.dark-mode body.profile-page .save-btn {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #f8fafc;
+}
+
+/* Inquiry page */
+html.dark-mode body.inquiry-page,
+html.dark-mode body.inquiry-page main.inquiry-stage {
+  background: radial-gradient(circle at top, #0b1120 0%, #04070f 70%);
+  color: #e2e8f0;
+}
+
+html.dark-mode body.inquiry-page .container {
+  background-color: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(51, 65, 85, 0.6);
+  box-shadow: 0 22px 45px rgba(7, 16, 32, 0.6);
+  color: inherit;
+}
+
+html.dark-mode body.inquiry-page h1 {
+  color: #f8fafc;
+}
+
+html.dark-mode body.inquiry-page label,
+html.dark-mode body.inquiry-page .back-link {
+  color: #bfdbfe;
+}
+
+html.dark-mode body.inquiry-page .back-link:hover {
+  color: #93c5fd;
+}
+
+html.dark-mode body.inquiry-page input[type="text"],
+html.dark-mode body.inquiry-page select,
+html.dark-mode body.inquiry-page textarea {
+  background: #0f172a;
+  color: #e2e8f0;
+  border: 1px solid rgba(59, 130, 246, 0.45);
+}
+
+html.dark-mode body.inquiry-page input[type="text"]::placeholder,
+html.dark-mode body.inquiry-page textarea::placeholder {
+  color: #94a3b8;
+}
+
+html.dark-mode body.inquiry-page input[type="file"] {
+  background: transparent;
+  color: #cbd5f5;
+  border: none;
+}
+html.dark-mode body.inquiry-page input[type="file"]:focus {
+  outline: none;
+}
+html.dark-mode body.inquiry-page input[type="file"]::file-selector-button,
+html.dark-mode body.inquiry-page input[type="file"]::-webkit-file-upload-button {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: #f8fafc;
+}
+html.dark-mode body.inquiry-page input[type="file"]::file-selector-button:hover,
+html.dark-mode body.inquiry-page input[type="file"]::-webkit-file-upload-button:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+}
+
+html.dark-mode body.inquiry-page button {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #f8fafc;
+}
+
+html.dark-mode body.inquiry-page button:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+}
+
+/* Index dashboard */
+html.dark-mode .index-page {
+  color: var(--dashboard-text-primary);
+}
+
+html.dark-mode .index-page .dashboard-intro p,
+html.dark-mode .index-page .card-header p,
+html.dark-mode .index-page .card-list-item-meta,
+html.dark-mode .index-page .empty-state {
+  color: var(--dashboard-text-secondary);
+}
+
+html.dark-mode .index-page .quick-action {
+  color: var(--dashboard-text-primary);
+}
+
+html.dark-mode .index-page .schedule-placeholder {
+  background: rgba(124, 108, 255, 0.22);
+}
+
+/* Posts (board) page */
+html.dark-mode .posts-page {
+  background: radial-gradient(circle at top, #0b1120 0%, #04070f 65%);
+  color: #e2e8f0;
+}
+
+html.dark-mode .posts-page h1 {
+  color: #f8fafc;
+}
+
+html.dark-mode .posts-page #postForm {
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(51, 65, 85, 0.55);
+  box-shadow: 0 20px 35px rgba(8, 19, 38, 0.6);
+}
+
+html.dark-mode .posts-page #postForm input,
+html.dark-mode .posts-page #postForm textarea {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-color: rgba(148, 163, 184, 0.45);
+}
+
+html.dark-mode .posts-page #postForm input::placeholder,
+html.dark-mode .posts-page #postForm textarea::placeholder {
+  color: #94a3b8;
+}
+
+html.dark-mode .posts-page #postForm button {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  color: #f8fafc;
+}
+
+html.dark-mode .posts-page #postForm button:hover {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+}
+
+html.dark-mode .posts-page #imagePreviewContainer {
+  background: rgba(15, 23, 42, 0.85);
+  border-color: rgba(51, 65, 85, 0.6);
+}
+
+html.dark-mode .posts-page .image-upload-btn {
+  background: rgba(99, 102, 241, 0.18);
+  border: 2px dashed rgba(129, 140, 248, 0.45);
+  color: #cbd5f5;
+}
+
+html.dark-mode .posts-page .image-upload-btn:hover,
+html.dark-mode .posts-page .image-upload-btn.drag-over {
+  background: rgba(99, 102, 241, 0.28);
+  border-color: rgba(129, 140, 248, 0.6);
+}
+
+html.dark-mode .posts-page .image-preview img {
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 8px 18px rgba(7, 16, 32, 0.55);
+}
+
+html.dark-mode .posts-page .image-preview-name {
+  color: #cbd5f5;
+}
+
+html.dark-mode .posts-page .image-remove-btn {
+  background: radial-gradient(circle, #f87171 0%, #b91c1c 100%);
+  border-color: rgba(15, 23, 42, 0.9);
+  color: #fef2f2;
+}
+
+html.dark-mode .posts-page #controlsContainer {
+  background: rgba(15, 23, 42, 0.65);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+html.dark-mode .posts-page .search-container select,
+html.dark-mode .posts-page .search-container input,
+html.dark-mode .posts-page .view-options select {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-color: rgba(129, 140, 248, 0.45);
+}
+
+html.dark-mode .posts-page .search-container input::placeholder {
+  color: #94a3b8;
+}
+
+html.dark-mode .posts-page .search-container button {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #f8fafc;
+}
+
+html.dark-mode .posts-page .search-container button:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+}
+
+html.dark-mode .posts-page .post-box {
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(51, 65, 85, 0.6);
+  box-shadow: 0 18px 32px rgba(7, 16, 32, 0.58);
+}
+
+html.dark-mode .posts-page .post-box.notice {
+  background: rgba(30, 41, 59, 0.78);
+  border-left-color: rgba(129, 140, 248, 0.65);
+}
+
+html.dark-mode .posts-page .post-box:hover {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(129, 140, 248, 0.45);
+}
+
+html.dark-mode .posts-page .post-title {
+  color: #f8fafc;
+}
+
+html.dark-mode .posts-page .post-content-preview {
+  color: #cbd5f5;
+}
+
+html.dark-mode .posts-page .post-meta,
+html.dark-mode .posts-page .post-meta .meta-divider {
+  color: #94a3b8;
+}
+
+html.dark-mode .posts-page .action-chip {
+  border-color: rgba(129, 140, 248, 0.4);
+  background: rgba(129, 140, 248, 0.14);
+  color: #cbd5f5;
+}
+
+html.dark-mode .posts-page .action-chip:hover {
+  border-color: rgba(129, 140, 248, 0.55);
+  background: rgba(129, 140, 248, 0.22);
+}
+
+html.dark-mode .posts-page .action-delete {
+  color: #fca5a5;
+}
+
+html.dark-mode .posts-page .action-delete:hover,
+html.dark-mode .posts-page .action-delete:focus {
+  color: #f87171;
+}
+
+html.dark-mode .posts-page #pagination .page-number {
+  background: rgba(15, 23, 42, 0.9);
+  border-color: rgba(129, 140, 248, 0.45);
+  color: #e2e8f0;
+  box-shadow: none;
+}
+
+html.dark-mode .posts-page #pagination .page-number:hover {
+  background: rgba(99, 102, 241, 0.28);
+  border-color: rgba(129, 140, 248, 0.6);
+}
+
+html.dark-mode .posts-page #pagination .page-number.active {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  border-color: rgba(59, 130, 246, 0.7);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.32);
+}
+
+html.dark-mode .posts-page .confirm-modal {
+  background: rgba(15, 23, 42, 0.95);
+  color: #e2e8f0;
+  box-shadow: 0 20px 45px rgba(7, 16, 32, 0.65);
+}
+
+html.dark-mode .posts-page .confirm-buttons button {
+  background: rgba(51, 65, 85, 0.35);
+  color: #e2e8f0;
+}
+
+html.dark-mode .posts-page #confirmYes {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+}
+
+html.dark-mode .posts-page #confirmNo {
+  background: rgba(71, 85, 105, 0.45);
+  color: #f1f5f9;
+}
+
+html.dark-mode .posts-page .notification-popup {
+  background: rgba(15, 23, 42, 0.95);
+  color: #e2e8f0;
+  border-color: rgba(51, 65, 85, 0.6);
+}
+
+

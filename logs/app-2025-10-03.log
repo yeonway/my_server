@@ -1,0 +1,72 @@
+2025-10-03 01:37:42 info: Forbidden words cache has been updated.
+2025-10-03 01:37:52 info: Forbidden words cache has been updated.
+2025-10-03 01:38:00 info: Forbidden words cache has been updated.
+2025-10-03 01:39:05 info: Forbidden words cache has been updated.
+2025-10-03 01:39:08 info: Forbidden words cache has been updated.
+2025-10-03 01:39:17 info: Forbidden words cache has been updated.
+2025-10-03 01:39:31 info: Forbidden words cache has been updated.
+2025-10-03 01:39:59 info: [LOGIN][REQ] username=admin
+2025-10-03 01:40:00 info: [LOGIN][OK] admin
+2025-10-03 01:40:02 info: Socket connected: admin
+2025-10-03 01:58:28 info: Forbidden words cache has been updated.
+2025-10-03 01:58:29 info: Socket connected: admin
+2025-10-03 01:59:39 info: Socket connected: admin
+2025-10-03 01:59:46 info: User block: admin -> 0005jmj12
+2025-10-03 02:00:12 info: Forbidden words cache has been updated.
+2025-10-03 14:04:02 info: Forbidden words cache has been updated.
+2025-10-03 14:05:42 info: Socket connected: admin
+2025-10-03 14:05:46 info: User block: admin -> thwjd.12
+2025-10-03 15:14:37 info: Forbidden words cache has been updated.
+2025-10-03 15:14:38 info: Socket connected: admin
+2025-10-03 15:14:44 info: Forbidden words cache has been updated.
+2025-10-03 15:14:45 info: Socket connected: admin
+2025-10-03 15:14:47 info: Forbidden words cache has been updated.
+2025-10-03 15:14:47 info: Socket connected: admin
+2025-10-03 15:14:51 info: Forbidden words cache has been updated.
+2025-10-03 15:14:52 info: Socket connected: admin
+2025-10-03 15:15:04 info: Forbidden words cache has been updated.
+2025-10-03 15:15:04 info: Socket connected: admin
+2025-10-03 15:16:49 info: Socket connected: admin
+2025-10-03 15:16:55 info: User unblock: admin -> 68de8cd58c6f3c8b77253033
+2025-10-03 15:16:57 info: User unblock: admin -> 68d77c231560aa5853e2a456
+2025-10-03 15:16:59 info: Socket connected: admin
+2025-10-03 16:20:09 info: Forbidden words cache has been updated.
+2025-10-03 16:20:09 info: Socket connected: admin
+2025-10-03 16:20:16 info: Forbidden words cache has been updated.
+2025-10-03 16:20:17 info: Socket connected: admin
+2025-10-03 16:20:20 info: Forbidden words cache has been updated.
+2025-10-03 16:20:21 info: Socket connected: admin
+2025-10-03 16:20:28 info: Forbidden words cache has been updated.
+2025-10-03 16:20:28 info: Socket connected: admin
+2025-10-03 16:32:11 info: Chat message deleted: admin -> message 68df7bea6d46aaaed299be4f
+2025-10-03 16:32:23 info: Chat message deleted: admin -> message 68df7bec6d46aaaed299be55
+2025-10-03 16:32:27 info: Socket connected: admin
+2025-10-03 16:49:25 info: Forbidden words cache has been updated.
+2025-10-03 17:26:27 info: Forbidden words cache has been updated.
+2025-10-03 17:28:00 info: Socket connected: admin
+2025-10-03 17:28:03 info: Socket connected: admin
+2025-10-03 17:28:17 info: Chat message deleted: admin -> message 68de8ed18c6f3c8b772530d4
+2025-10-03 17:28:27 info: Personal chat room ready: admin <-> test
+2025-10-03 17:28:33 info: Logout: admin
+2025-10-03 17:28:37 info: [LOGIN][REQ] username=test
+2025-10-03 17:28:37 info: [LOGIN][OK] test
+2025-10-03 17:28:41 info: Socket connected: test
+2025-10-03 17:28:48 info: Logout: test
+2025-10-03 17:28:50 info: [LOGIN][REQ] username=admin
+2025-10-03 17:28:50 info: [LOGIN][OK] admin
+2025-10-03 17:28:53 info: Socket connected: admin
+2025-10-03 18:32:34 info: Forbidden words cache has been updated.
+2025-10-03 18:32:37 info: Socket connected: admin
+2025-10-03 18:32:42 info: Forbidden words cache has been updated.
+2025-10-03 18:32:44 info: Socket connected: admin
+2025-10-03 18:36:57 info: Forbidden words cache has been updated.
+2025-10-03 18:36:59 info: Socket connected: admin
+2025-10-03 18:37:10 info: [LOGIN][REQ] username=admin
+2025-10-03 18:37:10 info: [LOGIN][OK] admin
+2025-10-03 18:41:08 info: Forbidden words cache has been updated.
+2025-10-03 18:41:25 info: Profile photo deleted: admin
+2025-10-03 18:53:40 info: Forbidden words cache has been updated.
+2025-10-03 22:24:29 info: Forbidden words cache has been updated.
+2025-10-03 22:27:46 info: Forbidden words cache has been updated.
+2025-10-03 23:30:48 info: Forbidden words cache has been updated.
+2025-10-03 23:48:40 info: Forbidden words cache has been updated.

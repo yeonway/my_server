@@ -1,0 +1,33 @@
+2025-10-02 22:30:20 info: Forbidden words cache has been updated.
+2025-10-02 23:31:49 info: Signup success: 0005jmj12 (도민준) owner=0005jmj12 order=1 ip=122.40.180.116
+2025-10-02 23:32:00 info: [LOGIN][REQ] username=0005jmj12
+2025-10-02 23:32:00 info: [LOGIN][OK] 0005jmj12
+2025-10-02 23:32:03 info: Socket connected: 0005jmj12
+2025-10-02 23:32:18 info: Profile updated: 0005jmj12 -> 소개: 없음 -> 자기소개가 없습니다.
+2025-10-02 23:32:55 info: Profile photo updated: 0005jmj12 -> 0005jmj12-1759415575830-143723963.jpg
+2025-10-02 23:33:06 info: Profile updated: 0005jmj12 -> 소개: 자기소개가 없습니다. -> 야 기분조
+2025-10-02 23:34:17 info: New inquiry submitted: 0005jmj12 -> bug_report: "우리엄머가 사이트에 존재함" (with attachment)
+2025-10-02 23:34:27 info: Socket connected: 0005jmj12
+2025-10-02 23:34:42 info: Chat room created: 0005jmj12 -> 68de8d828c6f3c8b77253064
+2025-10-02 23:36:04 info: Socket connected: admin
+2025-10-02 23:36:24 info: User memo updated: 68de8cd58c6f3c8b77253033
+2025-10-02 23:36:58 info: Inquiry resolved: 68de8d698c6f3c8b77253057
+2025-10-02 23:40:03 info: Socket connected: 0005jmj12
+2025-10-02 23:40:11 info: Personal chat room ready: 0005jmj12 <-> admin
+2025-10-02 23:40:17 info: Chat image uploaded: 0005jmj12 -> chat_0005jmj12_1759416017773.jpg
+2025-10-02 23:40:22 info: Socket connected: 0005jmj12
+2025-10-02 23:40:29 info: Chat image uploaded: 0005jmj12 -> chat_0005jmj12_1759416029077.jpg
+2025-10-02 23:40:32 info: Socket connected: 0005jmj12
+2025-10-02 23:40:51 info: Socket connected: 0005jmj12
+2025-10-02 23:41:43 info: Socket connected: admin
+2025-10-02 23:42:09 info: Socket connected: 0005jmj12
+2025-10-02 23:42:15 info: Chat image uploaded: 0005jmj12 -> chat_0005jmj12_1759416135216.jpg
+2025-10-02 23:43:01 error: Create chat room error: E11000 duplicate key error collection: my_server.chatrooms index: type_1_dmKey_1 dup key: { type: "group", dmKey: null }
+2025-10-02 23:45:05 info: Socket connected: admin
+2025-10-02 23:45:07 info: Socket connected: admin
+2025-10-02 23:45:09 info: Socket connected: admin
+2025-10-02 23:46:07 info: Socket connected: 0005jmj12
+2025-10-02 23:46:15 info: Personal chat room ready: 0005jmj12 <-> yoona0507
+2025-10-02 23:46:28 info: Chat image uploaded: 0005jmj12 -> chat_0005jmj12_1759416388448.jpg
+2025-10-02 23:54:43 info: Forbidden words cache has been updated.
+2025-10-02 23:56:29 info: Forbidden words cache has been updated.

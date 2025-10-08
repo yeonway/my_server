@@ -1,0 +1,81 @@
+﻿/* mobile.css */
+@media (max-width: 768px) {
+  body {
+    margin: 0;
+    padding: 0 0 72px 0;
+    max-width: 100vw;
+    overflow-x: hidden;
+    font-size: 15px;
+    line-height: 1.6;
+    background-color: #f9fafb;
+  }
+
+  .site-topbar {
+    width: 100%;
+    margin: 12px auto 8px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-sizing: border-box;
+  }
+
+  .site-topbar .site-logo {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .site-topbar .topbar-right {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  main,
+  .feature-grid,
+  .chat-wrapper,
+  .posts-wrapper,
+  .profile-wrapper,
+  .admin-wrapper,
+  .board-wrapper {
+    width: 94vw;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .chat-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .chat-sidebar {
+    width: 100%;
+    order: 2;
+  }
+
+  .chat-content {
+    width: 100%;
+    order: 1;
+  }
+
+  .chat-box {
+    max-height: 55vh;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}

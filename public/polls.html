@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>공동 투표</title>
+  <link rel="stylesheet" href="css/topbar.css">
+  <link rel="stylesheet" href="css/site-menu.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/profile-menu.css">
+  <link rel="stylesheet" href="css/notifications.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/polls.css">
+  <script defer src="js/auth-helper.js"></script>
+</head>
+<body class="polls-page">
+  <header class="site-topbar">
+    <a href="/index.html" class="site-logo" aria-label="홈으로 이동">
+      <span class="logo-accent">DC</span>
+      <span class="logo-divider" aria-hidden="true"></span>
+      <span class="logo-rest">OUT</span>
+    </a>
+    <nav class="site-menu" aria-label="주요 메뉴">
+      <a href="chat.html">채팅</a>
+      <a href="posts.html">게시판</a>
+      <a href="calendar.html">일정</a>
+      <a href="polls.html" aria-current="page">투표</a>
+      <a href="profile.html">프로필</a>
+      <a href="setting.html">설정</a>
+    </nav>
+    <div class="topbar-actions">
+      <button type="button" class="btn-notification" data-open-notifications aria-label="알림 열기"></button>
+      <div class="profile-menu-anchor" data-profile-menu></div>
+    </div>
+  </header>
+
+  <main id="app" class="polls-app" aria-live="polite">
+    <section class="polls-toolbar">
+      <div>
+        <h1>공동 투표</h1>
+        <p class="polls-subtitle">학부모들과 함께 의견을 모으고, 빠르게 결정을 내려보세요.</p>
+      </div>
+      <button type="button" class="primary-button" data-toggle-create>
+        + 새 투표 만들기
+      </button>
+    </section>
+
+    <section class="poll-create" data-create-panel hidden>
+      <header class="poll-create__header">
+        <h2>새 투표 만들기</h2>
+        <button type="button" class="icon-button" data-cancel-create aria-label="투표 만들기 닫기">×</button>
+      </header>
+      <form class="poll-create__form" data-create-form novalidate>
+        <div class="form-field">
+          <label for="pollTitle">제목</label>
+          <input id="pollTitle" name="title" type="text" maxlength="100" placeholder="예: 2학기 학부모 총회 날짜 선택" required>
+        </div>
+        <div class="form-field">
+          <label for="pollDescription">설명 (선택)</label>
+          <textarea id="pollDescription" name="description" rows="3" maxlength="600" placeholder="투표의 배경이나 추가 안내를 적어주세요."></textarea>
+        </div>
+        <div class="form-field">
+          <label>선택지</label>
+          <div class="poll-options" data-option-list></div>
+          <button type="button" class="secondary-button" data-add-option>+ 선택지 추가</button>
+        </div>
+        <div class="form-field form-field--inline">
+          <label class="checkbox">
+            <input type="checkbox" name="multiple" value="true">
+            <span>복수 선택 허용</span>
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" name="anonymous" value="true" checked>
+            <span>익명 투표</span>
+          </label>
+        </div>
+        <div class="form-field">
+          <label for="pollDeadline">마감 일시 (선택)</label>
+          <input id="pollDeadline" name="deadline" type="datetime-local">
+          <p class="field-help">마감 시간을 비워두면 직접 종료하기 전까지 계속 진행됩니다.</p>
+        </div>
+        <div class="poll-create__actions">
+          <button type="button" class="secondary-button" data-cancel-create>취소</button>
+          <button type="submit" class="primary-button">투표 생성</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="polls-tabs" role="tablist">
+      <button type="button" class="tab is-active" role="tab" data-poll-tab="active" aria-selected="true">
+        진행 중인 투표
+      </button>
+      <button type="button" class="tab" role="tab" data-poll-tab="closed" aria-selected="false">
+        종료된 투표
+      </button>
+    </section>
+
+    <section class="polls-lists">
+      <div class="polls-list is-active" data-poll-list="active" role="tabpanel" aria-live="polite"></div>
+      <div class="polls-list" data-poll-list="closed" role="tabpanel" hidden aria-live="polite"></div>
+    </section>
+  </main>
+
+  <div class="toast" data-toast hidden></div>
+  <div class="spinner-overlay" data-spinner hidden>
+    <div class="spinner"></div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script defer src="js/notifications.js"></script>
+  <script defer src="js/profile-menu.js"></script>
+  <script defer src="js/topbar-dock.js"></script>
+  <script defer src="js/polls.js"></script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>공유 달력</title>
+  <link rel="stylesheet" href="css/topbar.css">
+  <link rel="stylesheet" href="css/site-menu.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/profile-menu.css">
+  <link rel="stylesheet" href="css/notifications.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/calendar.css">
+  <script defer src="js/auth-helper.js"></script>
+</head>
+<body class="calendar-page">
+  <header class="site-topbar">
+    <a href="/index.html" class="site-logo" aria-label="홈으로 이동">
+      <span class="logo-accent">DC</span>
+      <span class="logo-divider" aria-hidden="true"></span>
+      <span class="logo-rest">OUT</span>
+    </a>
+    <nav class="site-menu" aria-label="메인 메뉴">
+      <a href="chat.html">채팅</a>
+      <a href="posts.html">게시판</a>
+      <a href="calendar.html" aria-current="page">달력</a>
+      <a href="profile.html">프로필</a>
+      <a href="setting.html">설정</a>
+    </nav>
+    <div class="topbar-actions">
+      <button type="button" class="btn-notification" data-open-notifications aria-label="알림 열기"></button>
+      <div class="profile-menu-anchor" data-profile-menu></div>
+    </div>
+  </header>
+
+  <main id="app" class="calendar-app" aria-live="polite">
+    <section class="calendar-controls" aria-label="달력 조작 영역">
+      <div class="calendar-controls__left">
+        <button type="button" class="icon-button" data-prev-month aria-label="이전 달">
+          <span aria-hidden="true">◀</span>
+        </button>
+        <h1 class="calendar-title" data-calendar-title></h1>
+        <button type="button" class="icon-button" data-next-month aria-label="다음 달">
+          <span aria-hidden="true">▶</span>
+        </button>
+        <button type="button" class="text-button" data-today>
+          오늘로 이동
+        </button>
+      </div>
+      <div class="calendar-controls__right">
+        <label class="calendar-filter">
+          <span class="sr-only">카테고리</span>
+          <select data-category-filter>
+            <option value="all">전체</option>
+            <option value="시험">시험</option>
+            <option value="숙제">숙제</option>
+            <option value="생일">생일</option>
+            <option value="약속">약속</option>
+            <option value="기타">기타</option>
+          </select>
+        </label>
+        <label class="calendar-search">
+          <span class="sr-only">검색어</span>
+          <input type="search" placeholder="제목 또는 설명 검색" data-search-input>
+        </label>
+        <button type="button" class="primary-button" data-create-button hidden>
+          + 새 일정
+        </button>
+      </div>
+    </section>
+
+    <section class="calendar-grid" aria-label="월별 달력">
+      <div class="calendar-grid__header">
+        <span>일</span>
+        <span>월</span>
+        <span>화</span>
+        <span>수</span>
+        <span>목</span>
+        <span>금</span>
+        <span>토</span>
+      </div>
+      <div class="calendar-grid__body" data-calendar-grid></div>
+    </section>
+
+    <section class="calendar-sidebar" aria-label="일정 목록">
+      <div class="sidebar-header">
+        <h2 data-selected-date-label>날짜를 선택해 보세요</h2>
+      </div>
+      <div class="sidebar-content" data-sidebar-list>
+        <p class="empty-state">아직 일정이 없어요 😊</p>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" data-modal-backdrop hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button type="button" class="modal-close" data-modal-close aria-label="닫기">×</button>
+      <div class="modal-content" data-modal-content></div>
+    </div>
+  </div>
+
+  <div class="toast" data-toast hidden></div>
+
+  <div class="spinner-overlay" data-spinner hidden>
+    <div class="spinner"></div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script defer src="js/notifications.js"></script>
+  <script defer src="js/profile-menu.js"></script>
+  <script defer src="js/topbar-dock.js"></script>
+  <script defer src="js/calendar.js"></script>
+</body>
+</html>

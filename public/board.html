@@ -1,0 +1,737 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1f2937">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>게시글 상세</title>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/notifications.css">
+  <link rel="stylesheet" href="css/profile-menu.css">
+  <link rel="stylesheet" href="css/topbar.css">
+  <link rel="stylesheet" href="css/site-menu.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/mobile.css">
+  <link rel="stylesheet" href="css/board.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <script defer src="js/blocking-client.js"></script>
+</head>
+<body>
+  <header class="site-topbar">
+    <a href="/index.html" class="site-logo" aria-label="DCOUT 홈으로 이동">
+      <span class="logo-accent">DC</span>
+      <span class="logo-divider" aria-hidden="true"></span>
+      <span class="logo-rest">OUT</span>
+    </a>
+        <nav class="site-menu" aria-label="주요 메뉴">
+      <a href="chat.html">채팅</a>
+      <a href="posts.html">게시판</a>
+      <a href="profile.html">프로필</a>
+      <a href="inquiry.html">문의하기</a>
+      <a href="setting.html">설정</a>
+    </nav>
+    <div class="topbar-actions">
+      <span data-network-indicator>Online</span>
+    </div>
+  </header>
+
+  <div id="boardContainer">
+    <div class="post-header">
+      <h1 id="postTitle"></h1>
+      <div id="postMeta" class="post-meta"></div>
+    </div>
+    <div id="postContent" class="post-content"></div>
+    <div id="postAttachments"></div>
+    <div class="comments-section">
+      <h3>댓글</h3>
+      <div class="comment-form">
+        <textarea id="commentInput" placeholder="따뜻한 댓글을 남겨주세요..."></textarea>
+        <button id="commentBtn">등록</button>
+      </div>
+      <div id="commentList"></div>
+    </div>
+    <div id="otherPostsContainer">
+      <h3>다른 글 보기</h3>
+      <div id="otherPostsList"></div>
+    </div>
+  </div>
+  <div id="imageModal" class="image-modal">
+    <span class="image-modal-close">&times;</span>
+    <img id="modalImage" class="image-modal-content" src="" alt="확대 이미지">
+  </div>
+  <div id="confirmModal" class="confirm-modal-overlay">
+    <div class="confirm-modal">
+      <p id="confirmMessage"></p>
+      <div class="confirm-buttons">
+        <button id="confirmYes">예</button>
+        <button id="confirmNo">아니오</button>
+      </div>
+    </div>
+  </div>
+  <div id="reportModal" class="confirm-modal-overlay">
+    <div class="confirm-modal">
+      <h3>게시글 신고</h3>
+      <p>신고 사유를 구체적으로 작성해주세요.</p>
+      <textarea id="reportReasonInput" placeholder="예: 부적절한 내용, 스팸, 광고 등" maxlength="500"></textarea>
+      <div class="report-modal-actions">
+        <button id="reportBlockToggleBtn" type="button" class="action-chip action-block report-block-toggle" hidden>차단 해제</button>
+      </div>
+      <div class="confirm-buttons">
+        <button id="submitReportBtn">제출</button>
+        <button id="cancelReportBtn">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("로그인 후 이용하세요!");
+      window.location.href = "login.html";
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const postId = urlParams.get("id");
+    if (!postId) {
+      alert("잘못된 접근입니다. 게시글 목록으로 돌아갑니다.");
+      window.location.href = "posts.html";
+    }
+
+    let blockedUserIds = new Set();
+
+    const postTitle = document.getElementById("postTitle");
+    const postMeta = document.getElementById("postMeta");
+    const postContent = document.getElementById("postContent");
+    const commentList = document.getElementById("commentList");
+    const commentInput = document.getElementById("commentInput");
+    const commentBtn = document.getElementById("commentBtn");
+    const otherPostsList = document.getElementById("otherPostsList");
+
+    const reportModal = document.getElementById('reportModal');
+    const reportReasonInput = document.getElementById('reportReasonInput');
+    const submitReportBtn = document.getElementById('submitReportBtn');
+    const cancelReportBtn = document.getElementById('cancelReportBtn');
+    const reportBlockToggleBtn = document.getElementById('reportBlockToggleBtn');
+
+    async function loadBlockedUsers() {
+      if (!window.BlockingClient) {
+        if (!(blockedUserIds instanceof Set)) {
+          blockedUserIds = new Set();
+        }
+        updateReportBlockButton();
+        return;
+      }
+
+      try {
+        await window.BlockingClient.refresh({ token, silent: true });
+      } catch (error) {
+        console.warn('[board] loadBlockedUsers failed', error);
+      } finally {
+        const latest = window.BlockingClient.getBlockedSet();
+        blockedUserIds = latest instanceof Set ? latest : new Set();
+        updateReportBlockButton();
+      }
+    }
+
+    let reportTarget = { type: null, id: null, authorId: null, username: '' };
+
+    function updateReportBlockButton() {
+      if (!reportBlockToggleBtn) return;
+      const hasTarget = Boolean(reportTarget.authorId);
+      reportBlockToggleBtn.hidden = !hasTarget;
+      if (!hasTarget) {
+        reportBlockToggleBtn.dataset.blocked = '0';
+        return;
+      }
+
+      const isBlocked = blockedUserIds.has(reportTarget.authorId);
+      reportBlockToggleBtn.textContent = isBlocked ? '차단 해제' : '차단';
+      reportBlockToggleBtn.dataset.blocked = isBlocked ? '1' : '0';
+    }
+
+    function showReportModal(type, id, authorId = null, username = '') {
+      reportTarget = { type, id, authorId, username };
+      reportReasonInput.value = '';
+      updateReportBlockButton();
+      reportModal.classList.add('show');
+    }
+
+    function closeReportModal() {
+      reportModal.classList.remove('show');
+      reportTarget = { type: null, id: null, authorId: null, username: '' };
+    }
+
+    cancelReportBtn.onclick = closeReportModal;
+    if (reportBlockToggleBtn) {
+      reportBlockToggleBtn.addEventListener('click', async (event) => {
+        event.preventDefault();
+        if (!reportTarget.authorId) return;
+        const currentlyBlocked = blockedUserIds.has(reportTarget.authorId);
+        await toggleBlockUser(reportTarget.authorId, reportTarget.username, !currentlyBlocked);
+        updateReportBlockButton();
+      });
+    }
+    submitReportBtn.onclick = async () => {
+      const reason = reportReasonInput.value.trim();
+      if (!reason) {
+        alert('신고 사유를 입력해주세요.');
+        reportReasonInput.focus();
+        return;
+      }
+      if (!reportTarget.type || !reportTarget.id) {
+        alert('신고 대상이 지정되지 않았습니다.');
+        return;
+      }
+      let apiUrl = '';
+      if (reportTarget.type === 'post') {
+        apiUrl = `/api/posts/${reportTarget.id}/report`;
+      } else if (reportTarget.type === 'comment') {
+        apiUrl = `/api/posts/${postId}/comment/${reportTarget.id}/report`;
+      } else {
+        alert('잘못된 신고 유형입니다.');
+        return;
+      }
+      try {
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({ reason })
+        });
+        if (res.ok) {
+          alert('신고가 성공적으로 접수되었습니다.');
+          closeReportModal();
+        } else {
+          const errData = await res.json();
+          throw new Error(errData.error || '신고 접수에 실패했습니다.');
+        }
+      } catch (err) {
+        alert(err.message);
+      }
+    };
+
+    const imageModal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const modalCloseBtn = document.querySelector('.image-modal-close');
+
+    window.showImageModal = function(imagePath) {
+      modalImage.src = imagePath;
+      imageModal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeImageModal() {
+      imageModal.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+    modalCloseBtn.onclick = closeImageModal;
+    imageModal.onclick = function(e) {
+      if (e.target === imageModal) closeImageModal();
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === "Escape" && imageModal.classList.contains('show')) closeImageModal();
+    });
+
+    window.classifyPostImage = function(img) {
+      if (!img) return;
+      img.classList.remove('landscape', 'portrait', 'square');
+      const width = img.naturalWidth;
+      const height = img.naturalHeight;
+      if (!width || !height) return;
+      const diff = Math.abs(width - height);
+      if (diff <= Math.min(width, height) * 0.08) {
+        img.classList.add('square');
+      } else if (width > height) {
+        img.classList.add('landscape');
+      } else {
+        img.classList.add('portrait');
+      }
+    };
+
+    function parseJwt(token) {
+      try { return JSON.parse(atob(token.split('.')[1])); }
+      catch (e) { return null; }
+    }
+    function getProfileImg(photo) {
+      if (photo && photo !== "") {
+        return `<img class="profile-thumb" src="${photo}" alt="프로필">`;
+      } else {
+        return `<span class="profile-thumb default">
+          <svg width="38" height="38" viewBox="0 0 38 38">
+            <circle cx="19" cy="19" r="19" fill="#e0e7ef"/>
+            <circle cx="19" cy="15" r="9" fill="#b6d0f7"/>
+            <ellipse cx="19" cy="30" rx="13" ry="7" fill="#b6d0f7"/>
+            <circle cx="19" cy="15" r="6" fill="#fff"/>
+            <ellipse cx="19" cy="30" rx="9" ry="4" fill="#fff"/>
+          </svg>
+        </span>`;
+      }
+    }
+
+    async function toggleBlockUser(userId, username = '', shouldBlock) {
+      if (!userId) return;
+      const targetId = String(userId);
+      const desiredBlock = typeof shouldBlock === 'boolean' ? shouldBlock : !blockedUserIds.has(targetId);
+
+      try {
+        if (window.BlockingClient) {
+          if (desiredBlock) {
+            await window.BlockingClient.block(targetId, { token });
+          } else {
+            await window.BlockingClient.unblock(targetId, { token });
+          }
+          const latest = window.BlockingClient.getBlockedSet();
+          blockedUserIds = latest instanceof Set ? latest : new Set();
+        } else {
+          throw new Error('차단 도구를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+        }
+
+        await loadPost();
+        updateReportBlockButton();
+
+        const label = username ? `${username}님을 ` : '';
+        showNotification(`${label}${desiredBlock ? '차단했습니다.' : '차단을 해제했습니다.'}`, 'success');
+      } catch (error) {
+        console.error('[board] toggleBlockUser error', error);
+        showNotification(error.message || '요청을 처리하지 못했습니다.', 'error');
+      }
+    }
+
+    async function loadPost() {
+      if (!postId) {
+        alert("게시글 ID가 올바르지 않습니다.");
+        window.location.href = "posts.html";
+        return;
+      }
+      try {
+        const res = await fetch("/api/posts/" + postId, {
+          headers: { "Authorization": "Bearer " + token, "Cache-Control": "no-cache" }
+        });
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => null);
+          const errorMessage = errorData?.error || `게시글을 찾을 수 없습니다. (상태: ${res.status})`;
+          throw new Error(errorMessage);
+        }
+        const post = await res.json();
+        const userPhoto = post.author ? post.author.photo : "";
+        postTitle.innerHTML = `<span id="postTitleText">${post.title}</span>`;
+        const me = parseJwt(token)?.username;
+        postMeta.innerHTML = `
+          ${getProfileImg(userPhoto)}
+          <span class="post-username">${post.user}</span>
+          <span class="post-date">
+            ${new Date(post.time).toLocaleString()}
+            ${post.lastEditedAt ? `<span style="color:#4CAF50;">(수정: ${new Date(post.lastEditedAt).toLocaleString()})</span>` : ''}
+          </span>
+          <span class="post-actions" id="postActions">
+            <button class="copy-link-btn" onclick="copyPageLink()">링크 복사</button>
+          </span>
+        `;
+
+        const authorRef = post.author && typeof post.author === 'object' ? (post.author._id || post.author.id) : post.author;
+        const authorId = authorRef ? String(authorRef) : null;
+
+        if (authorId && post.user !== me) {
+          const blockBtn = document.createElement('button');
+          blockBtn.type = 'button';
+          blockBtn.className = 'block-user-btn action-chip action-block';
+          const isBlocked = blockedUserIds.has(authorId);
+          blockBtn.textContent = isBlocked ? '차단 해제' : '차단';
+          blockBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            toggleBlockUser(authorId, post.user, !isBlocked);
+          });
+          const metaActions = document.createElement('div');
+          metaActions.className = 'post-meta-actions';
+          metaActions.appendChild(blockBtn);
+          postMeta.appendChild(metaActions);
+        }
+
+        const actions = document.getElementById("postActions");
+        if (post.user === me) {
+          actions.insertAdjacentHTML('afterbegin', `
+            <button class="action-chip action-edit" onclick="editPost('${post._id}')">수정</button>
+            <button class="action-chip action-delete" onclick="deletePost('${post._id}')">삭제</button>
+          `);
+        } else {
+          const reportBtn = document.createElement('button');
+          reportBtn.className = 'btn-report action-chip action-report';
+          reportBtn.type = 'button';
+          reportBtn.textContent = '신고';
+          reportBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            showReportModal('post', post._id, authorId, post.user);
+          });
+          actions.appendChild(reportBtn);
+        }
+        postContent.innerHTML = `<span id="postContentText">${post.content}</span>`;
+
+        // ---- 첨부파일/이미지 안전 처리 ----
+        const attachmentsDiv = document.getElementById('postAttachments');
+        if (post.images && post.images.length > 0) {
+          attachmentsDiv.style.display = 'block';
+          const images = [];
+          const files = [];
+          post.images.forEach(fileObj => {
+            // 안전하게 문자열/객체 처리
+            const filePath = typeof fileObj === "string" ? fileObj : (fileObj.url || fileObj.path);
+            if (!filePath) return;
+            // 경로가 /로 시작하지 않으면 붙여줌
+            const imagePath = filePath.startsWith('/') ? filePath : '/' + filePath;
+            const fileExt = imagePath.split('.').pop().toLowerCase();
+            const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(fileExt);
+            if (isImage) {
+              images.push(imagePath);
+            } else {
+              files.push(imagePath);
+            }
+          });
+          let attachmentHTML = '';
+          if (images.length > 0) {
+            attachmentHTML += '<div class="post-images">';
+            images.forEach(imagePath => {
+              attachmentHTML += `<img src="${imagePath}" alt="첨부 이미지" loading="lazy" decoding="async" onload="classifyPostImage(this)" onclick="showImageModal('${imagePath}')">`;
+            });
+            attachmentHTML += '</div>';
+          }
+          if (files.length > 0) {
+            attachmentHTML += '<div class="post-files">';
+            files.forEach(filePath => {
+              const fileName = filePath.split('/').pop();
+              attachmentHTML += `<a href="${filePath}" class="file-link" download="${fileName}">${fileName}</a>`;
+            });
+            attachmentHTML += '</div>';
+          }
+          attachmentsDiv.innerHTML = attachmentHTML;
+          attachmentsDiv.querySelectorAll('img').forEach(img => {
+            if (img.complete) {
+              classifyPostImage(img);
+            }
+          });
+        } else {
+          attachmentsDiv.style.display = 'none';
+        }
+
+        // ----- 댓글 처리 -----
+        commentList.innerHTML = "";
+        if (post.comments && post.comments.length > 0) {
+          for (const c of post.comments) {
+            const cPhoto = c.author ? c.author.photo : "";
+            const div = document.createElement("div");
+            div.className = "comment";
+            let actionsHtml = '<div class="comment-actions">';
+            if (c.user === me) {
+              actionsHtml += `<button class="action-chip action-delete" onclick="deleteComment('${post._id}', '${c._id}')">삭제</button>`;
+            } else {
+              actionsHtml += `<button class="btn-report action-chip action-report">신고</button>`;
+            }
+            actionsHtml += '</div>';
+            div.innerHTML = `
+              ${getProfileImg(cPhoto)}
+              <div class="comment-body">
+                <span class="comment-user">${c.user}</span>
+                <span class="comment-date">${new Date(c.time).toLocaleString()}</span>
+                <div class="comment-content">${c.content}</div>
+              </div>
+              ${actionsHtml}
+            `;
+
+            const commentAuthorRef = c.author && typeof c.author === 'object' ? (c.author._id || c.author.id) : c.author;
+            const commentAuthorId = commentAuthorRef ? String(commentAuthorRef) : null;
+            if (commentAuthorId && c.user !== me) {
+              const actionsEl = div.querySelector('.comment-actions');
+              if (actionsEl) {
+                const blockBtn = document.createElement('button');
+                blockBtn.type = 'button';
+                blockBtn.className = 'comment-block-btn action-chip action-block';
+                const isBlocked = blockedUserIds.has(commentAuthorId);
+                blockBtn.textContent = isBlocked ? '차단 해제' : '차단';
+                blockBtn.addEventListener('click', (event) => {
+                  event.stopPropagation();
+                  toggleBlockUser(commentAuthorId, c.user, !isBlocked);
+                });
+                actionsEl.appendChild(blockBtn);
+              }
+            }
+
+            if (c.user !== me) {
+              const reportBtn = div.querySelector('.btn-report');
+              if (reportBtn) {
+                reportBtn.addEventListener('click', (event) => {
+                  event.preventDefault();
+                  showReportModal('comment', c._id, commentAuthorId, c.user);
+                });
+              }
+            }
+
+            commentList.appendChild(div);
+          }
+        } else {
+          const noCommentDiv = document.createElement("div");
+          noCommentDiv.textContent = "아직 댓글이 없습니다.";
+          noCommentDiv.style.color = "#888";
+          noCommentDiv.style.fontStyle = "italic";
+          commentList.appendChild(noCommentDiv);
+        }
+      } catch (error) {
+        console.error("게시글 로딩 오류:", error);
+        alert(error.message || "게시글을 불러오는 중 오류가 발생했습니다.");
+        window.location.href = "posts.html";
+      }
+    }
+
+    async function loadOtherPosts() {
+      const res = await fetch("/api/posts?limit=6", {
+        headers: { "Authorization": "Bearer " + token }
+      });
+      const data = await res.json();
+      const posts = data.posts || [];
+      otherPostsList.innerHTML = "";
+      posts.filter(p => p._id !== postId).slice(0, 5).forEach(p => {
+        const a = document.createElement("a");
+        a.href = `board.html?id=${p._id}`;
+        a.className = "other-post-link";
+        a.textContent = p.title;
+        otherPostsList.appendChild(a);
+      });
+    }
+
+    commentBtn.addEventListener("click", async () => {
+      const content = commentInput.value.trim();
+      if (!content) return;
+      try {
+        const response = await fetch(`/api/posts/${postId}/comment`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify({ content })
+        });
+        if (response.ok) {
+          commentInput.value = "";
+          loadPost();
+        } else {
+          alert("댓글 등록 실패: " + response.statusText);
+        }
+      } catch (error) {
+        alert("댓글 등록 중 오류가 발생했습니다.");
+      }
+    });
+
+    function showConfirm(message) {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('confirmModal');
+        document.getElementById('confirmMessage').textContent = message;
+        modal.classList.add('show');
+        document.getElementById('confirmYes').onclick = () => {
+          modal.classList.remove('show');
+          resolve(true);
+        };
+        document.getElementById('confirmNo').onclick = () => {
+          modal.classList.remove('show');
+          resolve(false);
+        };
+      });
+    }
+
+    window.deletePost = async function(id) {
+      const confirmed = await showConfirm("정말로 이 게시글을 삭제하시겠습니까?");
+      if (!confirmed) return;
+      await fetch("/api/posts/" + id, {
+        method: "DELETE",
+        headers: { "Authorization": "Bearer " + token }
+      });
+      window.location.href = "posts.html";
+    }
+
+    window.editPost = async function(id) {
+      const titleText = document.getElementById("postTitleText").textContent;
+      const contentText = document.getElementById("postContentText").textContent;
+      postTitle.innerHTML = `
+        <input type="text" id="editTitleInput" value="${titleText.replace(/"/g, "&quot;")}" autocomplete="off">
+        <div class="edit-actions">
+          <button onclick="saveEdit('${id}')" id="saveEditBtn">저장</button>
+          <button onclick="cancelEdit()" class="cancel">취소</button>
+        </div>
+      `;
+      postContent.innerHTML = `
+        <textarea id="editContentInput">${contentText}</textarea>
+      `;
+      document.getElementById("editTitleInput").focus();
+    }
+
+    window.cancelEdit = function() {
+      loadPost();
+    }
+
+    window.saveEdit = async function(id) {
+      const newTitle = document.getElementById("editTitleInput").value.trim();
+      const newContent = document.getElementById("editContentInput").value.trim();
+      if (!newTitle || !newContent) {
+        alert("제목과 내용을 모두 입력해주세요.");
+        return;
+      }
+      try {
+        const res = await fetch("/api/posts/" + id, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify({
+            title: newTitle,
+            content: newContent,
+            lastEditedAt: new Date()
+          })
+        });
+        if (!res.ok) throw new Error("수정 실패");
+        loadPost();
+      } catch (err) {
+        alert("게시글 수정에 실패했습니다.");
+      }
+    }
+
+    window.deleteComment = async function(postId, commentId) {
+      const confirmed = await showConfirm("정말로 이 댓글을 삭제하시겠습니까?");
+      if (!confirmed) return;
+      await fetch(`/api/posts/${postId}/comment/${commentId}`, {
+        method: "DELETE",
+        headers: { "Authorization": "Bearer " + token }
+      });
+      loadPost();
+    }
+
+    window.toggleShareDropdown = function(event) {
+      event.stopPropagation();
+      const dropdown = document.getElementById('shareDropdown');
+      dropdown.classList.toggle('show');
+      document.addEventListener('click', function closeDropdown(e) {
+        if (!dropdown.contains(e.target)) {
+          dropdown.classList.remove('show');
+          document.removeEventListener('click', closeDropdown);
+        }
+      });
+    }
+
+    window.shareToKakao = function(title, content) {
+      const currentUrl = window.location.href;
+      const text = `${title}\n\n${content.substring(0, 100)}${content.length > 100 ? '...' : ''}`;
+      const kakaoUrl = `https://talk.kakao.com/talk/share`;
+      window.open(kakaoUrl, '_blank');
+      closeShareDropdown();
+    }
+    window.shareToTwitter = function(title) {
+      const currentUrl = window.location.href;
+      const text = encodeURIComponent(`${title} ${currentUrl}`);
+      const twitterUrl = `https://twitter.com/intent/tweet?text=${text}`;
+      window.open(twitterUrl, '_blank', 'width=600,height=400');
+      closeShareDropdown();
+    }
+    window.shareToFacebook = function(title) {
+      const currentUrl = encodeURIComponent(window.location.href);
+      const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${currentUrl}`;
+      window.open(facebookUrl, '_blank', 'width=600,height=400');
+      closeShareDropdown();
+    }
+    window.shareToLine = function(title) {
+      const currentUrl = encodeURIComponent(window.location.href);
+      const text = encodeURIComponent(title);
+      const lineUrl = `https://social-plugins.line.me/lineit/share?url=${currentUrl}&text=${text}`;
+      window.open(lineUrl, '_blank', 'width=600,height=400');
+      closeShareDropdown();
+    }
+
+    window.copyPageLink = async function() {
+      const currentUrl = window.location.href;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(currentUrl);
+          showNotification('링크가 복사되었습니다!');
+        } else {
+          const textArea = document.createElement('textarea');
+          textArea.value = currentUrl;
+          textArea.style.position = 'fixed';
+          textArea.style.left = '-9999px';
+          document.body.appendChild(textArea);
+          textArea.select();
+          const successful = document.execCommand('copy');
+          document.body.removeChild(textArea);
+          if (successful) {
+            showNotification('링크가 복사되었습니다!');
+          } else {
+            throw new Error('복사 실패');
+          }
+        }
+      } catch (err) {
+        console.error('복사 실패:', err);
+        showNotification('복사에 실패했습니다', true);
+        prompt('링크를 직접 복사해주세요:', currentUrl);
+      }
+    }
+
+    function showNotification(message, isError = false) {
+      const existing = document.querySelector('.copy-notification');
+      if (existing) {
+        existing.remove();
+      }
+      const notification = document.createElement('div');
+      notification.className = 'copy-notification';
+      if (isError) {
+        notification.classList.add('error');
+      }
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      setTimeout(() => notification.classList.add('show'), 100);
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }, 3000);
+    }
+
+    function closeShareDropdown() {
+      document.getElementById('shareDropdown').classList.remove('show');
+    }
+
+    // -- 초기 데이터 로딩 --
+    async function initBoardPage() {
+      if (window.BlockingClient) {
+        const initialSet = window.BlockingClient.getBlockedSet();
+        if (initialSet instanceof Set) {
+          blockedUserIds = new Set(initialSet);
+          updateReportBlockButton();
+        }
+      }
+
+      try {
+        await loadBlockedUsers();
+      } catch (error) {
+        console.warn('[board] 초기 차단 목록 불러오기 실패', error);
+      }
+
+      await loadPost();
+      loadOtherPosts();
+    }
+
+    document.addEventListener('DOMContentLoaded', initBoardPage);
+  </script>
+  <script defer src="js/auth-helper.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script defer src="js/notifications.js"></script>
+  <script defer src="js/profile-menu.js"></script>
+  <script defer src="js/pwa.js"></script>
+  <script defer src="js/topbar-dock.js"></script>
+</body>
+</html>
+
+
+
+
+

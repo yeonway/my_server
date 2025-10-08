@@ -1,0 +1,109 @@
+﻿<!-- public/chat.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1f2937">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>채팅</title>
+  <script src="js/theme.js"></script>
+  <script defer src="js/auth-helper.js"></script>
+  <script defer src="js/blocking-client.js"></script>
+  <link rel="stylesheet" href="css/notifications.css">
+  <link rel="stylesheet" href="css/profile-menu.css">
+  <link rel="stylesheet" href="css/topbar.css">
+  <link rel="stylesheet" href="css/site-menu.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/mobile.css">
+  <link rel="stylesheet" href="css/chat.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+<body>
+  <header class="site-topbar">
+    <a href="/index.html" class="site-logo" aria-label="DCOUT 홈으로 이동">
+      <span class="logo-accent">DC</span>
+      <span class="logo-divider" aria-hidden="true"></span>
+      <span class="logo-rest">OUT</span>
+    </a>
+        <nav class="site-menu" aria-label="주요 메뉴">
+      <a href="chat.html">채팅</a>
+      <a href="posts.html">게시판</a>
+      <a href="profile.html">프로필</a>
+      <a href="inquiry.html">문의하기</a>
+      <a href="setting.html">설정</a>
+    </nav>
+    <div class="topbar-actions">
+      <span data-network-indicator>Online</span>
+    </div>
+  </header>
+  <h1>채팅</h1>
+  <div class="chat-wrapper">
+    <aside class="chat-sidebar">
+      <div class="sidebar-header">
+        <h2>대화방</h2>
+        <div class="sidebar-actions">
+          <button id="createRoomBtn" class="primary-button" type="button">새 채팅방</button>
+          <button id="refreshRooms" class="refresh-button" type="button">새로고침</button>
+        </div>
+      </div>
+      <div class="dm-search" id="dmSearchWrapper">
+        <input type="text" id="dmSearchInput" placeholder="사용자 검색 (이름, 아이디)" autocomplete="off">
+        <div id="dmSearchResults" class="dm-search-results"></div>
+      </div>
+      <ul id="roomList" class="room-list"></ul>
+    </aside>
+
+    <section class="chat-content">
+      <header class="chat-header">
+        <h2 id="roomTitle">채팅방을 선택하세요</h2>
+        <div id="roomMeta" class="room-meta"></div>
+      </header>
+      <div id="chatBox" class="chat-box">
+        <div class="empty-state">왼쪽에서 채팅방을 선택하거나 새 개인 채팅을 만들어 보세요.</div>
+      </div>
+      <div class="message-input">
+        <div class="image-upload-container">
+          <button class="image-upload-btn" id="uploadButton" type="button">
+            <span class="upload-icon">📎</span>
+            <span>이미지</span>
+          </button>
+          <input type="file" id="imageInput" accept="image/*" hidden>
+        </div>
+        <input type="text" id="msgInput" placeholder="메시지를 입력하세요" autocomplete="off" disabled>
+        <button id="sendBtn" type="button" disabled>전송</button>
+      </div>
+    </section>
+  </div>
+
+  <div id="imageModal" class="image-modal">
+    <span class="image-modal-close">×</span>
+    <img id="modalImage" src="" alt="채팅 이미지 미리보기">
+  </div>
+
+  <div id="reportModal" class="report-modal-overlay">
+    <div class="report-modal">
+      <h3>메시지 신고</h3>
+      <p>신고 사유를 입력해주세요.</p>
+      <textarea id="reportReasonInput" placeholder="예: 욕설, 스팸, 광고 등"></textarea>
+      <div class="report-modal-actions">
+        <button id="reportBlockToggleBtn" type="button" class="chat-report-block" hidden>차단 해제</button>
+      </div>
+      <div class="report-modal-buttons">
+        <button id="submitReportBtn" type="button">신고</button>
+        <button id="cancelReportBtn" type="button">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script defer src="js/chat.js"></script>
+  <script defer src="js/notifications.js"></script>
+  <script defer src="js/profile-menu.js"></script>
+  <script defer src="js/pwa.js"></script>
+  <script defer src="js/topbar-dock.js"></script>
+</body>
+</html>
+
+

@@ -1,0 +1,109 @@
+2025-09-25 01:50:41 info: Forbidden words cache has been updated.
+2025-09-25 01:53:30 info: Forbidden words cache has been updated.
+2025-09-25 20:45:14 info: Forbidden words cache has been updated.
+2025-09-25 20:47:28 info: [LOGIN][REQ] username=admin
+2025-09-25 20:47:28 info: [LOGIN][OK] admin
+2025-09-25 20:49:41 info: Forbidden words cache has been updated.
+2025-09-25 21:05:58 info: Forbidden words cache has been updated.
+2025-09-25 21:06:16 info: Forbidden words cache has been updated.
+2025-09-25 21:06:53 info: Forbidden words cache has been updated.
+2025-09-25 21:07:05 info: Forbidden words cache has been updated.
+2025-09-25 21:07:29 info: Forbidden words cache has been updated.
+2025-09-25 21:08:12 info: Forbidden words cache has been updated.
+2025-09-25 21:08:31 info: Forbidden words cache has been updated.
+2025-09-25 21:08:49 info: Forbidden words cache has been updated.
+2025-09-25 21:09:09 info: Forbidden words cache has been updated.
+2025-09-25 21:09:43 info: Forbidden words cache has been updated.
+2025-09-25 21:10:09 info: Forbidden words cache has been updated.
+2025-09-25 21:10:37 info: Forbidden words cache has been updated.
+2025-09-25 21:11:17 info: Forbidden words cache has been updated.
+2025-09-25 21:11:28 info: Forbidden words cache has been updated.
+2025-09-25 21:19:57 info: Forbidden words cache has been updated.
+2025-09-25 21:20:41 info: Forbidden words cache has been updated.
+2025-09-25 21:23:10 info: [LOGIN][REQ] username=admin
+2025-09-25 21:23:10 info: [LOGIN][OK] admin
+2025-09-25 21:23:27 info: Forbidden words cache has been updated.
+2025-09-25 21:24:04 info: Forbidden words cache has been updated.
+2025-09-25 21:40:21 info: Socket connected: admin
+2025-09-25 21:43:11 info: Forbidden words cache has been updated.
+2025-09-25 21:43:18 info: Forbidden words cache has been updated.
+2025-09-25 21:44:16 info: Forbidden words cache has been updated.
+2025-09-25 21:44:58 info: Forbidden words cache has been updated.
+2025-09-25 21:45:07 info: Forbidden words cache has been updated.
+2025-09-25 21:47:38 info: Forbidden words cache has been updated.
+2025-09-25 21:59:19 info: [LOGIN][REQ] username=admin
+2025-09-25 21:59:19 info: [LOGIN][OK] admin
+2025-09-25 21:59:44 info: Logout: admin
+2025-09-25 21:59:50 info: [LOGIN][REQ] username=test
+2025-09-25 21:59:50 info: [LOGIN][OK] test
+2025-09-25 21:59:58 info: Logout: test
+2025-09-25 21:59:59 info: [LOGIN][REQ] username=admin
+2025-09-25 21:59:59 info: [LOGIN][OK] admin
+2025-09-25 22:00:12 info: Logout: admin
+2025-09-25 22:00:15 info: [LOGIN][REQ] username=test
+2025-09-25 22:00:15 info: [LOGIN][OK] test
+2025-09-25 22:00:32 info: Password changed: test
+2025-09-25 22:00:35 info: Logout: test
+2025-09-25 22:00:41 info: [LOGIN][REQ] username=test
+2025-09-25 22:00:43 info: [LOGIN][REQ] username=test
+2025-09-25 22:00:43 info: [LOGIN][REQ] username=test
+2025-09-25 22:00:47 info: [LOGIN][REQ] username=test
+2025-09-25 22:00:48 info: [LOGIN][REQ] username=test
+2025-09-25 22:00:48 info: [LOGIN][REQ] username=test
+2025-09-25 22:00:48 info: [LOGIN][REQ] username=test
+2025-09-25 22:00:48 info: [LOGIN][REQ] username=test
+2025-09-25 22:00:50 info: [LOGIN][REQ] username=test
+2025-09-25 22:00:50 info: [LOGIN][REQ] username=test
+2025-09-25 22:00:50 info: [LOGIN][REQ] username=test
+2025-09-25 22:00:53 info: [LOGIN][REQ] username=admin
+2025-09-25 22:00:53 info: [LOGIN][OK] admin
+2025-09-25 22:04:08 info: [LOGIN][REQ] username=angel95h@gmail.com
+2025-09-25 22:04:58 info: [LOGIN][REQ] username=shher
+2025-09-25 22:04:58 info: [LOGIN][OK] shher
+2025-09-25 22:05:31 info: Profile photo updated: shher -> shher-1758805531225-28534037.jpg
+2025-09-25 22:05:55 info: Profile photo updated: shher -> shher-1758805554349-246679263.jpg
+2025-09-25 22:07:17 info: Forbidden words cache has been updated.
+2025-09-25 22:07:17 error: Post Create Error: Post validation failed: images: Cast to embedded failed for value "/uploads/posts/shher_1758805635220.jpg" (type string) at path "images" because of "ObjectParameterError"
+2025-09-25 22:07:22 error: Post Create Error: Post validation failed: images: Cast to embedded failed for value "/uploads/posts/shher_1758805640998.jpg" (type string) at path "images" because of "ObjectParameterError"
+2025-09-25 22:07:34 error: Post Create Error: Post validation failed: images: Cast to embedded failed for value "/uploads/posts/shher_1758805652517.jpg" (type string) at path "images" because of "ObjectParameterError"
+2025-09-25 22:07:38 error: Post Create Error: Post validation failed: images: Cast to embedded failed for value "/uploads/posts/shher_1758805656001.jpg" (type string) at path "images" because of "ObjectParameterError"
+2025-09-25 22:07:51 error: Post Create Error: Post validation failed: images: Cast to embedded failed for value "/uploads/posts/shher_1758805665283.jpg" (type string) at path "images" because of "ObjectParameterError"
+2025-09-25 22:07:54 error: Post Create Error: Post validation failed: images: Cast to embedded failed for value "/uploads/posts/admin_1758805674626.png" (type string) at path "images" because of "ObjectParameterError"
+2025-09-25 22:08:18 info: New inquiry submitted: shher -> bug_report: "게시판 등록 실폐" 
+2025-09-25 22:09:13 info: Post Created: admin -> 68d53ef96e4213b7943334d0
+2025-09-25 22:14:02 info: Signup success: jk2121 (김가은)
+2025-09-25 22:14:16 info: [LOGIN][REQ] username=jk2121
+2025-09-25 22:14:17 info: [LOGIN][REQ] username=jk2121
+2025-09-25 22:14:28 info: [LOGIN][REQ] username=jk2121
+2025-09-25 22:14:50 warn: Signup failed - user exists: jk2121
+2025-09-25 22:16:21 info: Logout: admin
+2025-09-25 22:16:35 info: Signup success: 허연우 (허연우)
+2025-09-25 22:16:41 info: [LOGIN][REQ] username=허연우
+2025-09-25 22:16:45 info: [LOGIN][REQ] username=허연우
+2025-09-25 22:16:50 info: [LOGIN][REQ] username=허연우
+2025-09-25 22:16:52 info: [LOGIN][REQ] username=허연우
+2025-09-25 22:16:52 info: [LOGIN][REQ] username=허연우
+2025-09-25 22:16:52 info: [LOGIN][REQ] username=허연우
+2025-09-25 22:16:52 info: [LOGIN][REQ] username=허연우
+2025-09-25 22:16:59 info: [LOGIN][REQ] username=admin
+2025-09-25 22:16:59 info: [LOGIN][OK] admin
+2025-09-25 22:20:52 info: Forbidden words cache has been updated.
+2025-09-25 22:27:38 info: Forbidden words cache has been updated.
+2025-09-25 22:27:47 info: Post Created: admin -> 68d543530b882ac11c2e2255
+2025-09-25 22:30:37 info: Post soft-deleted: 68c2e09d4861a4982bd9badf
+2025-09-25 22:30:43 info: Post soft-deleted: 68c2de08b36eb29fbbd905ea
+2025-09-25 22:31:13 info: Inquiry resolved: 68d53ec26e4213b7943334a0
+2025-09-25 22:33:44 info: Forbidden words cache has been updated.
+2025-09-25 22:53:17 info: Forbidden words cache has been updated.
+2025-09-25 23:18:14 info: Forbidden words cache has been updated.
+2025-09-25 23:32:11 info: Forbidden words cache has been updated.
+2025-09-25 23:36:01 info: Forbidden words cache has been updated.
+2025-09-25 23:45:54 info: Forbidden words cache has been updated.
+2025-09-25 23:45:54 info: Post Created: admin -> 68d555a239575bf6c3935dc9
+2025-09-25 23:47:08 info: Post Created: shher -> 68d555ec39575bf6c3935dee
+2025-09-25 23:47:49 info: [LOGIN][REQ] username=shher
+2025-09-25 23:47:49 info: [LOGIN][OK] shher
+2025-09-25 23:48:45 info: Profile photo updated: shher -> shher-1758811724822-78253011.jpg
+2025-09-25 23:49:14 info: Profile updated: shher -> 소개: 자기소개가 없습니다. -> 아빠
+2025-09-25 23:49:15 info: Profile photo updated: shher -> shher-1758811755047-33788595.jpg
+2025-09-25 23:55:09 info: Forbidden words cache has been updated.

@@ -1,0 +1,14 @@
+2025-10-03T05:05:46.118Z info: 사용자 차단: thwjd.12
+2025-10-03T06:16:55.541Z info: 사용자 차단 해제: 68de8cd58c6f3c8b77253033
+2025-10-03T06:16:57.556Z info: 사용자 차단 해제: 68d77c231560aa5853e2a456
+2025-10-03T07:31:54.925Z info: [CHAT][socket] room=68de8ecb8c6f3c8b772530ca messageId=68df7bea6d46aaaed299be4f from=admin type=text message=ㅁㅇㄴㄴㅇㄴㅇㅇㄴ
+2025-10-03T07:31:56.287Z info: [CHAT][socket] room=68de8ecb8c6f3c8b772530ca messageId=68df7bec6d46aaaed299be55 from=admin type=text message=ㅇㄴㅇㄴㅇㄴㄴㅇㅇㄴㅇㄴ
+2025-10-03T07:31:57.406Z info: [CHAT][socket] room=68de8ecb8c6f3c8b772530ca messageId=68df7bed6d46aaaed299be5b from=admin type=text message=ㄴㅇㅇㄴㅇㄴㅇㄴㅇㄴ
+2025-10-03T07:32:01.708Z info: [CHAT][socket] room=68de8ecb8c6f3c8b772530ca messageId=68df7bf16d46aaaed299be6f from=admin type=text message=ㄹㅇㅇㄹㅇㄹㄹㅇ
+2025-10-03T07:32:11.805Z info: 채팅 메시지 삭제: 68df7bea6d46aaaed299be4f
+2025-10-03T07:32:23.870Z info: 채팅 메시지 삭제: 68df7bec6d46aaaed299be55
+2025-10-03T08:28:17.472Z info: 채팅 메시지 삭제: 68de8ed18c6f3c8b772530d4
+2025-10-03T08:28:27.290Z info: 개인 채팅 생성: test
+2025-10-03T08:28:29.590Z info: [CHAT][socket] room=68df892b764488a1ee901bf8 messageId=68df892d764488a1ee901c07 from=admin type=text message=fgsfdfdsfsd
+2025-10-03T08:28:30.496Z info: [CHAT][socket] room=68df892b764488a1ee901bf8 messageId=68df892e764488a1ee901c0d from=admin type=text message=fdsfdsfdsfds
+2025-10-03T08:28:33.273Z info: 로그아웃: admin

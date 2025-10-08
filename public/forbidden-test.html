@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>금지어 테스트 | DCOUT</title>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/forbidden-test.css">
+  <link rel="stylesheet" href="css/notifications.css">
+  <link rel="stylesheet" href="css/profile-menu.css">
+  <link rel="stylesheet" href="css/topbar.css">
+  <link rel="stylesheet" href="css/site-menu.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/mobile.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+<body class="moderation-test-page">
+  <header class="site-topbar">
+    <a href="/index.html" class="site-logo" aria-label="DCOUT 홈으로 이동">
+      <span class="logo-accent">DC</span>
+      <span class="logo-divider" aria-hidden="true"></span>
+      <span class="logo-rest">OUT</span>
+    </a>
+    <nav class="site-menu" aria-label="주요 메뉴">
+      <a href="chat.html">채팅</a>
+      <a href="posts.html">게시판</a>
+      <a href="profile.html">프로필</a>
+      <a href="inquiry.html">문의하기</a>
+      <a href="forbidden-test.html" aria-current="page">금지어 테스트</a>
+      <a href="setting.html">설정</a>
+    </nav>
+    <div class="topbar-actions">
+      <span data-network-indicator>Online</span>
+    </div>
+  </header>
+
+  <main class="moderation-stage">
+    <section class="moderation-card test-card">
+      <div class="card-header">
+        <h1>금지어 테스트</h1>
+        <p class="card-lead">
+          작성하려는 문장을 입력해 금지어 및 AI 욕설 필터를 미리 확인해 보세요.
+        </p>
+      </div>
+      <form id="moderationTestForm" class="moderation-form">
+        <label class="form-label" for="testContent">테스트할 문장</label>
+        <textarea id="testContent" name="content" placeholder="검사하고 싶은 문장을 입력하세요." required></textarea>
+        <div class="form-actions">
+          <button type="submit">필터 테스트</button>
+        </div>
+      </form>
+      <div class="status-message" data-test-status hidden></div>
+      <ul class="helper-list">
+        <li>금지어 목록과 AI 욕설 분류 모델이 동시에 적용됩니다.</li>
+        <li>검사 결과는 서버 로그에 저장되지 않습니다.</li>
+        <li>정책에 맞지 않는 표현을 발견하면 아래 문의 폼으로 알려주세요.</li>
+      </ul>
+    </section>
+
+    <section class="moderation-card inquiry-card">
+      <div class="card-header">
+        <h2>욕설 차단 문의 보내기</h2>
+        <p class="card-lead">
+          필터에 걸리지 않은 불쾌한 표현이나 추가로 차단하고 싶은 단어가 있다면 알려주세요.
+        </p>
+      </div>
+      <form id="moderationInquiryForm" class="moderation-form">
+        <label class="form-label" for="requestedWord">차단 요청 단어 또는 표현</label>
+        <input id="requestedWord" name="requestedWord" type="text" placeholder="예) ㄴㅇㅅ, 욕설 변형 등" required>
+        <label class="form-label" for="inquiryDetails">상세 설명 (선택)</label>
+        <textarea id="inquiryDetails" name="details" placeholder="사용 맥락이나 예시를 적어주시면 빠르게 검토할 수 있어요."></textarea>
+        <div class="form-actions">
+          <button type="submit">문의 보내기</button>
+        </div>
+      </form>
+      <div class="status-message" data-inquiry-status hidden></div>
+    </section>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        window.location.href = '/login.html';
+        return;
+      }
+
+      const testForm = document.getElementById('moderationTestForm');
+      const testContent = document.getElementById('testContent');
+      const testStatus = document.querySelector('[data-test-status]');
+
+      const inquiryForm = document.getElementById('moderationInquiryForm');
+      const requestedWord = document.getElementById('requestedWord');
+      const inquiryDetails = document.getElementById('inquiryDetails');
+      const inquiryStatus = document.querySelector('[data-inquiry-status]');
+
+      const setStatus = (node, message, type) => {
+        node.textContent = message;
+        node.classList.remove('status-success', 'status-error', 'status-neutral');
+        node.classList.add(
+          type === 'success' ? 'status-success' :
+          type === 'error' ? 'status-error' : 'status-neutral'
+        );
+        node.hidden = false;
+      };
+
+      const clearStatus = (node) => {
+        node.textContent = '';
+        node.classList.remove('status-success', 'status-error', 'status-neutral');
+        node.hidden = true;
+      };
+
+      testForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const content = testContent.value.trim();
+        if (!content) {
+          setStatus(testStatus, '문장을 입력해 주세요.', 'error');
+          return;
+        }
+
+        setStatus(testStatus, '검사 중입니다...', 'neutral');
+
+        try {
+          const response = await fetch('/api/moderation/test', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({ content }),
+          });
+
+          const payload = await response.json();
+
+          if (!response.ok) {
+            throw new Error(payload.error || '필터 검사 중 문제가 발생했습니다.');
+          }
+
+          setStatus(testStatus, payload.message || '금지어가 감지되지 않았습니다.', 'success');
+        } catch (error) {
+          setStatus(testStatus, error.message, 'error');
+        }
+      });
+
+      inquiryForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const word = requestedWord.value.trim();
+        const details = inquiryDetails.value.trim();
+
+        if (!word) {
+          setStatus(inquiryStatus, '차단을 요청할 단어를 입력해 주세요.', 'error');
+          return;
+        }
+
+        setStatus(inquiryStatus, '문의 전송 중입니다...', 'neutral');
+
+        const formData = new FormData();
+        formData.append('inquiryType', 'content_report');
+        formData.append('title', `[욕설 차단 요청] ${word}`);
+
+        const lines = [
+          `요청 단어 또는 표현: ${word}`,
+          details ? `추가 설명:\n${details}` : null,
+        ].filter(Boolean);
+
+        formData.append('content', lines.join('\n\n') || word);
+
+        try {
+          const response = await fetch('/api/inquiry', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+            body: formData,
+          });
+
+          const payload = await response.json();
+
+          if (!response.ok) {
+            throw new Error(payload.error || '문의 전송에 실패했습니다.');
+          }
+
+          setStatus(inquiryStatus, payload.message || '문의가 접수되었습니다.', 'success');
+          inquiryForm.reset();
+        } catch (error) {
+          setStatus(inquiryStatus, error.message, 'error');
+        }
+      });
+
+      [testContent, requestedWord, inquiryDetails].forEach((field) => {
+        field.addEventListener('input', () => {
+          if (field === testContent) {
+            clearStatus(testStatus);
+          } else {
+            clearStatus(inquiryStatus);
+          }
+        });
+      });
+    });
+  </script>
+
+  <script defer src="js/auth-helper.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script defer src="js/notifications.js"></script>
+  <script defer src="js/profile-menu.js"></script>
+  <script defer src="js/pwa.js"></script>
+  <script defer src="js/topbar-dock.js"></script>
+</body>
+</html>

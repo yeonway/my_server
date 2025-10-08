@@ -1,0 +1,45 @@
+2025-09-26 00:07:14 info: Forbidden words cache has been updated.
+2025-09-26 00:10:12 info: Forbidden words cache has been updated.
+2025-09-26 00:12:05 info: Forbidden words cache has been updated.
+2025-09-26 00:17:55 info: Forbidden words cache has been updated.
+2025-09-26 00:24:57 info: Forbidden words cache has been updated.
+2025-09-26 00:28:10 info: Forbidden words cache has been updated.
+2025-09-26 00:37:17 warn: Signup failed - user exists: yoona0507
+2025-09-26 00:37:30 info: [LOGIN][REQ] username=yoona0507
+2025-09-26 00:37:30 info: [LOGIN][OK] yoona0507
+2025-09-26 00:38:40 info: Forbidden words cache has been updated.
+2025-09-26 00:38:40 info: Post Created: yoona0507 -> 68d56200ff4f3b8661bc432d
+2025-09-26 00:39:21 info: Forbidden words cache has been updated.
+2025-09-26 00:39:23 info: Forbidden words cache has been updated.
+2025-09-26 00:39:27 info: Logout: admin
+2025-09-26 00:39:32 info: [LOGIN][REQ] username=허연우
+2025-09-26 00:40:15 info: [LOGIN][REQ] username=허연우
+2025-09-26 00:40:21 info: [LOGIN][REQ] username=허연우
+2025-09-26 00:42:30 info: Forbidden words cache has been updated.
+2025-09-26 00:45:36 info: Forbidden words cache has been updated.
+2025-09-26 00:45:43 info: Signup success: 연우 (연우)
+2025-09-26 00:45:47 info: [LOGIN][REQ] username=연우
+2025-09-26 00:45:47 info: [LOGIN][OK] 연우
+2025-09-26 00:45:53 info: Logout: 연우
+2025-09-26 00:45:54 info: [LOGIN][REQ] username=admin
+2025-09-26 00:45:54 info: [LOGIN][OK] admin
+2025-09-26 00:49:36 info: New inquiry submitted: admin -> account: "fdsa" 
+2025-09-26 00:50:14 error: Add forbidden word error
+2025-09-26 00:50:17 error: Add forbidden word error
+2025-09-26 00:50:27 error: Add forbidden word error
+2025-09-26 00:50:33 info: Forbidden words cache has been updated.
+2025-09-26 20:47:01 info: Forbidden words cache has been updated.
+2025-09-26 20:47:03 warn: [REFRESH][FAIL] jwt expired
+2025-09-26 20:49:03 warn: [REFRESH][FAIL] jwt expired
+2025-09-26 20:49:18 info: Forbidden words cache has been updated.
+2025-09-26 20:55:21 info: Forbidden words cache has been updated.
+2025-09-26 21:34:03 info: Profile photo deleted: admin
+2025-09-26 21:34:10 info: Profile photo updated: admin -> admin-1758890050717-953766513.png
+2025-09-26 21:35:13 info: Profile photo deleted: admin
+2025-09-26 23:06:45 info: Forbidden words cache has been updated.
+2025-09-26 23:08:12 info: Profile photo updated: admin -> admin-1758895692328-222850737.png
+2025-09-26 23:08:20 info: Comment created: admin -> post 68d555a239575bf6c3935dc9
+2025-09-26 23:16:17 info: Forbidden words cache has been updated.
+2025-09-26 23:17:05 info: Forbidden words cache has been updated.
+2025-09-26 23:17:31 info: Forbidden words cache has been updated.
+2025-09-26 23:18:18 info: Forbidden words cache has been updated.

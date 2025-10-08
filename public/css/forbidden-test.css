@@ -1,0 +1,220 @@
+.moderation-test-page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: #f4f6f8;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.moderation-stage {
+  flex: 1;
+  padding: 32px 20px 48px;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.moderation-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.card-header {
+  margin-bottom: 24px;
+}
+
+.card-header h1,
+.card-header h2 {
+  margin: 0 0 8px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.card-header .card-lead {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.5;
+  font-size: 15px;
+}
+
+.moderation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 15px;
+}
+
+.moderation-form textarea,
+.moderation-form input[type="text"] {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 15px;
+  resize: vertical;
+  min-height: 120px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.moderation-form input[type="text"] {
+  min-height: auto;
+}
+
+.moderation-form textarea:focus,
+.moderation-form input[type="text"]:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.form-actions button {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 10px 20px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+}
+
+.form-actions button:active {
+  transform: translateY(0);
+}
+
+.status-message {
+  margin-top: 16px;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.45;
+  transition: opacity 0.2s ease;
+}
+
+.status-neutral {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.status-success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-error {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.helper-list {
+  margin: 20px 0 0;
+  padding-left: 20px;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.helper-list li + li {
+  margin-top: 6px;
+}
+
+@media (max-width: 768px) {
+  .moderation-stage {
+    grid-template-columns: 1fr;
+    padding: 20px 16px 40px;
+  }
+
+  .moderation-card {
+    padding: 24px 20px;
+  }
+
+  .form-actions {
+    justify-content: stretch;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}
+
+html.dark-mode .moderation-test-page {
+  background-color: #111827;
+  color: #e5e7eb;
+}
+
+html.dark-mode .moderation-card {
+  background-color: #1f2937;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+html.dark-mode .card-header h1,
+html.dark-mode .card-header h2 {
+  color: #f9fafb;
+}
+
+html.dark-mode .card-header .card-lead {
+  color: #d1d5db;
+}
+
+html.dark-mode .form-label {
+  color: #e5e7eb;
+}
+
+html.dark-mode .moderation-form textarea,
+html.dark-mode .moderation-form input[type="text"] {
+  background-color: #111827;
+  border-color: #374151;
+  color: #f9fafb;
+}
+
+html.dark-mode .moderation-form textarea:focus,
+html.dark-mode .moderation-form input[type="text"]:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.32);
+}
+
+html.dark-mode .status-neutral {
+  background-color: #1f2937;
+  color: #d1d5db;
+}
+
+html.dark-mode .status-success {
+  background-color: rgba(22, 101, 52, 0.25);
+  color: #bbf7d0;
+}
+
+html.dark-mode .status-error {
+  background-color: rgba(153, 27, 27, 0.25);
+  color: #fecaca;
+}
+
+html.dark-mode .helper-list {
+  color: #9ca3af;
+}

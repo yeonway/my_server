@@ -1,0 +1,438 @@
+?<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>관리자 페이지</title>
+  <script src="js/theme.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script defer src="js/auth-helper.js"></script>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/topbar.css">
+  <link rel="stylesheet" href="css/site-menu.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/mobile.css">
+  <link rel="stylesheet" href="css/notifications.css">
+  <link rel="stylesheet" href="css/profile-menu.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+<body class="admin-page">
+  <header class="site-topbar">
+    <a href="/index.html" class="site-logo" aria-label="DCOUT 홈으로 이동">
+      <span class="logo-accent">DC</span>
+      <span class="logo-divider" aria-hidden="true"></span>
+      <span class="logo-rest">OUT</span>
+    </a>
+        <nav class="site-menu" aria-label="주요 메뉴">
+      <a href="chat.html">채팅</a>
+      <a href="posts.html">게시판</a>
+      <a href="profile.html">프로필</a>
+      <a href="inquiry.html">문의하기</a>
+      <a href="setting.html">설정</a>
+    </nav>
+    <div class="topbar-actions">
+      <span data-network-indicator>Online</span>
+    </div>
+  </header>
+  <div class="container">
+    <header>
+      <h1>관리자 페이지</h1>
+      <a href="index.html" class="btn-main">메인으로</a>
+    </header>
+    <div class="tabs">
+      <button class="tab-button active" onclick="openTab(event, 'dashboard')">대시보드</button>
+      <button class="tab-button" onclick="openTab(event, 'users')">사용자 관리</button>
+      <button class="tab-button" onclick="openTab(event, 'posts')">게시글 관리</button>
+      <button class="tab-button" onclick="openTab(event, 'reports')">신고 관리</button>
+      <button class="tab-button" onclick="openTab(event, 'inquiries')">문의 관리</button>
+      <button class="tab-button" onclick="openTab(event, 'forbiddenWords')">금지어 관리</button>
+      <button class="tab-button" onclick="openTab(event, 'chatLogs')">채팅 로그</button>
+      <button class="tab-button" onclick="openTab(event, 'logs')">시스템 로그</button>
+    </div>
+    <!-- 대시보드 -->
+    <div id="dashboard" class="tab-content active">
+      <div class="dashboard-header">
+        <div class="dashboard-header-text">
+          <h2>대시보드 요약</h2>
+          <p id="dashboardLastUpdated" class="dashboard-meta">-</p>
+        </div>
+        <div class="dashboard-actions">
+          <button type="button" class="dashboard-refresh" id="dashboardRefreshBtn" aria-label="대시보드 새로고침">
+            <span class="icon" aria-hidden="true">?</span>
+            새로고침
+          </button>
+        </div>
+      </div>
+      <div id="dashboardStatus" class="dashboard-status" aria-live="polite"></div>
+      <div class="grid-container">
+        <div class="card stat-card">
+          <div id="totalUsers" class="value">-</div>
+          <div class="label">총 사용자</div>
+          <div id="todayNewUsers" class="sub-value">+0</div>
+        </div>
+        <div class="card stat-card">
+          <div id="totalPosts" class="value">-</div>
+          <div class="label">총 게시글</div>
+          <div id="todayPosts" class="sub-value">+0</div>
+        </div>
+        <div class="card stat-card">
+          <div id="totalComments" class="value">-</div>
+          <div class="label">총 댓글</div>
+          <div id="todayComments" class="sub-value">+0</div>
+        </div>
+        <div class="card stat-card">
+          <div id="pendingReports" class="value">-</div>
+          <div class="label">대기 중인 신고</div>
+        </div>
+      </div>
+      <div class="health-grid">
+        <div class="card health-card" id="systemHealthCard">
+          <div class="card-title-row">
+            <h3>로그 상태</h3>
+            <span id="healthWindowLabel" class="health-window"></span>
+          </div>
+          <div id="systemHealthMessage" class="health-message" role="status"></div>
+          <div class="health-metrics">
+            <div class="metric-line"><span class="metric-label">총 로그</span><span class="metric-value" id="healthTotal">-</span></div>
+            <div class="metric-line"><span class="metric-label">Info</span><span class="metric-value info" id="healthInfo">-</span></div>
+            <div class="metric-line"><span class="metric-label">Warn</span><span class="metric-value warn" id="healthWarn">-</span></div>
+            <div class="metric-line"><span class="metric-label">Error</span><span class="metric-value error" id="healthErrors">-</span></div>
+          </div>
+          <div id="healthLatestError" class="latest-error">최근 24시간 오류가 없습니다.</div>
+        </div>
+        <div class="card health-card" id="resourceHealthCard">
+          <div class="card-title-row">
+            <h3>시스템 자원</h3>
+          </div>
+          <div class="health-metrics">
+            <div class="metric-line"><span class="metric-label">로그 용량</span><span class="metric-value" id="healthLogSize">-</span></div>
+            <div class="metric-line"><span class="metric-label">가장 큰 로그</span><span class="metric-value" id="healthLogLargest">-</span></div>
+            <div class="metric-line"><span class="metric-label">시스템 업타임</span><span class="metric-value" id="healthUptime">-</span></div>
+            <div class="metric-line"><span class="metric-label">Load (1/5/15)</span><span class="metric-value" id="healthLoad">-</span></div>
+            <div class="metric-line"><span class="metric-label">메모리 사용</span><span class="metric-value" id="healthMemory">-</span></div>
+          </div>
+        </div>
+        <div class="card health-card compact-card" id="pendingReportsCard">
+          <div class="card-title-row">
+            <h3>대기 중인 신고</h3>
+            <button type="button" class="text-button" id="viewAllReportsBtn">전체 보기</button>
+          </div>
+          <ul class="mini-list" id="pendingReportsList"></ul>
+        </div>
+      </div>
+      <div class="card">
+        <h2>최근 7일 활동</h2>
+        <div class="chart-container">
+          <canvas id="activityChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <!-- 사용자 관리 -->
+    <div id="users" class="tab-content">
+      <div class="card">
+        <h2>사용자 목록</h2>
+        <div class="search-container">
+          <input type="text" id="userSearchInput" placeholder="사용자명으로 검색..." onkeypress="if(event.key==='Enter') loadUsers()">
+          <button onclick="loadUsers()">검색</button>
+        </div>
+        <div class="search-container" style="margin-top: 10px;">
+          <input type="text" id="userLogSearchInput" placeholder="사용자 ID 또는 이름으로 로그 검색...">
+          <button onclick="searchUserLogs()">로그 보기</button>
+        </div>
+        <div class="search-container user-sort-container">
+          <div class="sort-select-group">
+            <label for="userSortField">정렬 기준</label>
+            <select id="userSortField">
+              <option value="createdAt">가입일</option>
+              <option value="role">권한</option>
+            </select>
+          </div>
+          <button type="button" id="userSortOrderBtn" class="sort-order-btn" data-order="desc">내림차순</button>
+        </div>
+        <div class="admin-toolbar">
+          <button type="button" id="openAdminPermissionModalBtn" class="action-btn btn-resolve">새 관리자 지정</button>
+        </div>
+        <div id="userMeta" class="user-meta"></div>
+        <div class="add-word-container search-row">
+          <input type="text" id="forbiddenWordSearchInput" placeholder="?????? ???..." onkeypress="onForbiddenWordSearchKey(event)">
+          <div class="search-btn-group">
+            <button onclick="searchForbiddenWords(1)">???</button>
+            <button class="reset-btn" onclick="resetForbiddenWordSearch()">????</button>
+          </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>계정 주인</th>
+              <th>권한</th>
+              <th>메모</th>
+              <th>가입일</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="userList"></tbody>
+        </table>
+        <div id="userPagination" class="pagination"></div>
+      </div>
+    </div>
+    <!-- 게시글 관리 -->
+    <div id="posts" class="tab-content">
+      <div class="card">
+        <h2>게시글 목록</h2>
+        <div class="search-container">
+          <input type="text" id="postSearchInput" placeholder="제목 또는 내용으로 검색..." onkeypress="if(event.key==='Enter') loadPosts()">
+          <button onclick="loadPosts()">검색</button>
+          <button onclick="openNoticeModal()" style="margin-left: 10px; background-color: var(--success-color);">공지 작성</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>제목</th>
+              <th>작성자</th>
+              <th>작성일</th>
+              <th>상태</th>
+              <th>공지</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="postList"></tbody>
+        </table>
+      </div>
+    </div>
+    <!-- 신고 관리 -->
+    <div id="reports" class="tab-content">
+      <div class="card">
+        <h2>신고 관리</h2>
+        <div class="filter-buttons" id="reportStatusFilter">
+          <button class="filter-btn active" data-status="pending">대기중</button>
+          <button class="filter-btn" data-status="resolved">해결됨</button>
+          <button class="filter-btn" data-status="dismissed">기각됨</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>신고일</th>
+              <th>신고자</th>
+              <th>신고 대상</th>
+              <th>신고 내용</th>
+              <th>사유</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="reportList"></tbody>
+        </table>
+      </div>
+    </div>
+    <!-- 문의 관리 -->
+    <div id="inquiries" class="tab-content">
+      <div class="card">
+        <h2>문의 관리</h2>
+        <div class="filter-buttons" id="inquiryStatusFilter">
+          <button class="filter-btn active" data-status="open">대기중</button>
+          <button class="filter-btn" data-status="closed">처리완료</button>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>문의일</th>
+                <th>작성자</th>
+                <th>유형</th>
+                <th>제목/내용</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody id="inquiryList"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- 금지어 관리 -->
+    <div id="forbiddenWords" class="tab-content">
+      <div class="card">
+        <h2>금지어 관리</h2>
+        <div class="add-word-container">
+          <input type="text" id="forbiddenWordInput" placeholder="추가할 금지어 입력..." onkeypress="if(event.key==='Enter') addForbiddenWord()">
+          <button onclick="addForbiddenWord()">추가</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>금지어</th>
+              <th>등록자</th>
+              <th>등록일</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="forbiddenWordList"></tbody>
+        </table>
+        <div id="forbiddenWordPagination" class="pagination"></div>
+      </div>
+    </div>
+    <!-- 시스템 로그 -->
+    <!-- 채팅 로그 -->
+    <div id="chatLogs" class="tab-content">
+      <div class="card">
+        <h2>채팅 로그</h2>
+        <div class="log-controls">
+          <select id="chatLogFileSelect"></select>
+          <input type="text" id="chatLogSearchInput" placeholder="작성자 검색...">
+        </div>
+        <div class="chat-log-filters">
+          <input type="text" id="chatLogRoomFilter" placeholder="방 ID 검색...">
+          <input type="text" id="chatLogUserFilter" placeholder="작성자 검색...">
+          <select id="chatLogTypeFilter">
+            <option value="all">전체 유형</option>
+            <option value="text">텍스트</option>
+            <option value="image">이미지</option>
+            <option value="file">파일</option>
+          </select>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>시간</th>
+              <th>채널</th>
+              <th>방</th>
+              <th>보낸 사람</th>
+              <th>유형</th>
+              <th>내용</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="chatLogList"></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="logs" class="tab-content">
+      <div class="card">
+        <h2>시스템 로그</h2>
+        <div class="log-controls">
+          <select id="logFileSelect"></select>
+          <div class="filter-buttons" id="logLevelFilter">
+            <button class="filter-btn active" data-level="all">All</button>
+            <button class="filter-btn" data-level="info">Info</button>
+            <button class="filter-btn" data-level="warn">Warn</button>
+            <button class="filter-btn" data-level="error">Error</button>
+          </div>
+          <input type="text" id="logSearchInput" placeholder="로그 내용 검색...">
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>시간</th>
+              <th>레벨</th>
+              <th>메시지</th>
+            </tr>
+          </thead>
+          <tbody id="logList"></tbody>
+        </table>
+        <div id="systemLogPagination" class="pagination"></div>
+      </div>
+    </div>
+  </div>
+  <!-- 사용자 로그 모달 -->
+  <div id="userLogModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="userLogModalTitle">사용자 로그</h3>
+        <button class="modal-close-btn" onclick="closeUserLogModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <table>
+          <thead>
+            <tr>
+              <th>시간</th>
+              <th>레벨</th>
+              <th>활동 내용</th>
+            </tr>
+          </thead>
+          <tbody id="userLogList"></tbody>
+        </table>
+        <div id="userLogPagination" class="pagination"></div>
+      </div>
+    </div>
+  </div>
+  <!-- 공지 작성 모달 -->
+  <div id="noticeModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>새 공지 작성</h3>
+        <button class="modal-close-btn" onclick="closeNoticeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="noticeTitle" placeholder="공지 제목">
+        <textarea id="noticeContent" placeholder="공지 내용"></textarea>
+        <div class="file-input-wrapper">
+          <input type="file" id="noticeFiles" multiple class="file-input-hidden">
+          <label for="noticeFiles" class="file-input-label">파일 선택</label>
+          <span id="fileNameDisplay" class="file-name-display">선택된 파일 없음</span>
+        </div>
+      </div>
+      <div style="text-align: right; margin-top: 15px;">
+        <button class="action-btn btn-dismiss" onclick="closeNoticeModal()">취소</button>
+        <button class="action-btn btn-resolve" onclick="createNotice()">저장</button>
+      </div>
+    </div>
+  </div>
+  <!-- 관리자 권한 모달 -->
+  <div id="adminPermissionModal" class="modal-overlay">
+    <div class="modal-content admin-permission-modal">
+      <div class="modal-header">
+        <h3>관리자 권한 설정</h3>
+        <button class="modal-close-btn" onclick="closeAdminPermissionModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section">
+          <label for="adminPermissionUserSearchInput">사용자 검색</label>
+          <div class="modal-search-row">
+            <input type="text" id="adminPermissionUserSearchInput" placeholder="사용자명 또는 ID">
+            <button type="button" id="adminPermissionUserSearchBtn" class="action-btn btn-view">검색</button>
+          </div>
+          <div id="adminPermissionUserSearchResults" class="modal-search-results"></div>
+        </div>
+        <div id="adminPermissionSelection" class="admin-permission-selection" hidden>
+          <div class="selected-user-summary">
+            <span id="adminPermissionSelectedUser">선택된 사용자가 없습니다.</span>
+          </div>
+          <div class="modal-section role-select-row">
+            <label for="adminRoleSelect">관리자 역할</label>
+            <select id="adminRoleSelect">
+              <option value="admin">관리자</option>
+              <option value="manager">매니저</option>
+            </select>
+            <p class="modal-help">부여한 권한에 따라 접근 가능한 기능이 달라집니다.</p>
+          </div>
+          <div class="modal-section">
+            <div class="permission-toolbar">
+              <button type="button" id="adminPermissionSelectAllBtn" class="action-btn btn-view">전체 선택</button>
+            </div>
+            <div id="adminPermissionOptionList" class="permission-checkbox-grid"></div>
+          </div>
+          <div id="adminPermissionStatus" class="modal-status" role="alert"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="adminPermissionRemoveBtn" class="action-btn btn-delete">관리자 해제</button>
+        <div class="modal-footer-actions">
+          <button type="button" class="action-btn btn-dismiss" onclick="closeAdminPermissionModal()">취소</button>
+          <button type="button" id="adminPermissionSaveBtn" class="action-btn btn-resolve">저장</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 관리자 알림 영역 -->
+  <div id="admin-alert" style="display:none; position:fixed; top:30px; right:30px; z-index:2000;">
+    <span id="admin-alert-msg"></span>
+    <button onclick="hideAdminAlert()" style="background:none; border:none; font-size:1.3rem;">&times;</button>
+  </div>
+  <script defer src="js/auth-helper.js"></script>
+  <script defer src="js/notifications.js"></script>
+  <script defer src="js/profile-menu.js"></script>
+  <script defer src="js/pwa.js"></script>
+  <script defer src="js/topbar-dock.js"></script>
+  <script defer src="js/admin.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</body>
+</html>

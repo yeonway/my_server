@@ -1,0 +1,162 @@
+<!-- public/login.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1f2937">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>로그인</title>
+  <script src="js/theme.js"></script>
+  <script defer src="js/auth-helper.js"></script>
+  <link rel="stylesheet" href="css/login.css">
+  <link rel="stylesheet" href="css/notifications.css">
+  <link rel="stylesheet" href="css/profile-menu.css">
+  <link rel="stylesheet" href="css/topbar.css">
+  <link rel="stylesheet" href="css/site-menu.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/mobile.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+<body class="auth-page">
+  <header class="site-topbar">
+
+    <a href="/index.html" class="site-logo" aria-label="DCOUT 홈으로 이동">
+
+      <span class="logo-accent">DC</span>
+
+      <span class="logo-divider" aria-hidden="true"></span>
+
+      <span class="logo-rest">OUT</span>
+
+    </a>
+        <nav class="site-menu" aria-label="주요 메뉴">
+      <a href="chat.html">채팅</a>
+      <a href="posts.html">게시판</a>
+      <a href="profile.html">프로필</a>
+      <a href="inquiry.html">문의하기</a>
+      <a href="setting.html">설정</a>
+    </nav>
+    <div class="topbar-actions">
+      <span data-network-indicator>Online</span>
+    </div>
+
+  </header>
+
+
+
+  <main class="auth-stage">
+
+    <div id="loginContainer">
+
+      <h1>로그인</h1>
+
+      <form id="loginForm">
+
+        <input type="text" name="username" placeholder="아이디" required>
+
+        <div class="password-wrapper">
+
+          <input type="password" name="password" id="passwordInput" placeholder="비밀번호" required>
+
+          <span class="toggle-password" id="togglePassword" title="비밀번호 보기">
+
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" style="vertical-align:middle;" xmlns="http://www.w3.org/2000/svg">
+
+              <ellipse cx="11" cy="11" rx="8" ry="6" fill="#f8fafc" stroke="#bbb" stroke-width="1.5"/>
+
+              <circle cx="11" cy="11" r="2.2" fill="#aee1f9" stroke="#007bff" stroke-width="1"/>
+
+              <circle cx="12" cy="10.5" r="0.7" fill="#007bff"/>
+
+            </svg>
+
+          </span>
+
+        </div>
+
+        <button type="submit">로그인</button>
+
+        <span class="login-prompt">
+
+          <a href="/signup.html">계정이 없으신가요? 회원가입하기</a>
+
+        </span>
+
+      </form>
+
+      <p id="result"></p>
+
+    </div>
+
+  </main>
+
+
+
+  <script>
+    const form = document.getElementById("loginForm");
+    const result = document.getElementById("result");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const username = form.username.value.trim();
+      const password = form.password.value.trim();
+      const registeredAccounts = JSON.parse(localStorage.getItem('registeredAccounts') || '[]');
+
+      if (!username || !password) {
+        result.textContent = "아이디와 비밀번호를 입력하세요.";
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password, registeredAccounts })
+        });
+
+        const data = await res.json();
+
+        if (data.token) {
+          // 토큰 저장
+          localStorage.setItem("token", data.token);
+          const accounts = Array.isArray(registeredAccounts) ? registeredAccounts.slice() : [];
+          if (!accounts.includes(username)) {
+            accounts.push(username);
+            localStorage.setItem('registeredAccounts', JSON.stringify(accounts));
+          }
+          result.style.color = "#28a745";
+          result.textContent = "로그인 성공! 페이지 이동 중...";
+
+          // 로그인 성공 후 index.html로 이동
+          setTimeout(() => {
+            window.location.href = "/index.html";
+          }, 1000);
+        } else {
+          result.style.color = "#d9534f";
+          result.textContent = data.error || "로그인 실패";
+        }
+      } catch (err) {
+        result.style.color = "#d9534f";
+        result.textContent = "서버 오류 발생";
+        console.error(err);
+      }
+    });
+
+    const togglePassword = document.getElementById("togglePassword");
+    const passwordInput = document.getElementById("passwordInput");
+
+    togglePassword.addEventListener("click", () => {
+      const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+      passwordInput.setAttribute("type", type);
+    });
+  </script>
+  <script defer src="js/auth-helper.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script defer src="js/notifications.js"></script>
+  <script defer src="js/profile-menu.js"></script>
+  <script defer src="js/pwa.js"></script>
+  <script defer src="js/topbar-dock.js"></script>
+</body>
+</html>

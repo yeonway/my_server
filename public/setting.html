@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1f2937">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>설정</title>
+  <script src="js/theme.js"></script>
+  <script defer src="js/auth-helper.js"></script>
+  <script defer src="js/blocking-client.js"></script>
+  <link rel="stylesheet" href="css/setting.css">
+  <link rel="stylesheet" href="css/topbar.css">
+  <link rel="stylesheet" href="css/site-menu.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/mobile.css">
+  <link rel="stylesheet" href="css/notifications.css">
+  <link rel="stylesheet" href="css/profile-menu.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+<body>
+  <header class="site-topbar">
+    <a href="/index.html" class="site-logo" aria-label="DCOUT 홈으로 이동">
+      <span class="logo-accent">DC</span>
+      <span class="logo-divider" aria-hidden="true"></span>
+      <span class="logo-rest">OUT</span>
+    </a>
+        <nav class="site-menu" aria-label="주요 메뉴">
+      <a href="chat.html">채팅</a>
+      <a href="posts.html">게시판</a>
+      <a href="profile.html">프로필</a>
+      <a href="inquiry.html">문의하기</a>
+      <a href="setting.html">설정</a>
+    </nav>
+    <div class="topbar-actions">
+      <span data-network-indicator>Online</span>
+    </div>
+  </header>
+
+  <main class="setting-stage">
+    <div class="container">
+    <h1>설정</h1>
+
+    <!-- 비밀번호 변경 -->
+    <div class="setting-card">
+      <h2>비밀번호 변경</h2>
+      <div class="form-group">
+        <label for="currentPassword">현재 비밀번호</label>
+        <input type="password" id="currentPassword" required>
+      </div>
+      <div class="form-group">
+        <label for="newPassword">새 비밀번호</label>
+        <input type="password" id="newPassword" required>
+      </div>
+      <div class="form-group">
+        <label for="confirmPassword">새 비밀번호 확인</label>
+        <input type="password" id="confirmPassword" required>
+      </div>
+      <button class="btn btn-primary" onclick="changePassword()">비밀번호 변경</button>
+    </div>
+
+    <!-- 테마 설정 -->
+    <div class="setting-card">
+      <h2>테마 설정</h2>
+      <div class="theme-options">
+        <label><input type="radio" name="theme" value="light"> 라이트 모드</label>
+        <label><input type="radio" name="theme" value="dark"> 다크 모드</label>
+        <label><input type="radio" name="theme" value="system" checked> 시스템 설정</label>
+      </div>
+    </div>
+
+    <!-- 차단 사용자 관리 -->
+    <div class="setting-card" id="blockedUsersCard">
+      <h2>차단 사용자</h2>
+      <p class="setting-card-description">신고나 차단으로 숨긴 사용자를 확인하고 차단을 해제할 수 있습니다.</p>
+      <div id="blockedUsersLoading" class="blocked-users-loading">차단한 사용자를 불러오는 중...</div>
+      <ul id="blockedUsersList" class="blocked-users-list"></ul>
+      <div id="blockedUsersEmpty" class="blocked-users-empty" hidden>차단한 사용자가 없습니다.</div>
+      <div id="blockedUsersError" class="blocked-users-error" hidden></div>
+    </div>
+
+    <!-- 회원 탈퇴 -->
+    <div class="setting-card">
+      <h2>회원 탈퇴</h2>
+      <p>계정을 영구적으로 삭제합니다. 이 작업은 되돌릴 수 없습니다.</p>
+      <button class="btn btn-danger" onclick="openDeleteModal()">회원 탈퇴</button>
+    </div>
+  </div>
+
+  <!-- 회원 탈퇴 확인 모달 -->
+  <div id="deleteModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>정말로 탈퇴하시겠습니까?</h3>
+      <p>계정을 삭제하려면 비밀번호를 입력하세요.</p>
+      <div class="form-group">
+        <input type="password" id="deleteConfirmPassword" placeholder="비밀번호 확인">
+      </div>
+      <div class="modal-buttons">
+        <button class="btn" onclick="closeDeleteModal()">취소</button>
+        <button class="btn btn-danger" onclick="deleteAccount()">탈퇴 확인</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      window.location.href = "/login.html";
+    }
+
+    const blockedUsersList = document.getElementById('blockedUsersList');
+    const blockedUsersEmpty = document.getElementById('blockedUsersEmpty');
+    const blockedUsersLoading = document.getElementById('blockedUsersLoading');
+    const blockedUsersError = document.getElementById('blockedUsersError');
+
+    let detachBlockSubscription = null;
+
+    function resolvePhotoUrl(photo) {
+      if (!photo || typeof photo !== 'string') return null;
+      if (/^https?:/i.test(photo)) return photo;
+      const normalized = photo.startsWith('/') ? photo : `/${photo.replace(/^\/+/,'')}`;
+      return normalized;
+    }
+
+    function subscribeToBlockUpdates() {
+      if (!window.BlockingClient) {
+        if (blockedUsersError) {
+          blockedUsersError.hidden = false;
+          blockedUsersError.textContent = '차단 정보를 불러올 수 없습니다.';
+        }
+        return;
+      }
+
+      if (typeof detachBlockSubscription === 'function') {
+        detachBlockSubscription();
+      }
+
+      detachBlockSubscription = window.BlockingClient.subscribe((blocks) => {
+        if (blockedUsersLoading) blockedUsersLoading.hidden = true;
+        if (blockedUsersError) {
+          blockedUsersError.hidden = true;
+          blockedUsersError.textContent = '';
+        }
+        renderBlockedUsers(Array.isArray(blocks) ? blocks : []);
+      });
+    }
+
+    async function requestUnblock(userId) {
+      if (!userId) {
+        throw new Error('차단 해제 대상이 올바르지 않습니다.');
+      }
+
+      if (!window.BlockingClient) {
+        throw new Error('차단 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
+      }
+
+      await window.BlockingClient.unblock(userId, { token });
+    }
+
+    function renderBlockedUsers(blocks = []) {
+      if (!blockedUsersList) return;
+
+      blockedUsersList.innerHTML = '';
+
+      if (!Array.isArray(blocks) || blocks.length === 0) {
+        if (blockedUsersEmpty) blockedUsersEmpty.hidden = false;
+        return;
+      }
+
+      if (blockedUsersEmpty) blockedUsersEmpty.hidden = true;
+
+      blocks.forEach((block) => {
+        const item = document.createElement('li');
+        item.className = 'blocked-user-item';
+
+        const info = document.createElement('div');
+        info.className = 'blocked-user-info';
+
+        const avatar = document.createElement('div');
+        avatar.className = 'blocked-user-avatar';
+        const photoUrl = resolvePhotoUrl(block.photo);
+        if (photoUrl) {
+          const img = document.createElement('img');
+          img.src = photoUrl;
+          img.alt = `${block.username || '차단 사용자'} 프로필 사진`;
+          avatar.appendChild(img);
+        } else {
+          const initial = (block.username || block.name || '?').trim().charAt(0) || '?';
+          avatar.textContent = initial.toUpperCase();
+        }
+
+        const textWrap = document.createElement('div');
+        textWrap.className = 'blocked-user-text';
+
+        const nameEl = document.createElement('span');
+        nameEl.className = 'blocked-user-name';
+        nameEl.textContent = block.name || block.username || '알 수 없는 사용자';
+
+        const usernameEl = document.createElement('span');
+        usernameEl.className = 'blocked-user-username';
+        usernameEl.textContent = block.username ? `@${block.username}` : '';
+
+        textWrap.appendChild(nameEl);
+        textWrap.appendChild(usernameEl);
+
+        info.appendChild(avatar);
+        info.appendChild(textWrap);
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'btn btn-secondary unblock-btn';
+        button.textContent = '차단 해제';
+
+        button.addEventListener('click', async () => {
+          if (!block?.id) return;
+          const originalText = button.textContent;
+          button.disabled = true;
+          button.textContent = '해제 중...';
+          try {
+            await requestUnblock(block.id);
+            const label = block.username ? `${block.username}님` : '해당 사용자';
+            alert(`${label}의 차단을 해제했습니다.`);
+          } catch (error) {
+            alert(error.message || '차단 해제에 실패했습니다.');
+          } finally {
+            button.disabled = false;
+            button.textContent = originalText;
+          }
+        });
+
+        item.appendChild(info);
+        item.appendChild(button);
+        blockedUsersList.appendChild(item);
+      });
+    }
+
+    async function refreshBlockedUsers() {
+      if (!blockedUsersList || !window.BlockingClient) return;
+
+      if (blockedUsersLoading) blockedUsersLoading.hidden = false;
+      if (blockedUsersError) {
+        blockedUsersError.hidden = true;
+        blockedUsersError.textContent = '';
+      }
+      if (blockedUsersEmpty) blockedUsersEmpty.hidden = true;
+
+      try {
+        await window.BlockingClient.refresh({ token });
+      } catch (error) {
+        if (blockedUsersError) {
+          blockedUsersError.hidden = false;
+          blockedUsersError.textContent = error.message || '차단 목록을 불러오지 못했습니다.';
+        }
+      } finally {
+        if (blockedUsersLoading) blockedUsersLoading.hidden = true;
+        if (blockedUsersError && !blockedUsersError.hidden) {
+          return;
+        }
+        const currentBlocks = window.BlockingClient.getBlocks ? window.BlockingClient.getBlocks() : [];
+        if ((!currentBlocks || currentBlocks.length === 0) && blockedUsersList.children.length === 0 && blockedUsersEmpty) {
+          blockedUsersEmpty.hidden = false;
+        }
+      }
+    }
+
+    // 테마 설정 로직
+    const themeRadios = document.querySelectorAll('input[name="theme"]');
+    const syncThemeSelection = (theme) => {
+      const target = document.querySelector(`input[name="theme"][value="${theme}"]`);
+      if (target) {
+        target.checked = true;
+        return;
+      }
+      const fallbackRadio = document.querySelector('input[name="theme"][value="system"]');
+      if (fallbackRadio) {
+        fallbackRadio.checked = true;
+      }
+    };
+    themeRadios.forEach((radio) => {
+      radio.addEventListener('change', (event) => {
+        const chosen = event.target.value;
+        if (window.ThemeManager && typeof window.ThemeManager.setTheme === 'function') {
+          window.ThemeManager.setTheme(chosen);
+        } else {
+          localStorage.setItem('theme', chosen);
+        }
+      });
+    });
+    if (window.ThemeManager && typeof window.ThemeManager.subscribe === 'function') {
+      window.ThemeManager.subscribe((theme) => {
+        syncThemeSelection(theme);
+      });
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const manager = window.ThemeManager;
+      const savedTheme = manager && typeof manager.getTheme === 'function'
+        ? manager.getTheme()
+        : (localStorage.getItem('theme') || 'system');
+      syncThemeSelection(savedTheme);
+      subscribeToBlockUpdates();
+      if (token) {
+        refreshBlockedUsers();
+      }
+    });
+
+    // 비밀번호 변경 로직
+    async function changePassword() {
+      const currentPassword = document.getElementById('currentPassword').value.trim();
+      const newPassword = document.getElementById('newPassword').value.trim();
+      const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        alert("모든 필드를 입력해주세요.");
+        return;
+      }
+      if (newPassword.length < 6) {
+        alert("새 비밀번호는 6자 이상이어야 합니다.");
+        return;
+      }
+      if (currentPassword === newPassword) {
+        alert("새 비밀번호는 현재 비밀번호와 달라야 합니다.");
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        alert("새 비밀번호가 일치하지 않습니다.");
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/settings/password', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ currentPassword, newPassword })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        alert("비밀번호가 성공적으로 변경되었습니다.");
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
+      } catch (err) {
+        alert(err.message || "비밀번호 변경에 실패했습니다.");
+      }
+    }
+
+    // 회원 탈퇴 로직
+    const deleteModal = document.getElementById('deleteModal');
+    function openDeleteModal() { deleteModal.classList.add('show'); }
+    function closeDeleteModal() { deleteModal.classList.remove('show'); }
+    async function deleteAccount() {
+      const password = document.getElementById('deleteConfirmPassword').value.trim();
+      if (!password) {
+        alert("비밀번호를 입력해주세요.");
+        return;
+      }
+      try {
+        const res = await fetch('/api/settings', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        alert("회원 탈퇴가 완료되었습니다.");
+        localStorage.removeItem("token");
+        window.location.href = "/login.html";
+      } catch (err) {
+        alert(err.message || "회원 탈퇴에 실패했습니다.");
+      }
+    }
+
+  </script>
+  </main>
+  <script src="/socket.io/socket.io.js"></script>
+  <script defer src="js/notifications.js"></script>
+  <script defer src="js/profile-menu.js"></script>
+  <script defer src="js/pwa.js"></script>
+  <script defer src="js/topbar-dock.js"></script>
+</body>
+</html>

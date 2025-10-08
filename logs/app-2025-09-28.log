@@ -1,0 +1,101 @@
+2025-09-28 02:18:30 info: Forbidden words cache has been updated.
+2025-09-28 02:24:21 info: Forbidden words cache has been updated.
+2025-09-28 02:25:03 info: Forbidden words cache has been updated.
+2025-09-28 02:25:07 info: Forbidden words cache has been updated.
+2025-09-28 02:25:35 info: Forbidden words cache has been updated.
+2025-09-28 02:25:58 info: Forbidden words cache has been updated.
+2025-09-28 02:39:15 info: Forbidden words cache has been updated.
+2025-09-28 02:42:39 info: Forbidden words cache has been updated.
+2025-09-28 02:44:55 info: Forbidden words cache has been updated.
+2025-09-28 02:46:29 info: Forbidden words cache has been updated.
+2025-09-28 02:46:54 info: Forbidden words cache has been updated.
+2025-09-28 02:48:07 info: Forbidden words cache has been updated.
+2025-09-28 02:50:44 info: Socket connected: admin
+2025-09-28 03:00:50 info: Forbidden words cache has been updated.
+2025-09-28 03:01:36 info: Logout: admin
+2025-09-28 03:01:44 info: [LOGIN][REQ] username=test
+2025-09-28 03:01:44 info: [LOGIN][OK] test
+2025-09-28 03:01:57 info: Account deleted: test by test (owner=허연우)
+2025-09-28 03:02:00 info: [LOGIN][REQ] username=admin
+2025-09-28 03:02:00 info: [LOGIN][OK] admin
+2025-09-28 03:02:04 info: Signup success: test (test) owner=허연우 order=5 ip=172.30.1.254
+2025-09-28 03:02:07 info: [LOGIN][REQ] username=test
+2025-09-28 03:02:07 info: [LOGIN][OK] test
+2025-09-28 03:02:16 info: Logout: test
+2025-09-28 03:02:19 info: [LOGIN][REQ] username=admin
+2025-09-28 03:02:20 info: [LOGIN][OK] admin
+2025-09-28 03:04:15 info: Forbidden words cache has been updated.
+2025-09-28 03:04:25 info: Forbidden words cache has been updated.
+2025-09-28 03:16:29 info: Logout: admin
+2025-09-28 03:16:31 info: [LOGIN][REQ] username=test
+2025-09-28 03:16:31 info: [LOGIN][OK] test
+2025-09-28 03:16:39 info: Account deleted: test by test (owner=허연우)
+2025-09-28 03:16:41 info: [LOGIN][REQ] username=test
+2025-09-28 03:16:44 info: Signup success: test (test) owner=허연우 order=5 ip=172.30.1.254
+2025-09-28 03:16:46 info: [LOGIN][REQ] username=test
+2025-09-28 03:16:47 info: [LOGIN][OK] test
+2025-09-28 03:16:51 info: Logout: test
+2025-09-28 03:16:53 info: [LOGIN][REQ] username=admin
+2025-09-28 03:16:53 info: [LOGIN][OK] admin
+2025-09-28 03:18:43 info: Forbidden words cache has been updated.
+2025-09-28 03:18:49 info: Forbidden words cache has been updated.
+2025-09-28 03:18:55 info: Forbidden words cache has been updated.
+2025-09-28 03:19:16 info: Forbidden words cache has been updated.
+2025-09-28 03:19:38 info: Logout: admin
+2025-09-28 03:19:41 info: [LOGIN][REQ] username=test
+2025-09-28 03:19:41 info: [LOGIN][OK] test
+2025-09-28 03:19:48 info: Account deleted: test
+2025-09-28 03:19:51 info: [LOGIN][REQ] username=test
+2025-09-28 03:20:05 info: Signup success: test (test) owner=허연우 order=5 ip=172.30.1.254
+2025-09-28 03:20:05 error: Signup error: E11000 duplicate key error collection: my_server.users index: username_1 dup key: { username: "test" }
+2025-09-28 03:20:05 error: Signup error: E11000 duplicate key error collection: my_server.users index: username_1 dup key: { username: "test" }
+2025-09-28 03:20:05 error: Signup error: E11000 duplicate key error collection: my_server.users index: username_1 dup key: { username: "test" }
+2025-09-28 03:20:05 error: Signup error: E11000 duplicate key error collection: my_server.users index: username_1 dup key: { username: "test" }
+2025-09-28 03:22:20 info: [LOGIN][REQ] username=test
+2025-09-28 03:22:21 info: [LOGIN][OK] test
+2025-09-28 03:22:25 info: Logout: test
+2025-09-28 03:22:33 info: [LOGIN][REQ] username=admin
+2025-09-28 03:22:33 info: [LOGIN][OK] admin
+2025-09-28 03:24:59 info: Forbidden words cache has been updated.
+2025-09-28 03:25:10 info: Forbidden words cache has been updated.
+2025-09-28 03:31:55 info: Logout: admin
+2025-09-28 03:32:11 info: Signup success: 허 (연우) owner=허연우 order=5 ip=172.30.1.254
+2025-09-28 03:32:17 info: [LOGIN][REQ] username=허
+2025-09-28 03:32:17 info: [LOGIN][OK] 허
+2025-09-28 03:32:27 info: Logout: 허
+2025-09-28 03:32:28 info: [LOGIN][REQ] username=admin
+2025-09-28 03:32:28 info: [LOGIN][OK] admin
+2025-09-28 03:34:09 info: Forbidden words cache has been updated.
+2025-09-28 03:34:23 info: Forbidden words cache has been updated.
+2025-09-28 10:52:00 info: Forbidden words cache has been updated.
+2025-09-28 10:56:25 info: Socket connected: admin
+2025-09-28 10:56:52 info: Logout: admin
+2025-09-28 10:56:54 info: [LOGIN][REQ] username=test
+2025-09-28 10:56:54 info: [LOGIN][OK] test
+2025-09-28 10:58:16 info: Forbidden words cache has been updated.
+2025-09-28 10:58:34 info: Logout: test
+2025-09-28 10:58:36 info: [LOGIN][REQ] username=admin
+2025-09-28 10:58:36 info: [LOGIN][OK] admin
+2025-09-28 10:58:59 info: Account switch: admin -> test (owner=허연우)
+2025-09-28 10:58:59 info: Account switch: test -> 허 (owner=허연우)
+2025-09-28 10:59:00 info: Account switch: 허 -> admin (owner=허연우)
+2025-09-28 10:59:19 info: Socket connected: admin
+2025-09-28 12:03:46 info: Forbidden words cache has been updated.
+2025-09-28 12:04:06 info: Forbidden words cache has been updated.
+2025-09-28 12:04:32 info: Forbidden words cache has been updated.
+2025-09-28 12:05:08 info: Forbidden words cache has been updated.
+2025-09-28 12:05:16 info: Forbidden words cache has been updated.
+2025-09-28 12:05:23 info: Forbidden words cache has been updated.
+2025-09-28 12:05:35 info: Forbidden words cache has been updated.
+2025-09-28 12:07:30 info: Forbidden words cache has been updated.
+2025-09-28 12:07:42 info: Forbidden words cache has been updated.
+2025-09-28 12:07:57 info: Forbidden words cache has been updated.
+2025-09-28 12:14:05 info: Forbidden words cache has been updated.
+2025-09-28 12:15:22 info: Forbidden words cache has been updated.
+2025-09-28 13:04:45 info: Forbidden words cache has been updated.
+2025-09-28 13:04:59 info: Forbidden words cache has been updated.
+2025-09-28 13:05:12 info: Forbidden words cache has been updated.
+2025-09-28 13:05:22 info: Forbidden words cache has been updated.
+2025-09-28 13:05:35 info: Forbidden words cache has been updated.
+2025-09-28 13:05:44 info: Forbidden words cache has been updated.
+2025-09-28 13:08:52 info: Forbidden words cache has been updated.

@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1f2937">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>중학생 커뮤니티 대시보드</title>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/topbar.css">
+  <link rel="stylesheet" href="css/site-menu.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/mobile.css">
+  <link rel="stylesheet" href="css/notifications.css">
+  <link rel="stylesheet" href="css/profile-menu.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <script defer src="js/auth-helper.js"></script>
+</head>
+<body class="index-page">
+  <header class="site-topbar">
+    <a href="/index.html" class="site-logo" aria-label="DCOUT 홈으로 이동">
+      <span class="logo-accent">DC</span>
+      <span class="logo-divider" aria-hidden="true"></span>
+      <span class="logo-rest">OUT</span>
+    </a>
+        <nav class="site-menu" aria-label="주요 메뉴">
+      <a href="chat.html">채팅</a>
+      <a href="posts.html">게시판</a>
+      <a href="calendar.html">일정</a>
+      <a href="polls.html">투표</a>
+      <a href="profile.html">프로필</a>
+      <a href="inquiry.html">문의하기</a>
+      <a href="setting.html">설정</a>
+      <a href="forbidden-test.html">금지 테스트</a>
+    </nav>
+    <div class="topbar-actions">
+      <span data-network-indicator>Online</span>
+    </div>
+  </header>
+
+  <main class="dashboard" aria-labelledby="dashboardTitle">
+    <section class="dashboard-intro">
+      <h1 id="dashboardTitle">안녕! 오늘도 즐거운 하루를 만들어보자 😊</h1>
+      <p>필요한 기능을 아래 카드에서 바로 선택해 보세요.</p>
+    </section>
+
+    <section class="dashboard-grid" aria-label="대시보드 위젯">
+      <article class="dashboard-card dashboard-card--actions" aria-labelledby="quickActionsTitle">
+        <div class="card-header">
+          <h2 id="quickActionsTitle">빠른 액션</h2>
+          <p>자주 쓰는 메뉴를 한 번에!</p>
+        </div>
+                <div class="quick-actions" role="list">
+          <a role="listitem" class="quick-action" href="/chat.html">
+            <span class="emoji" aria-hidden="true">💬</span>
+            <span class="label">전체 채팅</span>
+          </a>
+          <a role="listitem" class="quick-action" href="/posts.html">
+            <span class="emoji" aria-hidden="true">📝</span>
+            <span class="label">게시판</span>
+          </a>
+          <a role="listitem" class="quick-action" href="/calendar.html">
+            <span class="emoji" aria-hidden="true">🗓️</span>
+            <span class="label">일정</span>
+          </a>
+          <a role="listitem" class="quick-action" href="/polls.html">
+            <span class="emoji" aria-hidden="true">🗳️</span>
+            <span class="label">투표</span>
+          </a>
+        </div>
+      </article>
+
+      <article class="dashboard-card" aria-labelledby="noticeTitle">
+        <div class="card-header">
+          <h2 id="noticeTitle">최근 공지</h2>
+          <a class="card-header-link" href="/posts.html?type=notice">전체 보기</a>
+        </div>
+        <ul class="card-list" data-dashboard-notices aria-live="polite">
+          <li class="card-list-item empty-state">공지사항을 불러오는 중이에요...</li>
+        </ul>
+      </article>
+
+      <article class="dashboard-card" aria-labelledby="chatTitle">
+        <div class="card-header">
+          <h2 id="chatTitle">활발한 채팅방</h2>
+          <a class="card-header-link" href="/chat.html">채팅 모두 보기</a>
+        </div>
+        <ul class="card-list" data-dashboard-chats aria-live="polite">
+          <li class="card-list-item empty-state">채팅방 정보를 준비 중이에요...</li>
+        </ul>
+      </article>
+
+      <article class="dashboard-card dashboard-card--schedule" aria-labelledby="scheduleTitle">
+        <div class="card-header">
+          <h2 id="scheduleTitle">오늘의 일정</h2>
+        </div>
+        <div class="schedule-placeholder">
+          <p class="schedule-date" data-schedule-date></p>
+          <p class="schedule-status">⏳ 일정 기능 준비 중이에요. 조금만 기다려 주세요!</p>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script defer src="js/notifications.js"></script>
+  <script defer src="js/profile-menu.js"></script>
+  <script defer src="js/pwa.js"></script>
+  <script defer src="js/topbar-dock.js"></script>
+  <script defer src="js/dashboard.js"></script>
+</body>
+</html>
+
+

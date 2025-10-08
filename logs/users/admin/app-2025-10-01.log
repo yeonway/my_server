@@ -1,0 +1,3 @@
+2025-10-01T14:20:31.063Z info: 채팅 이미지 업로드 chat_admin_1759328431060.png
+2025-10-01T14:20:31.107Z info: [CHAT][socket] room=68d77c681560aa5853e2a488 from=admin type=image message=[IMAGE]/uploads/chat/chat_admin_1759328431060.png
+2025-10-01T14:20:37.196Z info: [CHAT][socket] room=68d77c681560aa5853e2a488 from=admin type=text message=심심해요

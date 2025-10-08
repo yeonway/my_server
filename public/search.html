@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>통합 검색</title>
+  <script src="js/theme.js"></script>
+  <script defer src="js/auth-helper.js"></script>
+  <link rel="stylesheet" href="css/search.css">
+  <link rel="stylesheet" href="css/topbar.css">
+  <link rel="stylesheet" href="css/site-menu.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/mobile.css">
+  <link rel="stylesheet" href="css/notifications.css">
+  <link rel="stylesheet" href="css/profile-menu.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+<body>
+  <header class="site-topbar">
+    <a href="/index.html" class="site-logo" aria-label="DCOUT 홈으로 이동">
+      <span class="logo-accent">DC</span>
+      <span class="logo-divider" aria-hidden="true"></span>
+      <span class="logo-rest">OUT</span>
+    </a>
+        <nav class="site-menu" aria-label="주요 메뉴">
+      <a href="chat.html">채팅</a>
+      <a href="posts.html">게시판</a>
+      <a href="profile.html">프로필</a>
+      <a href="inquiry.html">문의하기</a>
+      <a href="setting.html">설정</a>
+    </nav>
+    <div class="topbar-actions">
+      <span data-network-indicator>Online</span>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="header">
+      <h1>통합 검색</h1>
+      <button onclick="window.location.href='index.html'">메인으로</button>
+    </div>
+    
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="검색어를 입력하세요...">
+      <button id="searchBtn">검색</button>
+    </div>
+    
+    <div class="tabs">
+      <div class="tab active" data-type="posts">게시글</div>
+      <div class="tab" data-type="chat">채팅</div>
+    </div>
+    
+    <div id="resultsContainer" class="results">
+      <!-- 초기 환영 메시지 -->
+      <div class="welcome-message" id="welcomeMessage">
+        <h2>검색어를 입력하세요</h2>
+        <p>원하는 게시글이나 채팅 메시지를 검색할 수 있습니다.</p>
+        <p>검색어가 없는 경우 전체 목록을 표시합니다.</p>
+        
+        <div class="search-tip">
+          <h3>검색 팁</h3>
+          <p>• 여러 단어 검색: 공백으로 구분하여 입력하세요</p>
+          <p>• 정확한 검색: 단어를 따옴표로 묶어 검색하세요 ("정확한 구문")</p>
+        </div>
+      </div>
+      
+      <div class="loading" id="loadingIndicator" style="display:none">검색 중...</div>
+      <div class="no-results" id="noResultsMessage" style="display:none">
+        검색 결과가 없습니다.<br>다른 검색어로 시도해보세요.
+      </div>
+    </div>
+    
+    <div class="pagination" id="pagination">
+      <!-- 페이지네이션이 여기에 표시됩니다 -->
+    </div>
+  </div>
+  
+  <script>
+    // 전역 상태
+    const state = {
+      currentType: 'posts',
+      currentPage: 1,
+      searchQuery: '',
+      totalPages: 1,
+      isInitialState: true  // 초기 상태 여부를 추적하는 플래그 추가
+    };
+    
+    // DOM 요소
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const noResultsMessage = document.getElementById('noResultsMessage');
+    const welcomeMessage = document.getElementById('welcomeMessage');
+    const pagination = document.getElementById('pagination');
+    const tabs = document.querySelectorAll('.tab');
+    
+    // 페이지 로드 시 토큰 확인
+    document.addEventListener('DOMContentLoaded', function() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("로그인 후 접속하세요!");
+        window.location.href = "login.html";
+      }
+      
+      // URL 쿼리 파라미터 확인하여 자동 검색
+      const urlParams = new URLSearchParams(window.location.search);
+      const query = urlParams.get('q');
+      if (query) {
+        searchInput.value = query;
+        state.searchQuery = query;
+        state.isInitialState = false;
+        performSearch();
+      }
+    });
+    
+    // 검색 버튼 클릭 이벤트
+    searchBtn.addEventListener('click', function() {
+      state.currentPage = 1;
+      state.searchQuery = searchInput.value;
+      state.isInitialState = false;
+      performSearch();
+      
+      // URL 업데이트
+      const url = new URL(window.location);
+      url.searchParams.set('q', state.searchQuery);
+      window.history.pushState({}, '', url);
+    });
+    
+    // 엔터키로 검색
+    searchInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        searchBtn.click();
+      }
+    });
+    
+    // 탭 클릭 이벤트
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function() {
+        tabs.forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        
+        state.currentType = this.dataset.type;
+        state.currentPage = 1;
+        
+        // 초기 상태가 아니라면 검색 수행
+        if (!state.isInitialState) {
+          performSearch();
+        }
+      });
+    });
+    
+    // 검색 실행
+    async function performSearch() {
+      // UI 초기화
+      welcomeMessage.style.display = 'none';
+      resultsContainer.innerHTML = '';
+      resultsContainer.appendChild(loadingIndicator);
+      resultsContainer.appendChild(noResultsMessage);
+      loadingIndicator.style.display = 'block';
+      noResultsMessage.style.display = 'none';
+      pagination.innerHTML = '';
+      
+      try {
+        const token = localStorage.getItem("token");
+        let endpoint;
+        
+        // 검색 타입에 따라 엔드포인트 결정
+        if (state.currentType === 'posts') {
+          // 검색어 없을 때는 전체 목록 엔드포인트 사용
+          if (state.searchQuery.trim() === '') {
+            endpoint = `/api/posts?page=${state.currentPage}`;
+          } else {
+            endpoint = `/api/posts/search?q=${encodeURIComponent(state.searchQuery)}&page=${state.currentPage}`;
+          }
+        } else {
+          // 채팅 메시지 검색 - 검색어 필수
+          if (state.searchQuery.trim() === '') {
+            loadingIndicator.style.display = 'none';
+            resultsContainer.innerHTML = `
+              <div class="no-results">
+                채팅 메시지 검색에는 검색어가 필요합니다.
+              </div>
+            `;
+            return;
+          }
+          endpoint = `/api/chat/search?q=${encodeURIComponent(state.searchQuery)}&page=${state.currentPage}`;
+        }
+        
+        const response = await fetch(endpoint, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!response.ok) throw new Error('검색 실패');
+        
+        const data = await response.json();
+        
+        // 검색 결과 표시
+        if (state.currentType === 'posts') {
+          renderPostResults(data.posts || []);
+        } else {
+          renderChatResults(data.messages || []);
+        }
+        
+        // 페이지네이션 업데이트
+        state.totalPages = data.pages || data.totalPages || 1;
+        renderPagination(data.currentPage || 1, state.totalPages);
+        
+        // 검색 결과 없음 메시지
+        if ((state.currentType === 'posts' && (!data.posts || !data.posts.length)) || 
+            (state.currentType === 'chat' && (!data.messages || !data.messages.length))) {
+          noResultsMessage.style.display = 'block';
+        }
+        
+      } catch (error) {
+        console.error('검색 오류:', error);
+        resultsContainer.innerHTML = `
+          <div class="no-results">
+            검색 중 오류가 발생했습니다.<br>
+            잠시 후 다시 시도해주세요.
+          </div>
+        `;
+      } finally {
+        loadingIndicator.style.display = 'none';
+      }
+    }
+    
+    // 게시글 검색 결과 렌더링
+    function renderPostResults(posts) {
+      resultsContainer.innerHTML = '';
+      
+      if (!posts || !posts.length) {
+        noResultsMessage.style.display = 'block';
+        resultsContainer.appendChild(noResultsMessage);
+        return;
+      }
+      
+      posts.forEach(post => {
+        const date = new Date(post.time || post.createdAt || Date.now()).toLocaleDateString();
+        const item = document.createElement('div');
+        item.className = 'result-item';
+        item.innerHTML = `
+          <h3>${post.title_highlighted || post.title}</h3>
+          <p>${post.content_preview || post.content?.substring(0, 200).replace(/<[^>]*>/g, '') + '...' || ''}</p>
+          <div class="result-meta">
+            <div>작성자: ${post.user || '알 수 없음'}</div>
+            <div>작성일: ${date}</div>
+          </div>
+        `;
+        item.addEventListener('click', () => {
+          window.location.href = `board.html?id=${post._id}`;
+        });
+        resultsContainer.appendChild(item);
+      });
+    }
+    
+    // 채팅 검색 결과 렌더링
+    function renderChatResults(messages) {
+      resultsContainer.innerHTML = '';
+      
+      if (!messages || !messages.length) {
+        noResultsMessage.style.display = 'block';
+        resultsContainer.appendChild(noResultsMessage);
+        return;
+      }
+      
+      messages.forEach(msg => {
+        const date = new Date(msg.time || Date.now()).toLocaleString();
+        const item = document.createElement('div');
+        item.className = 'result-item';
+        
+        item.innerHTML = `
+          <h3>채팅방: ${msg.room}</h3>
+          <p>${msg.message_highlighted || msg.message}</p>
+          <div class="result-meta">
+            <div>작성자: ${msg.user}</div>
+            <div>작성일시: ${date}</div>
+          </div>
+        `;
+        item.addEventListener('click', () => {
+          // 해당 채팅방으로 이동 (채팅방 ID를 localStorage에 저장)
+          const rooms = JSON.parse(localStorage.getItem('myRooms') || '["room1"]');
+          if (!rooms.includes(msg.room)) {
+            rooms.push(msg.room);
+            localStorage.setItem('myRooms', JSON.stringify(rooms));
+          }
+          localStorage.setItem('currentRoom', msg.room);
+          window.location.href = 'chat.html';
+        });
+        resultsContainer.appendChild(item);
+      });
+    }
+    
+    // 페이지네이션 렌더링
+    function renderPagination(currentPage, totalPages) {
+      pagination.innerHTML = '';
+      
+      if (totalPages <= 1) return;
+      
+      // 이전 페이지
+      const prevBtn = document.createElement('div');
+      prevBtn.className = `page ${currentPage === 1 ? 'disabled' : ''}`;
+      prevBtn.textContent = '이전';
+      if (currentPage > 1) {
+        prevBtn.addEventListener('click', () => {
+          state.currentPage = currentPage - 1;
+          performSearch();
+        });
+      }
+      pagination.appendChild(prevBtn);
+      
+      // 페이지 번호
+      const maxPages = 5; // 한 번에 표시할 최대 페이지 수
+      let startPage = Math.max(1, currentPage - Math.floor(maxPages / 2));
+      let endPage = Math.min(totalPages, startPage + maxPages - 1);
+      
+      if (endPage - startPage + 1 < maxPages) {
+        startPage = Math.max(1, endPage - maxPages + 1);
+      }
+      
+      for (let i = startPage; i <= endPage; i++) {
+        const pageBtn = document.createElement('div');
+        pageBtn.className = `page ${i === currentPage ? 'active' : ''}`;
+        pageBtn.textContent = i;
+        pageBtn.addEventListener('click', () => {
+          if (i !== currentPage) {
+            state.currentPage = i;
+            performSearch();
+          }
+        });
+        pagination.appendChild(pageBtn);
+      }
+      
+      // 다음 페이지
+      const nextBtn = document.createElement('div');
+      nextBtn.className = `page ${currentPage === totalPages ? 'disabled' : ''}`;
+      nextBtn.textContent = '다음';
+      if (currentPage < totalPages) {
+        nextBtn.addEventListener('click', () => {
+          state.currentPage = currentPage + 1;
+          performSearch();
+        });
+      }
+      pagination.appendChild(nextBtn);
+    }
+  </script>
+  <script defer src="js/auth-helper.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script defer src="js/notifications.js"></script>
+  <script defer src="js/profile-menu.js"></script>
+  <script defer src="js/pwa.js"></script>
+  <script defer src="js/topbar-dock.js"></script>
+</body>
+</html>
