@@ -1,4 +1,3 @@
-﻿<!-- public/profile.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -26,10 +25,10 @@
       <span class="logo-divider" aria-hidden="true"></span>
       <span class="logo-rest">OUT</span>
     </a>
-        <nav class="site-menu" aria-label="주요 메뉴">
+    <nav class="site-menu" aria-label="주요 메뉴">
       <a href="chat.html">채팅</a>
       <a href="posts.html">게시판</a>
-      <a href="profile.html">프로필</a>
+      <a href="profile.html" aria-current="page">프로필</a>
       <a href="inquiry.html">문의하기</a>
       <a href="setting.html">설정</a>
     </nav>
@@ -39,373 +38,190 @@
   </header>
 
   <main class="profile-stage">
-    <div class="profile-container">
-    <!-- 프로필 사진 -->
-    <div class="profile-item">
-      <span id="profilePicWrapper" style="display:inline-block; position:relative;">
-        <img id="profilePic" src="" alt="프로필 사진" style="display:none;">
-        <span id="defaultPic" style="display:inline-block;">
-          <!-- 귀여운 기본 SVG 아이콘 -->
-          <svg width="120" height="120" viewBox="0 0 120 120">
-            <circle cx="60" cy="60" r="60" fill="#e0e7ef"/>
-            <circle cx="60" cy="54" r="28" fill="#b6d0f7"/>
-            <ellipse cx="60" cy="98" rx="38" ry="22" fill="#b6d0f7"/>
-            <circle cx="60" cy="54" r="18" fill="#fff"/>
-            <ellipse cx="60" cy="98" rx="28" ry="14" fill="#fff"/>
-          </svg>
-        </span>
-      </span>
-      <button class="edit-btn" id="editPicBtn">✏️</button>
-      <button class="edit-btn" id="deletePicBtn" style="right:40px;">🗑️</button>
-      <button class="edit-btn" id="defaultPicBtn" style="right:80px;">🌱</button>
-      <input type="file" id="profilePicInput" accept=".jpg,.jpeg,.png,.gif">
-    </div>
-
-    <!-- 이름 -->
-    <div class="profile-item">
-      <div class="profile-name" id="profileName">사용자 이름</div>
-      <button class="edit-btn" id="editNameBtn">✏️</button>
-    </div>
-
-    <!-- 자기소개 -->
-    <div class="profile-item">
-      <div class="profile-intro" id="profileIntro">
-        안녕하세요! 여기에 자기소개를 작성할 수 있습니다.
+    <section class="profile-hero" aria-labelledby="profile-hero-heading">
+      <h1 id="profile-hero-heading" class="sr-only">프로필 커스터마이징</h1>
+      <div class="hero-background" id="backgroundWrapper">
+        <img id="backgroundPreview" alt="프로필 배경 이미지" />
+        <div class="background-actions">
+          <button type="button" id="backgroundUploadBtn" class="ghost-btn">배경 변경</button>
+          <button type="button" id="backgroundRemoveBtn" class="ghost-btn ghost-danger">배경 제거</button>
+          <input type="file" id="backgroundInput" accept="image/*" hidden>
+        </div>
       </div>
-      <button class="edit-btn" id="editIntroBtn">✏️</button>
-    </div>
+      <div class="hero-body">
+        <div class="avatar-block">
+          <div class="avatar-preview" id="avatarWrapper">
+            <img id="profilePic" alt="프로필 사진" />
+            <div class="avatar-placeholder" id="avatarPlaceholder" aria-hidden="true"></div>
+          </div>
+          <div class="avatar-actions">
+            <button type="button" id="avatarUploadBtn" class="primary-btn">사진 변경</button>
+            <button type="button" id="avatarRemoveBtn" class="ghost-btn">사진 제거</button>
+            <input type="file" id="profilePicInput" accept="image/*" hidden>
+          </div>
+        </div>
+        <div class="profile-meta">
+          <label class="field">
+            <span class="field-label">표시 이름</span>
+            <input id="displayName" type="text" maxlength="40" placeholder="이름 없음" autocomplete="off">
+          </label>
+          <label class="field">
+            <span class="field-label">소개</span>
+            <textarea id="introInput" rows="3" placeholder="자기소개를 입력해 주세요"></textarea>
+          </label>
+          <label class="field">
+            <span class="field-label">상태 메시지</span>
+            <textarea id="statusMessageInput" rows="2" placeholder="오늘의 기분은 어떤가요?"></textarea>
+          </label>
+        </div>
+      </div>
+    </section>
 
-    <button class="save-btn" id="saveProfileBtn">저장</button>
+    <section class="profile-controls" aria-labelledby="profile-privacy-heading">
+      <div class="control-card">
+        <div class="control-header">
+          <h2 id="profile-privacy-heading">공개 설정</h2>
+          <div class="visibility-toggle">
+            <span>비공개</span>
+            <label class="switch">
+              <input type="checkbox" id="visibilityToggle" aria-describedby="visibilityHelp">
+              <span class="slider"></span>
+            </label>
+            <span>공개</span>
+          </div>
+        </div>
+        <p id="visibilityHelp" class="control-description">공개로 전환하면 누구나 프로필을 볼 수 있습니다.</p>
+        <div class="scope-grid">
+          <label class="field">
+            <span class="field-label">게시글 공개 범위</span>
+            <select id="scopePosts">
+              <option value="public">전체 공개</option>
+              <option value="followers">팔로워만</option>
+              <option value="private">나만 보기</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">댓글 공개 범위</span>
+            <select id="scopeComments">
+              <option value="public">전체 공개</option>
+              <option value="followers">팔로워만</option>
+              <option value="private">나만 보기</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">채팅 공개 범위</span>
+            <select id="scopeChats">
+              <option value="public">전체 공개</option>
+              <option value="followers">팔로워만</option>
+              <option value="private">나만 보기</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">배지 공개 범위</span>
+            <select id="scopeBadges">
+              <option value="public">전체 공개</option>
+              <option value="followers">팔로워만</option>
+              <option value="private">나만 보기</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">활동 이력 공개 범위</span>
+            <select id="scopeActivity">
+              <option value="public">전체 공개</option>
+              <option value="followers">팔로워만</option>
+              <option value="private">나만 보기</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <button type="button" class="primary-btn" id="saveProfileBtn">변경 사항 저장</button>
+    </section>
 
-    <!-- 활동 내역 탭 -->
-    <div class="activity-tabs">
-      <button class="tab-button active" data-tab="my-posts">내 게시글</button>
-      <button class="tab-button" data-tab="my-comments">내 댓글</button>
-    </div>
+    <section class="badge-manager" aria-labelledby="badge-manager-heading">
+      <div class="section-heading">
+        <h2 id="badge-manager-heading">보유 뱃지</h2>
+        <p>보여주고 싶은 뱃지를 추가하거나 순서를 정리하세요.</p>
+      </div>
+      <ul id="badgeList" class="badge-list" aria-live="polite"></ul>
+      <form id="badgeForm" class="badge-form">
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">뱃지 이름</span>
+            <input type="text" id="badgeName" required maxlength="30" placeholder="예: 열정 가득" autocomplete="off">
+          </label>
+          <label class="field">
+            <span class="field-label">아이콘 (이모지 또는 URL)</span>
+            <input type="text" id="badgeIcon" maxlength="120" placeholder="예: 🔥 또는 https://" autocomplete="off">
+          </label>
+        </div>
+        <label class="field">
+          <span class="field-label">설명</span>
+          <input type="text" id="badgeDescription" maxlength="80" placeholder="뱃지 설명을 입력해 주세요" autocomplete="off">
+        </label>
+        <button type="submit" class="primary-btn">뱃지 추가</button>
+      </form>
+    </section>
 
-    <!-- 활동 내역 컨텐츠 -->
-    <div id="my-posts" class="activity-content active">
-      <ul id="myPostsList" class="activity-list">
-        <!-- 내 게시글 목록이 여기에 표시됩니다. -->
-      </ul>
-    </div>
-    <div id="my-comments" class="activity-content">
-      <ul id="myCommentsList" class="activity-list">
-        <!-- 내 댓글 목록이 여기에 표시됩니다. -->
-      </ul>
-    </div>
+    <section class="activity-feed" aria-labelledby="activity-feed-heading">
+      <div class="section-heading">
+        <h2 id="activity-feed-heading">활동 타임라인</h2>
+        <p>중요한 활동을 직접 추가하거나 자동 수집된 정보를 확인하세요.</p>
+      </div>
+      <ul id="activityList" class="activity-list" aria-live="polite"></ul>
+      <form id="activityForm" class="activity-form">
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">유형</span>
+            <select id="activityType">
+              <option value="achievement">업적</option>
+              <option value="post">게시글</option>
+              <option value="comment">댓글</option>
+              <option value="chat">채팅</option>
+              <option value="system">시스템</option>
+              <option value="custom">직접 입력</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">제목</span>
+            <input type="text" id="activityTitle" maxlength="60" required placeholder="활동 제목">
+          </label>
+        </div>
+        <label class="field">
+          <span class="field-label">설명</span>
+          <textarea id="activityDetail" rows="2" placeholder="세부 설명"></textarea>
+        </label>
+        <label class="field">
+          <span class="field-label">연결 링크 (선택)</span>
+          <input type="url" id="activityLink" placeholder="https://">
+        </label>
+        <button type="submit" class="ghost-btn">활동 추가</button>
+      </form>
+    </section>
 
-  </div>
-
-  <script>
-    const token = localStorage.getItem("token");
-    if (!token) {
-      window.location.href = "login.html";
-    }
-
-    const profilePic = document.getElementById("profilePic");
-    const profileName = document.getElementById("profileName");
-    const profileIntro = document.getElementById("profileIntro");
-    const editPicBtn = document.getElementById("editPicBtn");
-    const editNameBtn = document.getElementById("editNameBtn");
-    const editIntroBtn = document.getElementById("editIntroBtn");
-    const profilePicInput = document.getElementById("profilePicInput");
-    const saveBtn = document.getElementById("saveProfileBtn");
-    const deletePicBtn = document.getElementById("deletePicBtn");
-    const defaultPicBtn = document.getElementById("defaultPicBtn");
-
-    // 활동 내역 관련 요소
-    const tabsContainer = document.querySelector(".activity-tabs");
-    const contents = document.querySelectorAll(".activity-content");
-    const myPostsList = document.getElementById("myPostsList");
-    const myCommentsList = document.getElementById("myCommentsList");
-
-    let editedName = false;
-    let editedIntro = false;
-    let selectedPicFile = null;
-    let deletePhotoFlag = false; // 기본 이미지를 사용할지 여부
-
-    function showToast(message, type = 'success') {
-      const existing = document.querySelectorAll('.notification-popup');
-      existing.forEach((node) => node.remove());
-
-      const toast = document.createElement('div');
-      toast.className = `notification-popup ${type}`;
-      toast.textContent = message;
-      document.body.appendChild(toast);
-
-      requestAnimationFrame(() => {
-        toast.classList.add('show');
-      });
-
-      setTimeout(() => {
-        toast.classList.add('fade-out');
-        toast.addEventListener('transitionend', () => toast.remove(), { once: true });
-      }, 2600);
-    }
-
-
-    // 프로필 정보 불러오기
-    async function loadProfile() {
-      try {
-        const res = await fetch("/api/profile", {
-          headers: { "Authorization": "Bearer " + token }
-        });
-        if (!res.ok) throw new Error("프로필 불러오기 실패");
-        const data = await res.json();
-        if (data.photo) {
-          profilePic.src = data.photo;
-          profilePic.style.display = "";
-          document.getElementById("defaultPic").style.display = "none";
-        } else {
-          profilePic.src = "";
-          profilePic.style.display = "none";
-          document.getElementById("defaultPic").style.display = "";
-        }
-        profileName.textContent = data.name || data.username || "이름 없음";
-        profileIntro.textContent = data.intro || "자기소개가 없습니다.";
-      } catch {
-        showToast('프로필 정보를 불러오지 못했습니다.', 'error');
-      }
-    }
-    loadProfile();
-    loadMyPosts(); // 페이지 로드 시 내 게시글 로드
-
-    // 탭 클릭 이벤트
-    tabsContainer.addEventListener("click", (e) => {
-      if (e.target.tagName !== 'BUTTON') return;
-
-      const targetTab = e.target.dataset.tab;
-
-      tabsContainer.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-      e.target.classList.add('active');
-
-      contents.forEach(content => {
-        content.classList.remove('active');
-        if (content.id === targetTab) {
-          content.classList.add('active');
-        }
-      });
-
-      if (targetTab === 'my-posts') {
-        loadMyPosts();
-      } else if (targetTab === 'my-comments') {
-        loadMyComments();
-      }
-    });
-
-    // 내 게시글 로드 함수
-    async function loadMyPosts() {
-      try {
-        // API 경로를 /api/profile/posts 로 수정합니다.
-        const res = await fetch("/api/profile/posts", { headers: { "Authorization": "Bearer " + token } });
-        if (!res.ok) throw new Error("게시글 목록 로드 실패");
-        const posts = await res.json();
-        myPostsList.innerHTML = "";
-        if (posts.length === 0) {
-          myPostsList.innerHTML = "<li>작성한 게시글이 없습니다.</li>";
-          return;
-        }
-        posts.forEach(post => {
-          const li = document.createElement('li');
-          li.innerHTML = `
-            <a href="/board.html?id=${post._id}">${post.title}</a>
-            <div class="meta">${new Date(post.time).toLocaleDateString()} | ${post.category}</div>
-          `;
-          myPostsList.appendChild(li);
-        });
-      } catch (err) {
-        myPostsList.innerHTML = `<li>게시글을 불러오는 중 오류가 발생했습니다.</li>`;
-      }
-    }
-
-    // 내 댓글 로드 함수
-    async function loadMyComments() {
-      try {
-        // API 경로를 /api/profile/comments 로 수정합니다.
-        const res = await fetch("/api/profile/comments", { headers: { "Authorization": "Bearer " + token } });
-        if (!res.ok) throw new Error("댓글 목록 로드 실패");
-        const comments = await res.json();
-        myCommentsList.innerHTML = "";
-        if (comments.length === 0) {
-          myCommentsList.innerHTML = "<li>작성한 댓글이 없습니다.</li>";
-          return;
-        }
-        comments.forEach(comment => {
-          const li = document.createElement('li');
-          li.innerHTML = `
-            <div class="comment-content">"${comment.content}"</div>
-            <a href="/board.html?id=${comment.postId}">└ "${comment.postTitle}" 글에서</a>
-            <div class="meta">${new Date(comment.time).toLocaleString()}</div>
-          `;
-          myCommentsList.appendChild(li);
-        });
-      } catch (err) {
-        myCommentsList.innerHTML = `<li>댓글을 불러오는 중 오류가 발생했습니다.</li>`;
-      }
-    }
-
-    // 사진 수정
-    editPicBtn.addEventListener("click", () => {
-      profilePicInput.click();
-    });
-    profilePicInput.addEventListener("change", (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
-      const validTypes = ["image/jpeg", "image/png", "image/gif"];
-      if (!validTypes.includes(file.type)) {
-        showToast('이미지 파일만 업로드 가능합니다!', 'warning');
-        return;
-      }
-      // 미리보기
-      const reader = new FileReader();
-      reader.onload = () => {
-        profilePic.src = reader.result;
-        profilePic.style.display = "";
-        document.getElementById("defaultPic").style.display = "none";
-      };
-      reader.readAsDataURL(file);
-      selectedPicFile = file;
-      deletePhotoFlag = false; // 새 파일을 선택했으므로, 삭제 플래그는 해제합니다.
-    });
-
-    // 이름 수정
-    editNameBtn.addEventListener("click", () => {
-      if (!editedName) {
-        const input = document.createElement("input");
-        input.type = "text";
-        input.value = profileName.textContent;
-        input.className = "edit-input";
-        profileName.replaceWith(input);
-        editedName = input;
-      }
-    });
-
-    // 자기소개 수정
-    editIntroBtn.addEventListener("click", () => {
-      if (!editedIntro) {
-        const textarea = document.createElement("textarea");
-        textarea.className = "edit-input";
-        textarea.style.height = "60px";
-        textarea.value = profileIntro.textContent;
-        profileIntro.replaceWith(textarea);
-        editedIntro = textarea;
-      }
-    });
-
-    // 사진 삭제
-    deletePicBtn.addEventListener("click", async () => {
-      if (!confirm("프로필 사진을 삭제하시겠습니까?")) return;
-      try {
-        const res = await fetch("/api/profile/photo", {
-          method: "DELETE",
-          headers: { "Authorization": "Bearer " + token }
-        });
-        if (!res.ok) throw new Error("삭제 실패");
-        profilePic.src = "default-profile.png";
-        showToast('프로필 사진이 삭제되었습니다.', 'success');
-      } catch {
-        showToast('프로필 사진 삭제에 실패했습니다.', 'error');
-      }
-    });
-
-    // 기본 이미지로 변경
-    defaultPicBtn.addEventListener("click", () => {
-      profilePic.src = "";
-      profilePic.style.display = "none";
-      document.getElementById("defaultPic").style.display = "";
-      selectedPicFile = null;
-      deletePhotoFlag = true; // 기본 이미지로 변경했으므로, 삭제 플래그를 설정합니다.
-    });
-
-    // 저장 버튼
-    saveBtn.addEventListener("click", async () => {
-      let isSuccess = true; // 전체 저장 성공 여부
-      // 이름/소개 수정
-      let name = editedName ? editedName.value : profileName.textContent;
-      let intro = editedIntro ? editedIntro.value : profileIntro.textContent;
-      try {
-        const res = await fetch("/api/profile", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
-          },
-          body: JSON.stringify({ name, intro })
-        });
-        if (!res.ok) throw new Error("프로필 수정 실패");
-      } catch {
-        showToast('프로필 수정에 실패했습니다.', 'error');
-        isSuccess = false;
-      }
-      // 이름/소개 화면에 반영
-      if (editedName) {
-        const div = document.createElement("div");
-        div.className = "profile-name";
-        div.id = "profileName";
-        div.textContent = editedName.value;
-        editedName.replaceWith(div);
-        editedName = false;
-      }
-      if (editedIntro) {
-        const div = document.createElement("div");
-        div.className = "profile-intro";
-        div.id = "profileIntro";
-        div.textContent = editedIntro.value;
-        editedIntro.replaceWith(div);
-        editedIntro = false;
-      }
-
-      // 사진 업로드 로직
-      if (selectedPicFile) {
-        const formData = new FormData();
-        formData.append("photo", selectedPicFile);
-        try {
-          const res = await fetch("/api/profile/photo", {
-            method: "POST",
-            headers: { "Authorization": "Bearer " + token },
-            body: formData
-          });
-          if (!res.ok) throw new Error("사진 업로드 실패");
-          const data = await res.json();
-          profilePic.src = data.path; // 서버로부터 받은 새 경로로 업데이트
-        } catch {
-          showToast('사진 업로드에 실패했습니다.', 'error');
-          isSuccess = false;
-        }
-        selectedPicFile = null;
-      } 
-      // 기본 프로필로 변경(사진 삭제) 로직 추가
-      else if (deletePhotoFlag) {
-        try {
-          const res = await fetch("/api/profile/photo", {
-            method: "DELETE",
-            headers: { "Authorization": "Bearer " + token }
-          });
-          if (!res.ok) throw new Error("사진 삭제 실패");
-        } catch {
-          showToast('프로필 사진 삭제에 실패했습니다.', 'error');
-          isSuccess = false;
-        }
-      }
-
-      deletePhotoFlag = false; // 작업 완료 후 플래그 초기화
-
-      if(isSuccess) {
-        showToast('프로필이 저장되었습니다!', 'success');
-        loadProfile(); // 저장 후 프로필 정보를 다시 불러와서 최종 상태를 확인
-      }
-    });
-  </script>
+    <section class="recent-activity" aria-labelledby="recent-activity-heading">
+      <div class="section-heading">
+        <h2 id="recent-activity-heading">최근 활동</h2>
+        <p>프로필에서 바로 최근 게시글, 댓글, 채팅을 확인할 수 있습니다.</p>
+      </div>
+      <div class="recent-grid">
+        <article class="recent-card" aria-labelledby="recent-posts-heading">
+          <h3 id="recent-posts-heading">최근 게시글</h3>
+          <ul id="recentPosts" class="recent-list"></ul>
+        </article>
+        <article class="recent-card" aria-labelledby="recent-comments-heading">
+          <h3 id="recent-comments-heading">최근 댓글</h3>
+          <ul id="recentComments" class="recent-list"></ul>
+        </article>
+        <article class="recent-card" aria-labelledby="recent-chats-heading">
+          <h3 id="recent-chats-heading">최근 채팅</h3>
+          <ul id="recentChats" class="recent-list"></ul>
+        </article>
+      </div>
+    </section>
   </main>
-  <script defer src="js/auth-helper.js"></script>
-  <script src="/socket.io/socket.io.js"></script>
-  <script defer src="js/notifications.js"></script>
-  <script defer src="js/profile-menu.js"></script>
-  <script defer src="js/pwa.js"></script>
-  <script defer src="js/topbar-dock.js"></script>
+
+  <div id="toastRoot"></div>
+
+  <script defer src="js/profile-page.js"></script>
 </body>
 </html>
-
-
-

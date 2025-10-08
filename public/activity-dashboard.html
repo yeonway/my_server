@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>내 활동 대시보드</title>
+    <link rel="stylesheet" href="css/topbar.css" />
+    <link rel="stylesheet" href="css/site-menu.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+    <link rel="stylesheet" href="css/mobile.css" />
+    <link rel="stylesheet" href="css/dashboard.css" />
+    <link rel="stylesheet" href="css/dark-mode.css" />
+    <script src="js/theme.js"></script>
+  </head>
+  <body class="index-page">
+    <header class="site-topbar">
+      <a href="/index.html" class="site-logo" aria-label="DCOUT 홈으로 이동">
+        <span class="logo-accent">DC</span>
+        <span class="logo-divider" aria-hidden="true"></span>
+        <span class="logo-rest">OUT</span>
+      </a>
+      <nav class="site-menu" aria-label="주요 메뉴">
+        <a href="/chat.html">채팅</a>
+        <a href="/posts.html">게시판</a>
+        <a href="/calendar.html">일정</a>
+        <a href="/polls.html">투표</a>
+        <a href="/profile.html">프로필</a>
+        <a href="/inquiry.html">문의하기</a>
+        <a href="/setting.html">설정</a>
+      </nav>
+      <div class="topbar-actions">
+        <span data-network-indicator>Online</span>
+      </div>
+    </header>
+
+    <main class="dashboard user-dashboard" aria-labelledby="userDashboardTitle">
+      <section class="dashboard-intro">
+        <h1 id="userDashboardTitle">내 활동 현황</h1>
+        <p>작성한 글, 댓글, 채팅 참여부터 받은 멘션과 알림까지 한눈에 확인해 보세요.</p>
+      </section>
+
+      <section class="dashboard-filters" aria-label="기간 필터">
+        <form id="dashboardFilterForm" class="filter-form">
+          <label class="filter-field">
+            <span class="filter-label">조회 범위</span>
+            <select id="rangePreset" name="preset">
+              <option value="7">최근 7일</option>
+              <option value="30" selected>최근 30일</option>
+              <option value="90">최근 90일</option>
+              <option value="custom">직접 선택</option>
+            </select>
+          </label>
+          <label class="filter-field filter-field--date" data-custom-range hidden>
+            <span class="filter-label">시작일</span>
+            <input type="date" id="startDate" name="startDate" />
+          </label>
+          <label class="filter-field filter-field--date" data-custom-range hidden>
+            <span class="filter-label">종료일</span>
+            <input type="date" id="endDate" name="endDate" />
+          </label>
+          <button type="submit" class="filter-submit">적용</button>
+        </form>
+      </section>
+
+      <section class="dashboard-grid metrics-grid" aria-label="핵심 지표">
+        <article class="dashboard-card metric-card" data-metric="posts">
+          <header class="card-header">
+            <h2>작성 글</h2>
+            <span class="metric-trend" data-metric-trend="posts"></span>
+          </header>
+          <p class="metric-value" data-metric-value="posts">0</p>
+          <p class="metric-sub" data-metric-sub="posts">기간 내 작성한 글 수</p>
+        </article>
+        <article class="dashboard-card metric-card" data-metric="comments">
+          <header class="card-header">
+            <h2>댓글</h2>
+            <span class="metric-trend" data-metric-trend="comments"></span>
+          </header>
+          <p class="metric-value" data-metric-value="comments">0</p>
+          <p class="metric-sub" data-metric-sub="comments">기간 내 남긴 댓글 수</p>
+        </article>
+        <article class="dashboard-card metric-card" data-metric="chats">
+          <header class="card-header">
+            <h2>채팅 참여</h2>
+            <span class="metric-trend" data-metric-trend="chats"></span>
+          </header>
+          <p class="metric-value" data-metric-value="chats">0</p>
+          <p class="metric-sub" data-metric-sub="chats">남긴 채팅 메시지 수</p>
+        </article>
+        <article class="dashboard-card metric-card" data-metric="recommendations">
+          <header class="card-header">
+            <h2>받은 추천</h2>
+            <span class="metric-trend" data-metric-trend="recommendationsReceived"></span>
+          </header>
+          <p class="metric-value" data-metric-value="recommendationsReceived">0</p>
+          <p class="metric-sub" data-metric-sub="recommendations">알림 기준 추천/반응 수</p>
+        </article>
+        <article class="dashboard-card metric-card" data-metric="mentions">
+          <header class="card-header">
+            <h2>멘션</h2>
+            <span class="metric-trend" data-metric-trend="mentionsReceived"></span>
+          </header>
+          <p class="metric-value" data-metric-value="mentionsReceived">0</p>
+          <p class="metric-sub" data-metric-sub="mentions">알림으로 받은 멘션 수</p>
+        </article>
+        <article class="dashboard-card metric-card" data-metric="notifications">
+          <header class="card-header">
+            <h2>알림</h2>
+            <span class="metric-trend" data-metric-trend="notificationsReceived"></span>
+          </header>
+          <p class="metric-value" data-metric-value="notificationsReceived">0</p>
+          <p class="metric-sub" data-metric-sub="notifications">도착한 전체 알림 수</p>
+        </article>
+      </section>
+
+      <section class="dashboard-card dashboard-card--wide" aria-labelledby="activityChartTitle">
+        <header class="card-header">
+          <div>
+            <h2 id="activityChartTitle">일별 활동 추이</h2>
+            <p>게시글, 댓글, 채팅, 멘션/알림 흐름을 비교해 보세요.</p>
+          </div>
+        </header>
+        <canvas id="activityChart" aria-label="일별 활동 추이" role="img"></canvas>
+      </section>
+
+      <section class="dashboard-grid dashboard-card--split" aria-label="미확인 항목">
+        <article class="dashboard-card" aria-labelledby="unreadNotificationsTitle">
+          <header class="card-header">
+            <div>
+              <h2 id="unreadNotificationsTitle">미응답 알림</h2>
+              <p>읽지 않은 알림을 빠르게 확인하세요.</p>
+            </div>
+            <span class="badge" data-unread-count>0</span>
+          </header>
+          <ul class="card-list" data-unread-list>
+            <li class="card-list-item empty-state">모든 알림을 확인했습니다.</li>
+          </ul>
+        </article>
+        <article class="dashboard-card" aria-labelledby="unreadMessagesTitle">
+          <header class="card-header">
+            <div>
+              <h2 id="unreadMessagesTitle">미확인 메시지</h2>
+              <p>DM 알림 기준으로 확인하지 않은 메시지 수입니다.</p>
+            </div>
+            <span class="badge" data-unread-message-count>0</span>
+          </header>
+          <ul class="card-list" data-unread-message-list>
+            <li class="card-list-item empty-state">미확인 메시지가 없습니다.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="dashboard-card dashboard-card--wide" aria-labelledby="recentActivitiesTitle">
+        <header class="card-header">
+          <div>
+            <h2 id="recentActivitiesTitle">최근 활동 이력</h2>
+            <p>가장 최근의 활동 순서대로 정리했어요.</p>
+          </div>
+        </header>
+        <div class="activity-table-wrapper">
+          <table class="activity-table">
+            <thead>
+              <tr>
+                <th scope="col">유형</th>
+                <th scope="col">내용</th>
+                <th scope="col">시간</th>
+              </tr>
+            </thead>
+            <tbody data-activity-table>
+              <tr>
+                <td colspan="3" class="empty-state">활동 내역을 불러오는 중입니다...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" integrity="sha384-an9szXN9kxMUxv1Z8pV3mshNB3P/NdI27AI3Z2RgPMGPVnvr4ojS8IUwLtrSRpGP" crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script defer src="js/auth-helper.js"></script>
+    <script defer src="js/profile-menu.js"></script>
+    <script defer src="js/activity-dashboard.js"></script>
+  </body>
+</html>
