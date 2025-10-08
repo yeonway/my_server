@@ -60,11 +60,17 @@ async function authMiddleware(req, res, next) {
       return res.status(401).json({ error: '사용자를 찾을 수 없습니다.' });
     }
 
+    const role = user.role || 'user';
+    const adminPermissions = Array.isArray(user.adminPermissions)
+      ? user.adminPermissions
+      : [];
+
     req.user = {
       id: user._id.toString(),
       username: user.username,
-      role: user.role || 'user',
-      adminPermissions: Array.isArray(user.adminPermissions) ? user.adminPermissions : [],
+      role,
+      adminPermissions,
+      isAdmin: ['admin', 'superadmin', 'manager'].includes(role),
     };
     req.userLogger = (level, msg) => userLog(req.user.username, level, msg);
     return next();
@@ -94,7 +100,7 @@ function requireAdmin(req, res, next) {
     if (!req.user) {
       return res.status(401).json({ error: '인증이 필요합니다.' });
     }
-    if (['admin', 'superadmin', 'manager'].includes(req.user.role)) {
+    if (req.user.isAdmin) {
       return next();
     }
     return res.status(403).json({ error: '관리자 권한이 필요합니다.' });
