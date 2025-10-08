@@ -64,6 +64,14 @@ body.index-page {
   text-align: center;
 }
 
+.dashboard-card--wide {
+  grid-column: 1 / -1;
+}
+
+.dashboard-card--split {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
 .card-header {
   display: flex;
   flex-wrap: wrap;
@@ -206,6 +214,108 @@ body.index-page {
   color: var(--dashboard-text-secondary);
 }
 
+.user-dashboard {
+  gap: 2rem;
+}
+
+.dashboard-filters {
+  background: var(--dashboard-card-bg);
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 22px;
+  box-shadow: var(--dashboard-card-shadow);
+  padding: 1rem 1.25rem;
+}
+
+.filter-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 140px;
+}
+
+.filter-field select,
+.filter-field input[type='date'] {
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 12px;
+  padding: 0.6rem 0.75rem;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: inherit;
+}
+
+.filter-submit {
+  border: none;
+  border-radius: 12px;
+  padding: 0.7rem 1.4rem;
+  background: var(--dashboard-accent);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filter-submit:hover,
+.filter-submit:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 25px rgba(124, 108, 255, 0.25);
+}
+
+.metrics-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.metric-card {
+  position: relative;
+}
+
+.metric-value {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 700;
+  margin: 0;
+}
+
+.metric-sub {
+  margin: 0;
+  color: var(--dashboard-text-secondary);
+}
+
+.metric-trend {
+  font-size: 0.9rem;
+  color: var(--dashboard-text-secondary);
+}
+
+.activity-table-wrapper {
+  overflow-x: auto;
+}
+
+.activity-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 480px;
+}
+
+.activity-table thead {
+  background: rgba(124, 108, 255, 0.08);
+}
+
+.activity-table th,
+.activity-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.activity-table tbody tr:hover {
+  background: rgba(248, 250, 252, 0.9);
+}
+
 .empty-state {
   text-align: center;
   color: var(--dashboard-text-secondary);
@@ -282,4 +392,19 @@ html.dark-mode .index-page {
 
 html.dark-mode .index-page .card-list-item {
   background: rgba(30, 41, 59, 0.85);
+}
+
+html.dark-mode .index-page .activity-table thead {
+  background: rgba(99, 102, 241, 0.18);
+}
+
+html.dark-mode .index-page .activity-table tbody tr:hover {
+  background: rgba(30, 41, 59, 0.75);
+}
+
+html.dark-mode .index-page .filter-field select,
+html.dark-mode .index-page .filter-field input[type='date'] {
+  background: rgba(30, 41, 59, 0.85);
+  color: inherit;
+  border-color: rgba(148, 163, 184, 0.3);
 }
