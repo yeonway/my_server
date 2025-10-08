@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>계정 보안 설정</title>
+  <link rel="stylesheet" href="/css/main.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>계정 보안 관리</h1>
+
+    <section>
+      <h2>최근 로그인 기록</h2>
+      <p id="login-history" class="mono"></p>
+    </section>
+
+    <section>
+      <h2>데이터 다운로드</h2>
+      <p>개인정보 및 최근 활동을 JSON 또는 CSV로 내려받을 수 있습니다.</p>
+      <button id="export-json">JSON 다운로드</button>
+      <button id="export-csv">CSV 다운로드</button>
+    </section>
+
+    <section>
+      <h2>계정 상태</h2>
+      <p>계정을 비활성화하거나 삭제 예약을 진행할 수 있습니다. 민감한 작업이므로 현재 비밀번호 확인이 필요합니다.</p>
+      <button id="deactivate-account">계정 비활성화</button>
+      <button id="delete-account" class="danger">계정 삭제 예약</button>
+    </section>
+  </main>
+
+  <script src="/js/account-security.js" defer></script>
+</body>
+</html>
