@@ -1,5 +1,14 @@
 ﻿(() => {
-  const TARGET_IDS = ['notification-center', 'profile-menu-floating'];
+  const TARGETS = [
+    {
+      id: 'notification-center',
+      placeholderSelector: '[data-open-notifications]',
+    },
+    {
+      id: 'profile-menu-floating',
+      placeholderSelector: '[data-profile-menu]',
+    },
+  ];
 
   function ensureDock() {
     const header = document.querySelector('.site-topbar');
@@ -13,12 +22,37 @@
     return dock;
   }
 
+  function attachToPlaceholder(node, placeholder) {
+    if (!placeholder) return false;
+    if (placeholder === node || placeholder.contains(node)) return true;
+
+    if (placeholder.parentElement) {
+      placeholder.replaceWith(node);
+      return true;
+    }
+
+    return false;
+  }
+
   function moveFloatingNodes() {
     const dock = ensureDock();
     if (!dock) return;
-    TARGET_IDS.forEach((id) => {
+
+    TARGETS.forEach(({ id, placeholderSelector }) => {
       const node = document.getElementById(id);
-      if (node && node.parentElement !== dock) {
+      if (!node) return;
+
+      const placeholder = placeholderSelector
+        ? document.querySelector(placeholderSelector)
+        : null;
+
+      if (placeholder) {
+        if (attachToPlaceholder(node, placeholder)) {
+          return;
+        }
+      }
+
+      if (node.parentElement !== dock) {
         dock.appendChild(node);
       }
     });

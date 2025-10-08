@@ -13,9 +13,6 @@ const CATEGORY_VALUES = Calendar.CATEGORY_VALUES;
 const PRIORITY_VALUES = Calendar.PRIORITY_VALUES;
 const NOTIFY_VALUES = Calendar.NOTIFY_VALUES;
 
-// 모든 일정 관련 API는 로그인 후 사용
-router.use(authenticateToken);
-
 function serializeReminderStatus(value) {
   if (!value) return {};
   if (typeof value.entries === 'function') {
@@ -187,7 +184,7 @@ function buildCommonFilters(query = {}) {
 /**
  * 일정 생성
  */
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
     const { payload, errors } = validateCalendarPayload(req.body);
     if (errors.length) {
@@ -330,7 +327,7 @@ router.get('/:id', async (req, res) => {
 /**
  * 일정 수정 (작성자 전용)
  */
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const calendar = await Calendar.findById(req.params.id).populate('createdBy', 'username name');
     if (!calendar || calendar.isDeleted) {
@@ -389,7 +386,7 @@ router.put('/:id', async (req, res) => {
 /**
  * 일정 삭제 (작성자 전용, 소프트 삭제)
  */
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const calendar = await Calendar.findById(req.params.id);
     if (!calendar || calendar.isDeleted) {
