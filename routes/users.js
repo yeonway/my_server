@@ -3,11 +3,21 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require("../config/secrets");
 const User = require("../models/user");
 const Post = require("../models/post");
 const { authMiddleware } = require("../middleware/auth");
 const logger = require('../config/logger');
 const { attachSessionCookie, clearSessionCookie } = require('../config/session');
+
+function ensureJwtSecret(res) {
+  if (!JWT_SECRET) {
+    logger.error('JWT secret is not configured.');
+    res.status(500).json({ error: '서버 설정 오류로 요청을 처리할 수 없습니다.' });
+    return false;
+  }
+  return true;
+}
 
 // IP별 최근 가입 기록을 저장할 간단한 캐시
 const recentSignups = new Map();
@@ -158,9 +168,12 @@ router.post("/login", async (req, res) => {
       if (req.userLogger) req.userLogger('warn', `로그인 실패 - 잘못된 비밀번호: ${username}`);
       return res.status(400).json({ error: "아이디 또는 비밀번호가 올바르지 않습니다." });
     }
+    if (!ensureJwtSecret(res)) {
+      return;
+    }
     const token = jwt.sign(
       { id: user._id, username: user.username, isAdmin: user.isAdmin },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: "1d" }
     );
     logger.info(`Login success: ${username}`);
@@ -207,8 +220,11 @@ router.post("/signup", async (req, res) => {
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
       try {
+        if (!ensureJwtSecret(res)) {
+          return;
+        }
         const jwt = require('jsonwebtoken');
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET);
         if (decoded) {
           logger.warn(
             `Signup blocked - already logged in: ${decoded.username} tried to signup with ${req.body.username}`
@@ -409,13 +425,16 @@ router.post('/accounts/:username/switch', authMiddleware, async (req, res) => {
       return res.status(403).json({ error: '정지된 계정은 전환할 수 없습니다.' });
     }
 
+    if (!ensureJwtSecret(res)) {
+      return;
+    }
     const token = jwt.sign(
       {
         id: target._id,
         username: target.username,
         role: target.role || 'user'
       },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: '12h' }
     );
 
