@@ -16,6 +16,8 @@
     low: '🫧',
   };
 
+  const REQUEST_TIMEOUT = 10000;
+
   let state = {
     year: null,
     month: null,
@@ -136,7 +138,7 @@
       }
 
       const url = `${API_BASE}?${params.toString()}`;
-      const response = await fetch(url, buildFetchOptions());
+      const response = await requestWithTimeout(url, buildFetchOptions());
       if (!response.ok) {
         throw new Error('일정을 불러오지 못했어요.');
       }
@@ -165,6 +167,60 @@
       options.body = JSON.stringify(body);
     }
     return options;
+  }
+
+  const supportsAbortController = typeof window !== 'undefined'
+    && typeof window.AbortController === 'function';
+
+  async function requestWithTimeout(url, options = {}, timeoutMs = REQUEST_TIMEOUT) {
+    if (!timeoutMs || timeoutMs <= 0) {
+      return fetch(url, options);
+    }
+
+    if (!supportsAbortController || options.signal) {
+      return new Promise((resolve, reject) => {
+        let settled = false;
+        const timer = window.setTimeout(() => {
+          window.clearTimeout(timer);
+          if (settled) return;
+          settled = true;
+          const timeoutError = new Error('서버 응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요.');
+          timeoutError.code = 'TIMEOUT';
+          reject(timeoutError);
+        }, timeoutMs);
+
+        fetch(url, options)
+          .then((response) => {
+            if (settled) return;
+            settled = true;
+            window.clearTimeout(timer);
+            resolve(response);
+          })
+          .catch((error) => {
+            if (settled) return;
+            settled = true;
+            window.clearTimeout(timer);
+            reject(error);
+          });
+      });
+    }
+
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(url, { ...options, signal: controller.signal });
+      return response;
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        const timeoutError = new Error('서버 응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요.');
+        timeoutError.code = 'TIMEOUT';
+        timeoutError.cause = error;
+        throw timeoutError;
+      }
+      throw error;
+    } finally {
+      window.clearTimeout(timer);
+    }
   }
 
   function updateURL() {
@@ -366,7 +422,10 @@
   async function openDetailModal(eventId) {
     try {
       showSpinner();
-      const response = await fetch(`${API_BASE}/${eventId}`, buildFetchOptions());
+      const response = await requestWithTimeout(
+        `${API_BASE}/${eventId}`,
+        buildFetchOptions(),
+      );
       if (!response.ok) {
         throw new Error('일정 정보를 불러오지 못했습니다.');
       }
@@ -527,7 +586,10 @@
       const method = eventId ? 'PUT' : 'POST';
       const endpoint = eventId ? `${API_BASE}/${eventId}` : API_BASE;
 
-      const response = await fetch(endpoint, buildFetchOptions(method, body));
+      const response = await requestWithTimeout(
+        endpoint,
+        buildFetchOptions(method, body),
+      );
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
         throw new Error(data.error || '일정을 저장하는 중 오류가 발생했습니다.');
@@ -560,7 +622,10 @@
 
     showSpinner();
     try {
-      const response = await fetch(`${API_BASE}/${eventId}`, buildFetchOptions('DELETE'));
+      const response = await requestWithTimeout(
+        `${API_BASE}/${eventId}`,
+        buildFetchOptions('DELETE'),
+      );
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
         throw new Error(data.error || '일정을 삭제하는 중 오류가 발생했습니다.');
