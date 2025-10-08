@@ -1,6 +1,6 @@
 ﻿const mongoose = require('mongoose');
 
-const notificationTypes = ['comment', 'mention', 'dm', 'group_invite'];
+const notificationTypes = ['comment', 'mention', 'dm', 'group_invite', 'announcement'];
 
 const notificationSchema = new mongoose.Schema(
   {

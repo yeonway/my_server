@@ -254,7 +254,12 @@ io.on('connection', async (socket) => {
               type: 'dm',
               message: `${socket.user.username} sent you a direct message.`,
               link: `/chat.html?room=${chatroomId}`,
-              payload: { chatroomId, messageId, roomId },
+              payload: {
+                chatroomId,
+                roomId,
+                messageId,
+                quickReply: { type: 'dm', roomId: chatroomId },
+              },
             })),
           );
         }
