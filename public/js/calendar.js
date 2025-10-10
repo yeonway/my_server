@@ -39,7 +39,6 @@
   const prevButton = document.querySelector('[data-prev-month]');
   const nextButton = document.querySelector('[data-next-month]');
   const todayButton = document.querySelector('[data-today]');
-  const spinner = document.querySelector('[data-spinner]');
   const toast = document.querySelector('[data-toast]');
   const modalBackdrop = document.querySelector('[data-modal-backdrop]');
   const modalContent = document.querySelector('[data-modal-content]');
@@ -124,10 +123,7 @@
     }
   }
 
-  async function loadEvents({ showLoading = true } = {}) {
-    if (showLoading) {
-      showSpinner();
-    }
+  async function loadEvents() {
     try {
       const params = new URLSearchParams();
       params.set('year', state.year);
@@ -153,10 +149,6 @@
     } catch (error) {
       console.error('[calendar] loadEvents', error);
       showToast(error.message || '일정 데이터를 불러오는 중 오류가 발생했습니다.');
-    } finally {
-      if (showLoading) {
-        hideSpinner();
-      }
     }
   }
 
@@ -425,7 +417,6 @@
 
   async function openDetailModal(eventId) {
     try {
-      showSpinner();
       const response = await requestWithTimeout(
         `${API_BASE}/${eventId}`,
         buildFetchOptions(),
@@ -438,8 +429,6 @@
     } catch (error) {
       console.error('[calendar] openDetailModal', error);
       showToast(error.message || '일정 상세 정보를 불러오는 중 오류가 발생했습니다.');
-    } finally {
-      hideSpinner();
     }
   }
 
@@ -584,7 +573,6 @@
       return;
     }
 
-    showSpinner();
     try {
       const eventId = form.dataset.eventId;
       const method = eventId ? 'PUT' : 'POST';
@@ -605,8 +593,6 @@
     } catch (error) {
       console.error('[calendar] handleSaveEvent', error);
       showToast(error.message || '일정을 저장하는 중 오류가 발생했습니다.');
-    } finally {
-      hideSpinner();
     }
   }
 
@@ -624,7 +610,6 @@
     const confirmed = window.confirm('정말로 일정을 삭제할까요?');
     if (!confirmed) return;
 
-    showSpinner();
     try {
       const response = await requestWithTimeout(
         `${API_BASE}/${eventId}`,
@@ -641,17 +626,7 @@
     } catch (error) {
       console.error('[calendar] handleDeleteEvent', error);
       showToast(error.message || '일정을 삭제하는 중 오류가 발생했습니다.');
-    } finally {
-      hideSpinner();
     }
-  }
-
-  function showSpinner() {
-    if (spinner) spinner.hidden = false;
-  }
-
-  function hideSpinner() {
-    if (spinner) spinner.hidden = true;
   }
 
   function showToast(message) {
