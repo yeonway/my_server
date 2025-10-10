@@ -50,7 +50,7 @@
 
     bindEvents();
     resetCreateForm();
-    await loadPolls();
+    await loadPolls({ silent: true });
   }
 
   function bindEvents() {

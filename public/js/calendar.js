@@ -61,7 +61,7 @@
     state.month = Number.isNaN(month) ? now.getMonth() + 1 : month;
 
     bindEvents();
-    await loadEvents();
+    await loadEvents({ showLoading: false });
   }
 
   function bindEvents() {
@@ -124,8 +124,10 @@
     }
   }
 
-  async function loadEvents() {
-    showSpinner();
+  async function loadEvents({ showLoading = true } = {}) {
+    if (showLoading) {
+      showSpinner();
+    }
     try {
       const params = new URLSearchParams();
       params.set('year', state.year);
@@ -152,7 +154,9 @@
       console.error('[calendar] loadEvents', error);
       showToast(error.message || '일정 데이터를 불러오는 중 오류가 발생했습니다.');
     } finally {
-      hideSpinner();
+      if (showLoading) {
+        hideSpinner();
+      }
     }
   }
 
