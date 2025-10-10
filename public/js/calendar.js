@@ -60,7 +60,7 @@
     state.month = Number.isNaN(month) ? now.getMonth() + 1 : month;
 
     bindEvents();
-    await loadEvents();
+    await loadEvents({ showLoading: false });
   }
 
   function bindEvents() {
