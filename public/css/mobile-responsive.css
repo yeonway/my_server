@@ -1,0 +1,219 @@
+/* mobile-responsive.css */
+:root {
+  --page-max-width: 64rem;
+  --page-inline-padding: clamp(1rem, 6vw, 2.5rem);
+  --page-block-gap: clamp(1.25rem, 5vw, 2.5rem);
+}
+
+html {
+  font-size: 16px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-size: 1rem;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--body-background, #f9fafb);
+  color: var(--body-text-color, #111827);
+  padding-top: max(env(safe-area-inset-top), 0px);
+  padding-right: max(env(safe-area-inset-right), 0px);
+  padding-bottom: calc(max(env(safe-area-inset-bottom), 0px) + 4.5rem);
+  padding-left: max(env(safe-area-inset-left), 0px);
+}
+
+main {
+  width: 100%;
+  max-width: var(--page-max-width);
+  margin-inline: auto;
+  padding-inline: var(--page-inline-padding);
+  display: flex;
+  flex-direction: column;
+  gap: var(--page-block-gap);
+}
+
+.site-topbar {
+  width: 100%;
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: clamp(0.75rem, 4vw, 1.5rem) var(--page-inline-padding);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: clamp(0.75rem, 3vw, 1.25rem);
+}
+
+.site-topbar .topbar-actions,
+.site-topbar nav,
+.site-menu {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(0.5rem, 2.5vw, 1rem);
+}
+
+.site-menu a,
+.topbar-actions a,
+.topbar-actions button,
+[data-network-indicator] {
+  padding-inline: clamp(0.75rem, 3vw, 1.25rem);
+  padding-block: clamp(0.5rem, 1.8vw, 0.9rem);
+  border-radius: 999px;
+}
+
+.dashboard,
+.posts-wrapper,
+.profile-wrapper,
+.board-wrapper,
+.admin-wrapper,
+.chat-wrapper,
+.calendar-wrapper,
+.inquiry-wrapper,
+.auth-stage,
+.settings-wrapper {
+  width: 100%;
+  max-width: var(--page-max-width);
+  margin-inline: auto;
+  padding-inline: var(--page-inline-padding);
+  display: flex;
+  flex-direction: column;
+  gap: var(--page-block-gap);
+}
+
+.dashboard-grid,
+.posts-grid,
+.board-grid,
+.calendar-grid,
+.polls-grid {
+  display: grid;
+  gap: clamp(1rem, 4vw, 1.75rem);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.dashboard-card,
+.post-card,
+.poll-card,
+.board-card,
+.chat-card,
+.profile-card,
+.settings-card {
+  padding: clamp(1rem, 4vw, 1.5rem);
+  border-radius: clamp(1rem, 5vw, 1.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 3vw, 1.25rem);
+}
+
+.quick-actions,
+.card-list,
+.chat-list {
+  display: grid;
+  gap: clamp(0.75rem, 3vw, 1.25rem);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+:where(a,
+button,
+input,
+select,
+textarea,
+label) {
+  min-width: 44px;
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  font-size: 1rem;
+  line-height: 1.4;
+  padding: clamp(0.6rem, 2.4vw, 0.9rem);
+  border-radius: 0.75rem;
+}
+
+button {
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  body {
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+
+  .site-topbar {
+    flex-direction: row;
+    align-items: center;
+    gap: clamp(1rem, 2vw, 1.5rem);
+  }
+
+  .site-topbar nav,
+  .site-menu,
+  .site-topbar .topbar-actions {
+    justify-content: flex-start;
+  }
+
+  .dashboard-grid,
+  .posts-grid,
+  .board-grid,
+  .calendar-grid,
+  .polls-grid {
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  }
+
+  .quick-actions {
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+
+  .site-topbar {
+    padding-inline: clamp(2rem, 4vw, 3rem);
+  }
+
+  main,
+  .dashboard,
+  .posts-wrapper,
+  .profile-wrapper,
+  .board-wrapper,
+  .admin-wrapper,
+  .chat-wrapper,
+  .calendar-wrapper,
+  .inquiry-wrapper,
+  .auth-stage,
+  .settings-wrapper {
+    max-width: 72rem;
+  }
+}
+
+@media (orientation: landscape) {
+  body {
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+
+  .site-topbar {
+    flex-direction: row;
+    align-items: center;
+  }
+}
