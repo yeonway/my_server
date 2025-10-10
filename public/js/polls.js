@@ -16,7 +16,6 @@
   const optionList = document.querySelector('[data-option-list]');
   const addOptionButton = document.querySelector('[data-add-option]');
   const toast = document.querySelector('[data-toast]');
-  const spinner = document.querySelector('[data-spinner]');
 
   const state = {
     token: null,
@@ -50,7 +49,7 @@
 
     bindEvents();
     resetCreateForm();
-    await loadPolls();
+    await loadPolls({ silent: true });
   }
 
   function bindEvents() {
@@ -79,9 +78,7 @@
   }
 
   async function loadPolls({ silent = false } = {}) {
-    if (!silent) {
-      setLoading(true);
-    }
+    
     try {
       const [activePayload, closedPayload] = await Promise.all([
         requestJSON(`${API_BASE}?status=active`),
@@ -95,10 +92,6 @@
     } catch (error) {
       console.error('[polls] load error', error);
       showToast(error.message || '투표 목록을 불러오지 못했습니다.');
-    } finally {
-      if (!silent) {
-        setLoading(false);
-      }
     }
   }
 
@@ -323,7 +316,6 @@
 
   async function handleVote(poll, form, status) {
     try {
-      setLoading(true);
       const selections = Array.from(form.querySelectorAll('input[type="radio"]:checked, input[type="checkbox"]:checked'))
         .map((input) => Number.parseInt(input.value, 10))
         .filter((value) => Number.isInteger(value));
@@ -349,8 +341,6 @@
     } catch (error) {
       console.error('[polls] vote error', error);
       showToast(error.message || '투표 처리 중 문제가 발생했습니다.');
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -359,7 +349,6 @@
     if (!confirm('이 투표를 종료하시겠습니까? 종료 후에는 다시 열 수 없습니다.')) return;
 
     try {
-      setLoading(true);
       await requestJSON(`${API_BASE}/${pollId}/close`, { method: 'POST' });
       showToast('투표가 종료되었습니다.');
       await loadPolls({ silent: true });
@@ -367,8 +356,6 @@
     } catch (error) {
       console.error('[polls] close error', error);
       showToast(error.message || '투표를 종료하지 못했습니다.');
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -415,7 +402,6 @@
     }
 
     try {
-      setLoading(true);
       await requestJSON(API_BASE, {
         method: 'POST',
         body: payload,
@@ -428,8 +414,6 @@
     } catch (error) {
       console.error('[polls] create error', error);
       showToast(error.message || '투표를 생성하지 못했습니다.');
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -642,11 +626,6 @@
     if (!toast) return;
     toast.dataset.state = 'hidden';
     toast.hidden = true;
-  }
-
-  function setLoading(isLoading) {
-    if (!spinner) return;
-    spinner.hidden = !isLoading;
   }
 
   function formatDate(value) {
