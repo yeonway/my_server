@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>°ü¸®ÀÚ ÆäÀÌÁö</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</title>
   <script src="js/theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script defer src="js/auth-helper.js"></script>
@@ -15,20 +15,21 @@
   <link rel="stylesheet" href="css/notifications.css">
   <link rel="stylesheet" href="css/profile-menu.css">
   <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/mobile-responsive.css">
 </head>
 <body class="admin-page">
   <header class="site-topbar">
-    <a href="/index.html" class="site-logo" aria-label="DCOUT È¨À¸·Î ÀÌµ¿">
+    <a href="/index.html" class="site-logo" aria-label="DCOUT È¨ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½">
       <span class="logo-accent">DC</span>
       <span class="logo-divider" aria-hidden="true"></span>
       <span class="logo-rest">OUT</span>
     </a>
-        <nav class="site-menu" aria-label="ÁÖ¿ä ¸Þ´º">
-      <a href="chat.html">Ã¤ÆÃ</a>
-      <a href="posts.html">°Ô½ÃÆÇ</a>
-      <a href="profile.html">ÇÁ·ÎÇÊ</a>
-      <a href="inquiry.html">¹®ÀÇÇÏ±â</a>
-      <a href="setting.html">¼³Á¤</a>
+        <nav class="site-menu" aria-label="ï¿½Ö¿ï¿½ ï¿½Þ´ï¿½">
+      <a href="chat.html">Ã¤ï¿½ï¿½</a>
+      <a href="posts.html">ï¿½Ô½ï¿½ï¿½ï¿½</a>
+      <a href="profile.html">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</a>
+      <a href="inquiry.html">ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½</a>
+      <a href="setting.html">ï¿½ï¿½ï¿½ï¿½</a>
     </nav>
     <div class="topbar-actions">
       <span data-network-indicator>Online</span>
@@ -36,30 +37,30 @@
   </header>
   <div class="container">
     <header>
-      <h1>°ü¸®ÀÚ ÆäÀÌÁö</h1>
-      <a href="index.html" class="btn-main">¸ÞÀÎÀ¸·Î</a>
+      <h1>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</h1>
+      <a href="index.html" class="btn-main">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</a>
     </header>
     <div class="tabs">
-      <button class="tab-button active" onclick="openTab(event, 'dashboard')">´ë½Ãº¸µå</button>
-      <button class="tab-button" onclick="openTab(event, 'users')">»ç¿ëÀÚ °ü¸®</button>
-      <button class="tab-button" onclick="openTab(event, 'posts')">°Ô½Ã±Û °ü¸®</button>
-      <button class="tab-button" onclick="openTab(event, 'reports')">½Å°í °ü¸®</button>
-      <button class="tab-button" onclick="openTab(event, 'inquiries')">¹®ÀÇ °ü¸®</button>
-      <button class="tab-button" onclick="openTab(event, 'forbiddenWords')">±ÝÁö¾î °ü¸®</button>
-      <button class="tab-button" onclick="openTab(event, 'chatLogs')">Ã¤ÆÃ ·Î±×</button>
-      <button class="tab-button" onclick="openTab(event, 'logs')">½Ã½ºÅÛ ·Î±×</button>
+      <button class="tab-button active" onclick="openTab(event, 'dashboard')">ï¿½ï¿½Ãºï¿½ï¿½ï¿½</button>
+      <button class="tab-button" onclick="openTab(event, 'users')">ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½</button>
+      <button class="tab-button" onclick="openTab(event, 'posts')">ï¿½Ô½Ã±ï¿½ ï¿½ï¿½ï¿½ï¿½</button>
+      <button class="tab-button" onclick="openTab(event, 'reports')">ï¿½Å°ï¿½ ï¿½ï¿½ï¿½ï¿½</button>
+      <button class="tab-button" onclick="openTab(event, 'inquiries')">ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½</button>
+      <button class="tab-button" onclick="openTab(event, 'forbiddenWords')">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½</button>
+      <button class="tab-button" onclick="openTab(event, 'chatLogs')">Ã¤ï¿½ï¿½ ï¿½Î±ï¿½</button>
+      <button class="tab-button" onclick="openTab(event, 'logs')">ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½Î±ï¿½</button>
     </div>
-    <!-- ´ë½Ãº¸µå -->
+    <!-- ï¿½ï¿½Ãºï¿½ï¿½ï¿½ -->
     <div id="dashboard" class="tab-content active">
       <div class="dashboard-header">
         <div class="dashboard-header-text">
-          <h2>´ë½Ãº¸µå ¿ä¾à</h2>
+          <h2>ï¿½ï¿½Ãºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½</h2>
           <p id="dashboardLastUpdated" class="dashboard-meta">-</p>
         </div>
         <div class="dashboard-actions">
-          <button type="button" class="dashboard-refresh" id="dashboardRefreshBtn" aria-label="´ë½Ãº¸µå »õ·Î°íÄ§">
+          <button type="button" class="dashboard-refresh" id="dashboardRefreshBtn" aria-label="ï¿½ï¿½Ãºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î°ï¿½Ä§">
             <span class="icon" aria-hidden="true">?</span>
-            »õ·Î°íÄ§
+            ï¿½ï¿½ï¿½Î°ï¿½Ä§
           </button>
         </div>
       </div>
@@ -67,90 +68,90 @@
       <div class="grid-container">
         <div class="card stat-card">
           <div id="totalUsers" class="value">-</div>
-          <div class="label">ÃÑ »ç¿ëÀÚ</div>
+          <div class="label">ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½</div>
           <div id="todayNewUsers" class="sub-value">+0</div>
         </div>
         <div class="card stat-card">
           <div id="totalPosts" class="value">-</div>
-          <div class="label">ÃÑ °Ô½Ã±Û</div>
+          <div class="label">ï¿½ï¿½ ï¿½Ô½Ã±ï¿½</div>
           <div id="todayPosts" class="sub-value">+0</div>
         </div>
         <div class="card stat-card">
           <div id="totalComments" class="value">-</div>
-          <div class="label">ÃÑ ´ñ±Û</div>
+          <div class="label">ï¿½ï¿½ ï¿½ï¿½ï¿½</div>
           <div id="todayComments" class="sub-value">+0</div>
         </div>
         <div class="card stat-card">
           <div id="pendingReports" class="value">-</div>
-          <div class="label">´ë±â ÁßÀÎ ½Å°í</div>
+          <div class="label">ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Å°ï¿½</div>
         </div>
       </div>
       <div class="health-grid">
         <div class="card health-card" id="systemHealthCard">
           <div class="card-title-row">
-            <h3>·Î±× »óÅÂ</h3>
+            <h3>ï¿½Î±ï¿½ ï¿½ï¿½ï¿½ï¿½</h3>
             <span id="healthWindowLabel" class="health-window"></span>
           </div>
           <div id="systemHealthMessage" class="health-message" role="status"></div>
           <div class="health-metrics">
-            <div class="metric-line"><span class="metric-label">ÃÑ ·Î±×</span><span class="metric-value" id="healthTotal">-</span></div>
+            <div class="metric-line"><span class="metric-label">ï¿½ï¿½ ï¿½Î±ï¿½</span><span class="metric-value" id="healthTotal">-</span></div>
             <div class="metric-line"><span class="metric-label">Info</span><span class="metric-value info" id="healthInfo">-</span></div>
             <div class="metric-line"><span class="metric-label">Warn</span><span class="metric-value warn" id="healthWarn">-</span></div>
             <div class="metric-line"><span class="metric-label">Error</span><span class="metric-value error" id="healthErrors">-</span></div>
           </div>
-          <div id="healthLatestError" class="latest-error">ÃÖ±Ù 24½Ã°£ ¿À·ù°¡ ¾ø½À´Ï´Ù.</div>
+          <div id="healthLatestError" class="latest-error">ï¿½Ö±ï¿½ 24ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.</div>
         </div>
         <div class="card health-card" id="resourceHealthCard">
           <div class="card-title-row">
-            <h3>½Ã½ºÅÛ ÀÚ¿ø</h3>
+            <h3>ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½Ú¿ï¿½</h3>
           </div>
           <div class="health-metrics">
-            <div class="metric-line"><span class="metric-label">·Î±× ¿ë·®</span><span class="metric-value" id="healthLogSize">-</span></div>
-            <div class="metric-line"><span class="metric-label">°¡Àå Å« ·Î±×</span><span class="metric-value" id="healthLogLargest">-</span></div>
-            <div class="metric-line"><span class="metric-label">½Ã½ºÅÛ ¾÷Å¸ÀÓ</span><span class="metric-value" id="healthUptime">-</span></div>
+            <div class="metric-line"><span class="metric-label">ï¿½Î±ï¿½ ï¿½ë·®</span><span class="metric-value" id="healthLogSize">-</span></div>
+            <div class="metric-line"><span class="metric-label">ï¿½ï¿½ï¿½ï¿½ Å« ï¿½Î±ï¿½</span><span class="metric-value" id="healthLogLargest">-</span></div>
+            <div class="metric-line"><span class="metric-label">ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½</span><span class="metric-value" id="healthUptime">-</span></div>
             <div class="metric-line"><span class="metric-label">Load (1/5/15)</span><span class="metric-value" id="healthLoad">-</span></div>
-            <div class="metric-line"><span class="metric-label">¸Þ¸ð¸® »ç¿ë</span><span class="metric-value" id="healthMemory">-</span></div>
+            <div class="metric-line"><span class="metric-label">ï¿½Þ¸ï¿½ ï¿½ï¿½ï¿½</span><span class="metric-value" id="healthMemory">-</span></div>
           </div>
         </div>
         <div class="card health-card compact-card" id="pendingReportsCard">
           <div class="card-title-row">
-            <h3>´ë±â ÁßÀÎ ½Å°í</h3>
-            <button type="button" class="text-button" id="viewAllReportsBtn">ÀüÃ¼ º¸±â</button>
+            <h3>ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Å°ï¿½</h3>
+            <button type="button" class="text-button" id="viewAllReportsBtn">ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½</button>
           </div>
           <ul class="mini-list" id="pendingReportsList"></ul>
         </div>
       </div>
       <div class="card">
-        <h2>ÃÖ±Ù 7ÀÏ È°µ¿</h2>
+        <h2>ï¿½Ö±ï¿½ 7ï¿½ï¿½ È°ï¿½ï¿½</h2>
         <div class="chart-container">
           <canvas id="activityChart"></canvas>
         </div>
       </div>
     </div>
-    <!-- »ç¿ëÀÚ °ü¸® -->
+    <!-- ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ -->
     <div id="users" class="tab-content">
       <div class="card">
-        <h2>»ç¿ëÀÚ ¸ñ·Ï</h2>
+        <h2>ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½</h2>
         <div class="search-container">
-          <input type="text" id="userSearchInput" placeholder="»ç¿ëÀÚ¸íÀ¸·Î °Ë»ö..." onkeypress="if(event.key==='Enter') loadUsers()">
-          <button onclick="loadUsers()">°Ë»ö</button>
+          <input type="text" id="userSearchInput" placeholder="ï¿½ï¿½ï¿½ï¿½Ú¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½..." onkeypress="if(event.key==='Enter') loadUsers()">
+          <button onclick="loadUsers()">ï¿½Ë»ï¿½</button>
         </div>
         <div class="search-container" style="margin-top: 10px;">
-          <input type="text" id="userLogSearchInput" placeholder="»ç¿ëÀÚ ID ¶Ç´Â ÀÌ¸§À¸·Î ·Î±× °Ë»ö...">
-          <button onclick="searchUserLogs()">·Î±× º¸±â</button>
+          <input type="text" id="userLogSearchInput" placeholder="ï¿½ï¿½ï¿½ï¿½ï¿½ ID ï¿½Ç´ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Î±ï¿½ ï¿½Ë»ï¿½...">
+          <button onclick="searchUserLogs()">ï¿½Î±ï¿½ ï¿½ï¿½ï¿½ï¿½</button>
         </div>
         <div class="search-container user-sort-container">
           <div class="sort-select-group">
-            <label for="userSortField">Á¤·Ä ±âÁØ</label>
+            <label for="userSortField">ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½</label>
             <select id="userSortField">
-              <option value="createdAt">°¡ÀÔÀÏ</option>
-              <option value="role">±ÇÇÑ</option>
+              <option value="createdAt">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</option>
+              <option value="role">ï¿½ï¿½ï¿½ï¿½</option>
             </select>
           </div>
-          <button type="button" id="userSortOrderBtn" class="sort-order-btn" data-order="desc">³»¸²Â÷¼ø</button>
+          <button type="button" id="userSortOrderBtn" class="sort-order-btn" data-order="desc">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</button>
         </div>
         <div class="admin-toolbar">
-          <button type="button" id="openAdminPermissionModalBtn" class="action-btn btn-resolve">»õ °ü¸®ÀÚ ÁöÁ¤</button>
+          <button type="button" id="openAdminPermissionModalBtn" class="action-btn btn-resolve">ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½</button>
         </div>
         <div id="userMeta" class="user-meta"></div>
         <div class="add-word-container search-row">
@@ -164,11 +165,11 @@
             <tr>
               <th>ID</th>
               <th>Username</th>
-              <th>°èÁ¤ ÁÖÀÎ</th>
-              <th>±ÇÇÑ</th>
-              <th>¸Þ¸ð</th>
-              <th>°¡ÀÔÀÏ</th>
-              <th>°ü¸®</th>
+              <th>ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½</th>
+              <th>ï¿½Þ¸ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½</th>
             </tr>
           </thead>
           <tbody id="userList"></tbody>
@@ -176,71 +177,71 @@
         <div id="userPagination" class="pagination"></div>
       </div>
     </div>
-    <!-- °Ô½Ã±Û °ü¸® -->
+    <!-- ï¿½Ô½Ã±ï¿½ ï¿½ï¿½ï¿½ï¿½ -->
     <div id="posts" class="tab-content">
       <div class="card">
-        <h2>°Ô½Ã±Û ¸ñ·Ï</h2>
+        <h2>ï¿½Ô½Ã±ï¿½ ï¿½ï¿½ï¿½</h2>
         <div class="search-container">
-          <input type="text" id="postSearchInput" placeholder="Á¦¸ñ ¶Ç´Â ³»¿ëÀ¸·Î °Ë»ö..." onkeypress="if(event.key==='Enter') loadPosts()">
-          <button onclick="loadPosts()">°Ë»ö</button>
-          <button onclick="openNoticeModal()" style="margin-left: 10px; background-color: var(--success-color);">°øÁö ÀÛ¼º</button>
+          <input type="text" id="postSearchInput" placeholder="ï¿½ï¿½ï¿½ï¿½ ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½..." onkeypress="if(event.key==='Enter') loadPosts()">
+          <button onclick="loadPosts()">ï¿½Ë»ï¿½</button>
+          <button onclick="openNoticeModal()" style="margin-left: 10px; background-color: var(--success-color);">ï¿½ï¿½ï¿½ï¿½ ï¿½Û¼ï¿½</button>
         </div>
         <table>
           <thead>
             <tr>
-              <th>Á¦¸ñ</th>
-              <th>ÀÛ¼ºÀÚ</th>
-              <th>ÀÛ¼ºÀÏ</th>
-              <th>»óÅÂ</th>
-              <th>°øÁö</th>
-              <th>°ü¸®</th>
+              <th>ï¿½ï¿½ï¿½ï¿½</th>
+              <th>ï¿½Û¼ï¿½ï¿½ï¿½</th>
+              <th>ï¿½Û¼ï¿½ï¿½ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½</th>
             </tr>
           </thead>
           <tbody id="postList"></tbody>
         </table>
       </div>
     </div>
-    <!-- ½Å°í °ü¸® -->
+    <!-- ï¿½Å°ï¿½ ï¿½ï¿½ï¿½ï¿½ -->
     <div id="reports" class="tab-content">
       <div class="card">
-        <h2>½Å°í °ü¸®</h2>
+        <h2>ï¿½Å°ï¿½ ï¿½ï¿½ï¿½ï¿½</h2>
         <div class="filter-buttons" id="reportStatusFilter">
-          <button class="filter-btn active" data-status="pending">´ë±âÁß</button>
-          <button class="filter-btn" data-status="resolved">ÇØ°áµÊ</button>
-          <button class="filter-btn" data-status="dismissed">±â°¢µÊ</button>
+          <button class="filter-btn active" data-status="pending">ï¿½ï¿½ï¿½ï¿½ï¿½</button>
+          <button class="filter-btn" data-status="resolved">ï¿½Ø°ï¿½ï¿½</button>
+          <button class="filter-btn" data-status="dismissed">ï¿½â°¢ï¿½ï¿½</button>
         </div>
         <table>
           <thead>
             <tr>
-              <th>½Å°íÀÏ</th>
-              <th>½Å°íÀÚ</th>
-              <th>½Å°í ´ë»ó</th>
-              <th>½Å°í ³»¿ë</th>
-              <th>»çÀ¯</th>
-              <th>°ü¸®</th>
+              <th>ï¿½Å°ï¿½ï¿½ï¿½</th>
+              <th>ï¿½Å°ï¿½ï¿½ï¿½</th>
+              <th>ï¿½Å°ï¿½ ï¿½ï¿½ï¿½</th>
+              <th>ï¿½Å°ï¿½ ï¿½ï¿½ï¿½ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½</th>
             </tr>
           </thead>
           <tbody id="reportList"></tbody>
         </table>
       </div>
     </div>
-    <!-- ¹®ÀÇ °ü¸® -->
+    <!-- ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ -->
     <div id="inquiries" class="tab-content">
       <div class="card">
-        <h2>¹®ÀÇ °ü¸®</h2>
+        <h2>ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½</h2>
         <div class="filter-buttons" id="inquiryStatusFilter">
-          <button class="filter-btn active" data-status="open">´ë±âÁß</button>
-          <button class="filter-btn" data-status="closed">Ã³¸®¿Ï·á</button>
+          <button class="filter-btn active" data-status="open">ï¿½ï¿½ï¿½ï¿½ï¿½</button>
+          <button class="filter-btn" data-status="closed">Ã³ï¿½ï¿½ï¿½Ï·ï¿½</button>
         </div>
         <div class="table-wrapper">
           <table>
             <thead>
               <tr>
-                <th>¹®ÀÇÀÏ</th>
-                <th>ÀÛ¼ºÀÚ</th>
-                <th>À¯Çü</th>
-                <th>Á¦¸ñ/³»¿ë</th>
-                <th>°ü¸®</th>
+                <th>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</th>
+                <th>ï¿½Û¼ï¿½ï¿½ï¿½</th>
+                <th>ï¿½ï¿½ï¿½ï¿½</th>
+                <th>ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½</th>
+                <th>ï¿½ï¿½ï¿½ï¿½</th>
               </tr>
             </thead>
             <tbody id="inquiryList"></tbody>
@@ -248,21 +249,21 @@
         </div>
       </div>
     </div>
-    <!-- ±ÝÁö¾î °ü¸® -->
+    <!-- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ -->
     <div id="forbiddenWords" class="tab-content">
       <div class="card">
-        <h2>±ÝÁö¾î °ü¸®</h2>
+        <h2>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½</h2>
         <div class="add-word-container">
-          <input type="text" id="forbiddenWordInput" placeholder="Ãß°¡ÇÒ ±ÝÁö¾î ÀÔ·Â..." onkeypress="if(event.key==='Enter') addForbiddenWord()">
-          <button onclick="addForbiddenWord()">Ãß°¡</button>
+          <input type="text" id="forbiddenWordInput" placeholder="ï¿½ß°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·ï¿½..." onkeypress="if(event.key==='Enter') addForbiddenWord()">
+          <button onclick="addForbiddenWord()">ï¿½ß°ï¿½</button>
         </div>
         <table>
           <thead>
             <tr>
-              <th>±ÝÁö¾î</th>
-              <th>µî·ÏÀÚ</th>
-              <th>µî·ÏÀÏ</th>
-              <th>°ü¸®</th>
+              <th>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½</th>
             </tr>
           </thead>
           <tbody id="forbiddenWordList"></tbody>
@@ -270,35 +271,35 @@
         <div id="forbiddenWordPagination" class="pagination"></div>
       </div>
     </div>
-    <!-- ½Ã½ºÅÛ ·Î±× -->
-    <!-- Ã¤ÆÃ ·Î±× -->
+    <!-- ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½Î±ï¿½ -->
+    <!-- Ã¤ï¿½ï¿½ ï¿½Î±ï¿½ -->
     <div id="chatLogs" class="tab-content">
       <div class="card">
-        <h2>Ã¤ÆÃ ·Î±×</h2>
+        <h2>Ã¤ï¿½ï¿½ ï¿½Î±ï¿½</h2>
         <div class="log-controls">
           <select id="chatLogFileSelect"></select>
-          <input type="text" id="chatLogSearchInput" placeholder="ÀÛ¼ºÀÚ °Ë»ö...">
+          <input type="text" id="chatLogSearchInput" placeholder="ï¿½Û¼ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½...">
         </div>
         <div class="chat-log-filters">
-          <input type="text" id="chatLogRoomFilter" placeholder="¹æ ID °Ë»ö...">
-          <input type="text" id="chatLogUserFilter" placeholder="ÀÛ¼ºÀÚ °Ë»ö...">
+          <input type="text" id="chatLogRoomFilter" placeholder="ï¿½ï¿½ ID ï¿½Ë»ï¿½...">
+          <input type="text" id="chatLogUserFilter" placeholder="ï¿½Û¼ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½...">
           <select id="chatLogTypeFilter">
-            <option value="all">ÀüÃ¼ À¯Çü</option>
-            <option value="text">ÅØ½ºÆ®</option>
-            <option value="image">ÀÌ¹ÌÁö</option>
-            <option value="file">ÆÄÀÏ</option>
+            <option value="all">ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½</option>
+            <option value="text">ï¿½Ø½ï¿½Æ®</option>
+            <option value="image">ï¿½Ì¹ï¿½ï¿½ï¿½</option>
+            <option value="file">ï¿½ï¿½ï¿½ï¿½</option>
           </select>
         </div>
         <table>
           <thead>
             <tr>
-              <th>½Ã°£</th>
-              <th>Ã¤³Î</th>
-              <th>¹æ</th>
-              <th>º¸³½ »ç¶÷</th>
-              <th>À¯Çü</th>
-              <th>³»¿ë</th>
-              <th>°ü¸®</th>
+              <th>ï¿½Ã°ï¿½</th>
+              <th>Ã¤ï¿½ï¿½</th>
+              <th>ï¿½ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½</th>
             </tr>
           </thead>
           <tbody id="chatLogList"></tbody>
@@ -307,7 +308,7 @@
     </div>
     <div id="logs" class="tab-content">
       <div class="card">
-        <h2>½Ã½ºÅÛ ·Î±×</h2>
+        <h2>ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½Î±ï¿½</h2>
         <div class="log-controls">
           <select id="logFileSelect"></select>
           <div class="filter-buttons" id="logLevelFilter">
@@ -316,14 +317,14 @@
             <button class="filter-btn" data-level="warn">Warn</button>
             <button class="filter-btn" data-level="error">Error</button>
           </div>
-          <input type="text" id="logSearchInput" placeholder="·Î±× ³»¿ë °Ë»ö...">
+          <input type="text" id="logSearchInput" placeholder="ï¿½Î±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½...">
         </div>
         <table>
           <thead>
             <tr>
-              <th>½Ã°£</th>
-              <th>·¹º§</th>
-              <th>¸Þ½ÃÁö</th>
+              <th>ï¿½Ã°ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½</th>
+              <th>ï¿½Þ½ï¿½ï¿½ï¿½</th>
             </tr>
           </thead>
           <tbody id="logList"></tbody>
@@ -332,20 +333,20 @@
       </div>
     </div>
   </div>
-  <!-- »ç¿ëÀÚ ·Î±× ¸ð´Þ -->
+  <!-- ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Î±ï¿½ ï¿½ï¿½ï¿½ -->
   <div id="userLogModal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 id="userLogModalTitle">»ç¿ëÀÚ ·Î±×</h3>
+        <h3 id="userLogModalTitle">ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Î±ï¿½</h3>
         <button class="modal-close-btn" onclick="closeUserLogModal()">&times;</button>
       </div>
       <div class="modal-body">
         <table>
           <thead>
             <tr>
-              <th>½Ã°£</th>
-              <th>·¹º§</th>
-              <th>È°µ¿ ³»¿ë</th>
+              <th>ï¿½Ã°ï¿½</th>
+              <th>ï¿½ï¿½ï¿½ï¿½</th>
+              <th>È°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½</th>
             </tr>
           </thead>
           <tbody id="userLogList"></tbody>
@@ -354,59 +355,59 @@
       </div>
     </div>
   </div>
-  <!-- °øÁö ÀÛ¼º ¸ð´Þ -->
+  <!-- ï¿½ï¿½ï¿½ï¿½ ï¿½Û¼ï¿½ ï¿½ï¿½ï¿½ -->
   <div id="noticeModal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>»õ °øÁö ÀÛ¼º</h3>
+        <h3>ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Û¼ï¿½</h3>
         <button class="modal-close-btn" onclick="closeNoticeModal()">&times;</button>
       </div>
       <div class="modal-body">
-        <input type="text" id="noticeTitle" placeholder="°øÁö Á¦¸ñ">
-        <textarea id="noticeContent" placeholder="°øÁö ³»¿ë"></textarea>
+        <input type="text" id="noticeTitle" placeholder="ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½">
+        <textarea id="noticeContent" placeholder="ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½"></textarea>
         <div class="file-input-wrapper">
           <input type="file" id="noticeFiles" multiple class="file-input-hidden">
-          <label for="noticeFiles" class="file-input-label">ÆÄÀÏ ¼±ÅÃ</label>
-          <span id="fileNameDisplay" class="file-name-display">¼±ÅÃµÈ ÆÄÀÏ ¾øÀ½</span>
+          <label for="noticeFiles" class="file-input-label">ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½</label>
+          <span id="fileNameDisplay" class="file-name-display">ï¿½ï¿½ï¿½Ãµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½</span>
         </div>
       </div>
       <div style="text-align: right; margin-top: 15px;">
-        <button class="action-btn btn-dismiss" onclick="closeNoticeModal()">Ãë¼Ò</button>
-        <button class="action-btn btn-resolve" onclick="createNotice()">ÀúÀå</button>
+        <button class="action-btn btn-dismiss" onclick="closeNoticeModal()">ï¿½ï¿½ï¿½</button>
+        <button class="action-btn btn-resolve" onclick="createNotice()">ï¿½ï¿½ï¿½ï¿½</button>
       </div>
     </div>
   </div>
-  <!-- °ü¸®ÀÚ ±ÇÇÑ ¸ð´Þ -->
+  <!-- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ -->
   <div id="adminPermissionModal" class="modal-overlay">
     <div class="modal-content admin-permission-modal">
       <div class="modal-header">
-        <h3>°ü¸®ÀÚ ±ÇÇÑ ¼³Á¤</h3>
+        <h3>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½</h3>
         <button class="modal-close-btn" onclick="closeAdminPermissionModal()">&times;</button>
       </div>
       <div class="modal-body">
         <div class="modal-section">
-          <label for="adminPermissionUserSearchInput">»ç¿ëÀÚ °Ë»ö</label>
+          <label for="adminPermissionUserSearchInput">ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½</label>
           <div class="modal-search-row">
-            <input type="text" id="adminPermissionUserSearchInput" placeholder="»ç¿ëÀÚ¸í ¶Ç´Â ID">
-            <button type="button" id="adminPermissionUserSearchBtn" class="action-btn btn-view">°Ë»ö</button>
+            <input type="text" id="adminPermissionUserSearchInput" placeholder="ï¿½ï¿½ï¿½ï¿½Ú¸ï¿½ ï¿½Ç´ï¿½ ID">
+            <button type="button" id="adminPermissionUserSearchBtn" class="action-btn btn-view">ï¿½Ë»ï¿½</button>
           </div>
           <div id="adminPermissionUserSearchResults" class="modal-search-results"></div>
         </div>
         <div id="adminPermissionSelection" class="admin-permission-selection" hidden>
           <div class="selected-user-summary">
-            <span id="adminPermissionSelectedUser">¼±ÅÃµÈ »ç¿ëÀÚ°¡ ¾ø½À´Ï´Ù.</span>
+            <span id="adminPermissionSelectedUser">ï¿½ï¿½ï¿½Ãµï¿½ ï¿½ï¿½ï¿½ï¿½Ú°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.</span>
           </div>
           <div class="modal-section role-select-row">
-            <label for="adminRoleSelect">°ü¸®ÀÚ ¿ªÇÒ</label>
+            <label for="adminRoleSelect">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½</label>
             <select id="adminRoleSelect">
-              <option value="admin">°ü¸®ÀÚ</option>
-              <option value="manager">¸Å´ÏÀú</option>
+              <option value="admin">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</option>
+              <option value="manager">ï¿½Å´ï¿½ï¿½ï¿½</option>
             </select>
-            <p class="modal-help">ºÎ¿©ÇÑ ±ÇÇÑ¿¡ µû¶ó Á¢±Ù °¡´ÉÇÑ ±â´ÉÀÌ ´Þ¶óÁý´Ï´Ù.</p>
+            <p class="modal-help">ï¿½Î¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ñ¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¶ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.</p>
           </div>
           <div class="modal-section">
             <div class="permission-toolbar">
-              <button type="button" id="adminPermissionSelectAllBtn" class="action-btn btn-view">ÀüÃ¼ ¼±ÅÃ</button>
+              <button type="button" id="adminPermissionSelectAllBtn" class="action-btn btn-view">ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½</button>
             </div>
             <div id="adminPermissionOptionList" class="permission-checkbox-grid"></div>
           </div>
@@ -414,15 +415,15 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" id="adminPermissionRemoveBtn" class="action-btn btn-delete">°ü¸®ÀÚ ÇØÁ¦</button>
+        <button type="button" id="adminPermissionRemoveBtn" class="action-btn btn-delete">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½</button>
         <div class="modal-footer-actions">
-          <button type="button" class="action-btn btn-dismiss" onclick="closeAdminPermissionModal()">Ãë¼Ò</button>
-          <button type="button" id="adminPermissionSaveBtn" class="action-btn btn-resolve">ÀúÀå</button>
+          <button type="button" class="action-btn btn-dismiss" onclick="closeAdminPermissionModal()">ï¿½ï¿½ï¿½</button>
+          <button type="button" id="adminPermissionSaveBtn" class="action-btn btn-resolve">ï¿½ï¿½ï¿½ï¿½</button>
         </div>
       </div>
     </div>
   </div>
-  <!-- °ü¸®ÀÚ ¾Ë¸² ¿µ¿ª -->
+  <!-- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ë¸ï¿½ ï¿½ï¿½ï¿½ï¿½ -->
   <div id="admin-alert" style="display:none; position:fixed; top:30px; right:30px; z-index:2000;">
     <span id="admin-alert-msg"></span>
     <button onclick="hideAdminAlert()" style="background:none; border:none; font-size:1.3rem;">&times;</button>
